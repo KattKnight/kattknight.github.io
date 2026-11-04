@@ -137,8 +137,9 @@ function selectEmail() {
 }
 
 // Contact form. Requests are sent through Web3Forms to katt.editing@gmail.com.
-// Paste the access key from web3forms.com here; until then the form offers email instead.
-const FORM_KEY = "";
+// Access key from web3forms.com (public by design; it only lets people send to this inbox).
+// If it's ever removed, the form offers email instead.
+const FORM_KEY = "20b02ff7-afcd-4a4c-a275-ee630797924b";
 const MY_EMAIL = "katt.editing@gmail.com";
 const form = document.getElementById("cform");
 const planSel = document.getElementById("f-plan");
