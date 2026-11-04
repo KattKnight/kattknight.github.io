@@ -56,7 +56,7 @@ if (!reduceMotion && "IntersectionObserver" in window) {
 // Reel: muted autoplay, live SMPTE timecode, sound toggle
 const reel = document.getElementById("reel");
 // Phones get a 640px reel (2 MB) instead of the 1280px one (6 MB)
-reel.src = window.matchMedia("(max-width: 760px)").matches ? "media/reel-sm.mp4" : "media/reel.mp4";
+reel.src = window.matchMedia("(max-width: 760px)").matches ? "media/showreel-sm.mp4" : "media/showreel.mp4";
 const tc = document.getElementById("tc"), scrub = document.getElementById("scrub");
 const pad = n => String(n).padStart(2, "0");
 function smpte(t) {
