@@ -218,6 +218,8 @@ section.block { padding-block: clamp(64px, 9vw, 112px) 0; }
 .price .amt { font: 400 52px/1 var(--display); letter-spacing: .01em; }
 .price .amt small { font: 500 15px/1 var(--body); color: var(--mute); margin-left: 6px; letter-spacing: 0; }
 .price .what { font-size: 15px; }
+.price .per { margin-top: -8px; font-size: 14px; color: var(--mute); }
+.price.lead .per { color: var(--cut); }
 .price ul { list-style: none; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--line); display: grid; gap: 10px; font-size: 14px; color: var(--mute); }
 .price li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px; }
 .price li::before { content: ""; width: 8px; height: 8px; margin-top: 7px; background: var(--cut); border-radius: 2px; }
@@ -394,27 +396,29 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
         <p>Prices in US dollars. Start with one episode, then move to a monthly plan if the clips work for you.</p>
       </div>
       <div class="prices">
-        <article class="price lead">
-          <div class="name"><span>Starter</span><em>Start here</em></div>
+        <article class="price">
+          <div class="name"><span>Starter</span></div>
           <div class="amt">$25<small>3 clips</small></div>
-          <p class="what">3 vertical clips cut from one episode or stream.</p>
+          <p class="per">$8.33 a clip</p>
+          <p class="what">3 vertical clips cut from one episode or stream. A good way to try me out.</p>
           <ul>
             <li>I pick the moments, or you send timestamps</li>
             <li>Hook title, word-by-word captions, b-roll where it helps</li>
             <li>Delivered in 48 hours as 1080×1920 MP4</li>
           </ul>
-          <a class="btn primary" href="#contact" data-plan="Starter: 3 clips for $25">Choose Starter</a>
+          <a class="btn" href="#contact" data-plan="Starter: 3 clips for $25">Choose Starter</a>
         </article>
-        <article class="price">
-          <div class="name"><span>Monthly</span></div>
-          <div class="amt">$99<small>/ month</small></div>
+        <article class="price lead">
+          <div class="name"><span>Monthly</span><em>Best value</em></div>
+          <div class="amt">$79<small>/ month</small></div>
+          <p class="per">$6.58 a clip. The same 12 clips as Starter orders would cost $100.</p>
           <p class="what">12 clips a month from your weekly episodes.</p>
           <ul>
             <li>Same caption style and branding on every clip</li>
             <li>Captions and post descriptions written for you</li>
             <li>Cancel any month</li>
           </ul>
-          <a class="btn" href="#contact" data-plan="Monthly: 12 clips for $99">Choose Monthly</a>
+          <a class="btn primary" href="#contact" data-plan="Monthly: 12 clips for $79">Choose Monthly</a>
         </article>
         <article class="price">
           <div class="name"><span>For agencies</span></div>
@@ -501,7 +505,7 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
             <select id="f-plan" name="plan">
               <option>A free sample clip</option>
               <option>Starter: 3 clips for $25</option>
-              <option>Monthly: 12 clips for $99</option>
+              <option>Monthly: 12 clips for $79</option>
               <option>Agency work, from $8 per clip</option>
               <option>Motion design or a long-form edit</option>
               <option value="custom">Something else (describe it)</option>
