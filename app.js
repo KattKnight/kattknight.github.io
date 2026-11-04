@@ -77,7 +77,9 @@ if (!reduceMotion) reel.play().catch(() => {});
 // The button shows the reel's current state: "Muted" until sound is turned on
 const soundBtn = document.getElementById("soundBtn"), soundLabel = document.getElementById("soundLabel");
 const iconMuted = document.getElementById("iconMuted"), iconSound = document.getElementById("iconSound");
+const REEL_VOLUME = 0.6; // showreel plays a bit quieter than full volume (1 = 100%)
 function setSound(on) {
+  reel.volume = REEL_VOLUME;
   reel.muted = !on;
   soundLabel.textContent = on ? "Sound on" : "Muted";
   iconMuted.hidden = on; iconSound.hidden = !on;
