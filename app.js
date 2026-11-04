@@ -74,12 +74,53 @@ function tick() {
 requestAnimationFrame(tick);
 if (!reduceMotion) reel.play().catch(() => {});
 
+// Sound fades in instead of starting at full level. Web Audio gain is used where possible
+// because iPhones ignore video.volume; otherwise the element volume is ramped.
+let audioCtx = null;
+const gains = new WeakMap();
+function gainFor(video) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  try {
+    if (!audioCtx) audioCtx = new AC();
+    if (!gains.has(video)) {
+      const g = audioCtx.createGain();
+      audioCtx.createMediaElementSource(video).connect(g).connect(audioCtx.destination);
+      gains.set(video, g);
+    }
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return gains.get(video);
+  } catch (e) { return null; }
+}
+const ramps = new WeakMap();
+function fadeIn(video, target, ms) {
+  const g = gainFor(video);
+  cancelAnimationFrame(ramps.get(video));
+  if (g) {
+    video.volume = 1;
+    const now = audioCtx.currentTime;
+    g.gain.cancelScheduledValues(now);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(target, now + ms / 1000);
+    return;
+  }
+  const start = performance.now();
+  video.volume = 0;
+  const step = t => {
+    const k = Math.min(1, (t - start) / ms);
+    video.volume = target * k * k;
+    if (k < 1) ramps.set(video, requestAnimationFrame(step));
+  };
+  ramps.set(video, requestAnimationFrame(step));
+}
+
 // The button shows the reel's current state: "Muted" until sound is turned on
 const soundBtn = document.getElementById("soundBtn"), soundLabel = document.getElementById("soundLabel");
 const iconMuted = document.getElementById("iconMuted"), iconSound = document.getElementById("iconSound");
 const REEL_VOLUME = 0.6; // showreel plays a bit quieter than full volume (1 = 100%)
+const FADE_MS = 1500;
 function setSound(on) {
-  reel.volume = REEL_VOLUME;
+  if (on) fadeIn(reel, REEL_VOLUME, FADE_MS);
   reel.muted = !on;
   soundLabel.textContent = on ? "Sound on" : "Muted";
   iconMuted.hidden = on; iconSound.hidden = !on;
@@ -104,6 +145,7 @@ function openClip(id) {
   pv.src = `media/${id}.mp4`;
   pTitle.textContent = `${w.kind} · ${w.fmt === "v" ? "9:16" : "16:9"} · ${w.fps}`;
   if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+  fadeIn(pv, 1, 800);
   pv.play().catch(() => {});
 }
 function closeClip() { pv.pause(); pv.removeAttribute("src"); pv.load(); dlg.close ? dlg.close() : dlg.removeAttribute("open"); }
