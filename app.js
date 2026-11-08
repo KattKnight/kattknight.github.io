@@ -223,22 +223,27 @@ function gainFor(video) {
   } catch (e) { return null; }
 }
 const ramps = new WeakMap();
+// Volume starts at 30% of the target (audible straight away, not a jump from silence) and rises
+// to the target along an S-curve: slow start, quicker middle, gentle landing.
+const FADE_FROM = 0.3;
+const sCurve = k => 0.5 - 0.5 * Math.cos(Math.PI * k); // 0 → 1, eased at both ends
 function fadeIn(video, target, ms) {
   const g = gainFor(video);
   cancelAnimationFrame(ramps.get(video));
+  const level = k => target * (FADE_FROM + (1 - FADE_FROM) * sCurve(k));
   if (g) {
     video.volume = 1;
     const now = audioCtx.currentTime;
+    const curve = new Float32Array(64).map((_, i) => level(i / 63));
     g.gain.cancelScheduledValues(now);
-    g.gain.setValueAtTime(0.0001, now);
-    g.gain.exponentialRampToValueAtTime(target, now + ms / 1000);
+    g.gain.setValueCurveAtTime(curve, now, ms / 1000);
     return;
   }
   const start = performance.now();
-  video.volume = 0;
+  video.volume = level(0);
   const step = t => {
     const k = Math.min(1, (t - start) / ms);
-    video.volume = target * k * k;
+    video.volume = level(k);
     if (k < 1) ramps.set(video, requestAnimationFrame(step));
   };
   ramps.set(video, requestAnimationFrame(step));
