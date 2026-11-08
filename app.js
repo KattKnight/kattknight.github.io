@@ -8,7 +8,7 @@ const CATS = [
   { id: "motion", short: "Motion", name: "Motion design & animation", note: "Lesson graphics, transitions, logo stings" },
   { id: "clips", short: "Clips", name: "Podcast & creator clips", note: "Vertical clips for Shorts, Reels and TikTok" },
   { id: "ads", short: "Ads & demos", name: "Trailers, demos & ads", note: "Short promos for a course, product or app" },
-  { id: "longform", short: "Long-form", name: "Long-form YouTube & gaming", note: "Full videos, cut for watch time" }
+  { id: "longform", short: "Long-form", name: "Long-form videos", note: "Full videos, cut for watch time" }
 ];
 const WORK = [
   { id: "podcast", cat: "clips", fmt: "v", kind: "Podcast clip", title: "Two-host podcast",
@@ -160,6 +160,23 @@ if (!reduceMotion && "IntersectionObserver" in window) {
   document.querySelectorAll(".thumb video").forEach(v => io.observe(v));
 }
 
+// Pricing tabs: Clips | Long-form
+const priceTabs = document.getElementById("priceTabs");
+function showPriceTab(t, focus) {
+  priceTabs.querySelectorAll(".tab").forEach(x => {
+    const on = x === t;
+    x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1;
+    document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+  });
+  if (focus) t.focus();
+}
+priceTabs.addEventListener("click", e => { const t = e.target.closest(".tab"); if (t) showPriceTab(t); });
+priceTabs.addEventListener("keydown", e => {
+  const tabs = [...priceTabs.querySelectorAll(".tab")], i = tabs.indexOf(document.activeElement);
+  if (i < 0 || !["ArrowRight", "ArrowLeft"].includes(e.key)) return;
+  e.preventDefault(); showPriceTab(tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length], true);
+});
+
 /* ---------- Showreel: muted autoplay, live SMPTE timecode, sound toggle ---------- */
 const reel = document.getElementById("reel");
 // Phones get a 640px reel (2 MB) instead of the 1280px one (6 MB)
@@ -288,7 +305,7 @@ const MY_EMAIL = "katt.editing@gmail.com";
 // Each question: id, title, optional hint, and options. An option can carry a price label,
 // and "skip" lists questions that its answer makes pointless (a fixed-price package needs no budget).
 const NEEDS = [
-  { v: "longform", label: "A long-form YouTube or gaming edit", sub: "Full video, 16:9" },
+  { v: "longform", label: "A long-form video edit", sub: "YouTube, podcast, course, 16:9" },
   { v: "clips", label: "Short clips from my podcast or stream", sub: "Shorts, Reels, TikTok" },
   { v: "motion", label: "Motion graphics or animation", sub: "Trailer, lesson graphics, logo" },
   { v: "ads", label: "A product demo or ad", sub: "App, course or brand promo" },
@@ -297,14 +314,17 @@ const NEEDS = [
 const AMOUNTS = {
   clips: { title: "How many clips?", opts: [
     { v: "1 free sample clip", label: "1 free sample clip first", sub: "Pay nothing yet", skip: ["budget"] },
-    { v: "Starter: 3 clips for $25", label: "3 clips", sub: "Starter · $25", skip: ["budget"] },
-    { v: "Monthly: 12 clips for $79", label: "12 clips a month", sub: "Monthly · $79", skip: ["budget"] },
-    { v: "Agency: batches at $8 per clip", label: "Ongoing batches for my clients", sub: "Agency · $8 a clip", skip: ["budget"] },
+    { v: "Try: 3 clips for $39", label: "3 clips", sub: "Try · $39", skip: ["budget"] },
+    { v: "Clips Monthly: 12 clips a month for $99", label: "12 clips a month", sub: "Monthly · $99", skip: ["budget"] },
+    { v: "Daily: 30 clips a month for $219", label: "30 clips a month", sub: "Daily · $219", skip: ["budget"] },
+    { v: "Agency: white-label from $8 a clip or $79 a video", label: "White-label work for my clients", sub: "Agency · from $8 a clip", skip: ["budget"] },
     { v: "Not sure yet", label: "Not sure yet" }
   ] },
-  longform: { title: "How long is the finished video?", opts: [
-    { v: "Under 10 minutes", label: "Under 10 minutes" }, { v: "10 to 20 minutes", label: "10 to 20 minutes" },
-    { v: "20 to 40 minutes", label: "20 to 40 minutes" }, { v: "Over 40 minutes", label: "Over 40 minutes" },
+  longform: { title: "How many videos?", opts: [
+    { v: "1 free sample edit", label: "A free sample first", sub: "I edit a short part of one video", skip: ["budget", "length"] },
+    { v: "Single: 1 video for $99", label: "1 video", sub: "Single · $99", skip: ["budget"] },
+    { v: "Long-form Monthly: 4 videos + 8 clips a month for $349", label: "4 videos + 8 clips a month", sub: "Monthly · $349", skip: ["budget"] },
+    { v: "Channel: 8 videos + 16 clips a month for $649", label: "8 videos + 16 clips a month", sub: "Channel · $649", skip: ["budget"] },
     { v: "Not sure yet", label: "Not sure yet" }
   ] },
   motion: { title: "How long is the piece?", opts: [
@@ -321,20 +341,29 @@ const STEPS = [
   { id: "need", title: "What do you need done?", opts: () => NEEDS },
   { id: "amount", title: () => (AMOUNTS[state.need] || {}).title, opts: () => (AMOUNTS[state.need] || {}).opts,
     text: () => state.need === "other" ? { title: "What do you need done?", hint: "One or two sentences.", ph: "A 60-second trailer for my course", max: 1000 } : null },
+  { id: "length", title: "How long is each finished video?", hint: "Agreed before I start, so the price is fixed.", opts: () => [
+    { v: "Up to 12 minutes", label: "Up to 12 minutes", sub: "Base price" },
+    { v: "13 to 20 minutes", label: "13 to 20 minutes", sub: "+$50 a video" },
+    { v: "21 to 30 minutes", label: "21 to 30 minutes", sub: "+$100 a video" },
+    { v: "Over 30 minutes", label: "Over 30 minutes", sub: "Quoted" },
+    { v: "Not sure yet", label: "Not sure yet" }
+  ] },
   { id: "deadline", title: "When do you need it?", opts: () => [
     { v: "Within 48 hours", label: "Within 48 hours" }, { v: "This week", label: "This week" },
     { v: "Within 2 weeks", label: "Within 2 weeks" }, { v: "No fixed date", label: "No fixed date" }
   ] },
   { id: "budget", title: "What's your budget?", hint: "US dollars. Rough is fine.", opts: () => [
-    { v: "Under $25", label: "Under $25" }, { v: "$25 to $80", label: "$25 to $80" }, { v: "$80 to $200", label: "$80 to $200" },
-    { v: "$200 to $500", label: "$200 to $500" }, { v: "Over $500", label: "Over $500" }, { v: "Not sure yet", label: "Not sure yet" }
+    { v: "Under $40", label: "Under $40" }, { v: "$40 to $100", label: "$40 to $100" }, { v: "$100 to $350", label: "$100 to $350" },
+    { v: "$350 to $650", label: "$350 to $650" }, { v: "Over $650", label: "Over $650" }, { v: "Not sure yet", label: "Not sure yet" }
   ] },
   { id: "link", title: "Got a link to the footage or your channel?", hint: "Optional.", link: true },
   { id: "contact", title: "Where should I reply?", hint: "I reply within a day.", contact: true }
 ];
 
 const state = {};
-let skipped = new Set();
+// The length question only applies to long-form orders (it sets the price band)
+function baseSkips() { return new Set(state.need === "longform" ? [] : ["length"]); }
+let skipped = new Set(["length"]);
 let history = [];
 let current = 0;
 
@@ -435,7 +464,7 @@ ofStage.addEventListener("click", e => {
     if (s.id === "need" && state.need !== o.v) { delete state.amount; }
     state[s.id] = o.v;
     // Recompute which later questions apply
-    skipped = new Set();
+    skipped = baseSkips();
     const amt = state.need && AMOUNTS[state.need] && AMOUNTS[state.need].opts.find(x => x.v === state.amount);
     (amt && amt.skip || []).forEach(id => skipped.add(id));
     ofStage.querySelectorAll(".option").forEach(b => b.setAttribute("aria-checked", String(b === opt)));
@@ -484,7 +513,7 @@ const needLabel = v => (NEEDS.find(n => n.v === v) || {}).label || v;
 function summary(d) {
   return [
     `Name: ${d.name}`, `Reply by: ${d.reply_via} ${d.reply_to}`, `Needs: ${d.need}`, `Amount: ${d.amount}`,
-    `Deadline: ${d.deadline}`, `Budget: ${d.budget}`, `Link: ${d.link || "(none)"}`
+    `Length: ${d.length || "(n/a)"}`, `Deadline: ${d.deadline}`, `Budget: ${d.budget}`, `Link: ${d.link || "(none)"}`
   ].join("\n");
 }
 function collect() {
@@ -495,6 +524,7 @@ function collect() {
     reply_to: clean(state.reach || "", 254),
     need: needLabel(state.need),
     amount: state.amount || "",
+    length: skipped.has("length") ? "" : (state.length || ""),
     deadline: state.deadline || "",
     budget: skipped.has("budget") ? "Package price" : (state.budget || ""),
     link: state.link || ""
@@ -558,12 +588,14 @@ function showFallback(d) {
 // answers "clips" and "3 clips", then the form opens on the deadline question.
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-need]"); if (!a) return;
-  state.need = a.dataset.need; history = [0]; skipped = new Set(); delete state.amount;
+  state.need = a.dataset.need; history = [0]; skipped = baseSkips(); delete state.amount;
   let to = 1;
   if (a.dataset.amount) {
-    state.amount = a.dataset.amount; history.push(1); to = 2;
+    state.amount = a.dataset.amount; history.push(1);
     const o = (AMOUNTS[state.need].opts || []).find(x => x.v === state.amount);
     (o && o.skip || []).forEach(id => skipped.add(id));
+    // The next question that applies (clip orders skip the video-length question)
+    to = nextIdFrom(1);
   }
   current = to; render();
 });

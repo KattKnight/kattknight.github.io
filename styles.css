@@ -213,6 +213,10 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .price li::before { content: ""; width: 8px; height: 8px; margin-top: 7px; background: var(--cut); border-radius: 2px; }
 .price .btn { margin-top: auto; align-self: stretch; }
 .price-note { margin-top: var(--s-5); font: var(--t-small); color: var(--mute); }
+.prices .price-note { grid-column: 1 / -1; margin-top: 0; }
+.ptabs { margin-bottom: var(--s-5); }
+/* Phones and tablets: most expensive first, then the recommended plan, then the cheap one */
+@media (max-width: 900px) { .prices .price.top { order: -2; } .prices .price.lead { order: -1; } }
 
 /* Quoted-per-project list under the price boxes */
 .quote-list { list-style: none; margin: var(--s-6) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-7); border-bottom: 1px solid var(--line); }

@@ -5,13 +5,13 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self'; media-src 'self'; connect-src https://api.web3forms.com; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Katt Editing: long-form YouTube edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
+<meta name="description" content="Katt Editing: long-form video edits, podcast clips, motion design and ads by Ayan. Clips from $39, long-form videos from $99. Free sample before you pay.">
 <meta name="theme-color" content="#0B0B0D">
 <title>Katt Editing</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="video.other">
 <meta property="og:title" content="Katt Editing: video editing and motion design">
-<meta property="og:description" content="Long-form YouTube edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
+<meta property="og:description" content="Long-form video edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
 <meta property="og:url" content="https://kattknight.github.io/">
 <meta property="og:image" content="https://kattknight.github.io/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -26,7 +26,7 @@
 <meta name="twitter:card" content="player">
 <meta name="twitter:site" content="@KattKnightOnX">
 <meta name="twitter:title" content="Katt Editing: video editing and motion design">
-<meta name="twitter:description" content="Long-form YouTube edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
+<meta name="twitter:description" content="Long-form video edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
 <meta name="twitter:image" content="https://kattknight.github.io/og.jpg">
 <meta name="twitter:player" content="https://kattknight.github.io/embed.html">
 <meta name="twitter:player:width" content="1280">
@@ -35,7 +35,7 @@
 <meta name="twitter:player:stream:content_type" content="video/mp4">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
-<link rel="stylesheet" href="styles.css?v=14">
+<link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
 
@@ -61,7 +61,7 @@
       <div class="hero-grid">
         <h1>Video edits and <em>motion graphics</em> for creators</h1>
         <div class="hero-side">
-          <p>I'm Ayan, a video editor in India. I edit YouTube videos, Shorts and Reels, trailers and logo animations.</p>
+          <p>I'm Ayan, a video editor in India. I edit long-form videos, Shorts and Reels, trailers and logo animations.</p>
           <div class="cta-row">
             <a class="btn btn-primary" href="#order">Get a free sample</a>
             <a class="btn" href="#work">See the work</a>
@@ -107,45 +107,92 @@
         <h2>Pricing</h2>
         <p>US dollars.</p>
       </div>
-      <div class="prices">
+      <div class="tabs ptabs" id="priceTabs" role="tablist" aria-label="Type of package">
+        <button type="button" class="tab" role="tab" id="ptab-clips" aria-controls="prices-clips" aria-selected="true">Clips</button>
+        <button type="button" class="tab" role="tab" id="ptab-longform" aria-controls="prices-longform" aria-selected="false" tabindex="-1">Long-form</button>
+      </div>
+
+      <div class="prices" id="prices-clips" role="tabpanel" aria-labelledby="ptab-clips">
         <article class="price">
-          <div class="name"><span>Starter clips</span></div>
-          <div class="amt">$25<small>3 clips</small></div>
-          <p class="per">$8.33 a clip</p>
+          <div class="name"><span>Try</span></div>
+          <div class="amt">$39<small>3 clips</small></div>
+          <p class="per">$13 a clip</p>
           <ul>
             <li>3 clips from one episode</li>
-            <li>Captions, hook title, b-roll</li>
+            <li>I pick the moments and write each hook</li>
             <li>Delivered in 48 hours</li>
           </ul>
-          <a class="btn" href="#order" data-need="clips" data-amount="Starter: 3 clips for $25">Choose Starter</a>
+          <a class="btn" href="#order" data-need="clips" data-amount="Try: 3 clips for $39">Try 3 clips</a>
         </article>
         <article class="price lead">
-          <div class="name"><span>Monthly clips</span><span class="badge">Best value</span></div>
-          <div class="amt">$79<small>/ month</small></div>
-          <p class="per">12 clips, $6.58 each</p>
+          <div class="name"><span>Monthly</span><span class="badge">Recommended</span></div>
+          <div class="amt">$99<small>/ month</small></div>
+          <p class="per">12 clips, $8.25 each · 36% less per clip than Try</p>
           <ul>
             <li>Same style on every clip</li>
-            <li>Post captions written for you</li>
+            <li>A hook and title for every clip</li>
+            <li>A posting order for the month</li>
             <li>Cancel any month</li>
           </ul>
-          <a class="btn btn-primary" href="#order" data-need="clips" data-amount="Monthly: 12 clips for $79">Choose Monthly</a>
+          <a class="btn btn-primary" href="#order" data-need="clips" data-amount="Clips Monthly: 12 clips a month for $99">Choose Monthly</a>
         </article>
-        <article class="price">
-          <div class="name"><span>For agencies</span></div>
-          <div class="amt">$8<small>per clip</small></div>
-          <p class="per">White-label</p>
+        <article class="price top">
+          <div class="name"><span>Daily</span></div>
+          <div class="amt">$219<small>/ month</small></div>
+          <p class="per">30 clips, $7.30 each</p>
           <ul>
-            <li>Your templates and brand</li>
-            <li>48-hour turnaround</li>
-            <li>Paid 10-clip trial first</li>
+            <li>One clip a day</li>
+            <li>Everything in Monthly</li>
+            <li>Your batch goes first in the queue</li>
+            <li>A monthly note: what worked, what to make next</li>
           </ul>
-          <a class="btn" href="#order" data-need="clips" data-amount="Agency: batches at $8 per clip">Ask about agency work</a>
+          <a class="btn" href="#order" data-need="clips" data-amount="Daily: 30 clips a month for $219">Choose Daily</a>
         </article>
       </div>
+
+      <div class="prices" id="prices-longform" role="tabpanel" aria-labelledby="ptab-longform" hidden>
+        <article class="price">
+          <div class="name"><span>Single</span></div>
+          <div class="amt">$99<small>1 video</small></div>
+          <p class="per">Up to 12 min finished</p>
+          <ul>
+            <li>Cut, b-roll, sound mix, colour</li>
+            <li>A title idea for the video</li>
+            <li>2 rounds of changes</li>
+          </ul>
+          <a class="btn" href="#order" data-need="longform" data-amount="Single: 1 video for $99">Order one video</a>
+        </article>
+        <article class="price lead">
+          <div class="name"><span>Monthly</span><span class="badge">Recommended</span></div>
+          <div class="amt">$349<small>/ month</small></div>
+          <p class="per">4 videos + 8 clips · Save $113</p>
+          <ul>
+            <li>4 videos, up to 12 min each</li>
+            <li>8 clips cut from them</li>
+            <li>Titles and a posting order for everything</li>
+            <li>2 rounds of changes per video</li>
+          </ul>
+          <a class="btn btn-primary" href="#order" data-need="longform" data-amount="Long-form Monthly: 4 videos + 8 clips a month for $349">Choose Monthly</a>
+        </article>
+        <article class="price top">
+          <div class="name"><span>Channel</span></div>
+          <div class="amt">$649<small>/ month</small></div>
+          <p class="per">8 videos + 16 clips · Save $49 vs two Monthly plans</p>
+          <ul>
+            <li>Everything in Monthly, doubled</li>
+            <li>Your videos go first in the queue</li>
+            <li>A monthly note: what worked, what to make next</li>
+          </ul>
+          <a class="btn" href="#order" data-need="longform" data-amount="Channel: 8 videos + 16 clips a month for $649">Choose Channel</a>
+        </article>
+        <p class="price-note">Videos up to 12 min. 13–20 min: +$50. 21–30 min: +$100. Longer: quoted.</p>
+      </div>
+
+      <p class="price-note">Rush delivery: +50%. Extra change rounds: 25% of the item's price, minimum $5.</p>
       <ul class="quote-list" aria-label="Quoted per project">
-        <li><span>Long-form edits</span><a class="btn btn-quiet" href="#order" data-need="longform">Get a quote</a></li>
         <li><span>Motion graphics</span><a class="btn btn-quiet" href="#order" data-need="motion">Get a quote</a></li>
         <li><span>Trailers and ads</span><a class="btn btn-quiet" href="#order" data-need="ads">Get a quote</a></li>
+        <li><span>Agencies: white-label from $8 a clip or $79 a video</span><a class="btn btn-quiet" href="#order" data-need="clips" data-amount="Agency: white-label from $8 a clip or $79 a video">Get a quote</a></li>
       </ul>
     </div>
   </section>
@@ -158,7 +205,7 @@
       <dl class="faq">
         <div><dt>Is the sample really free?</dt><dd>Yes. I edit a short part of your footage. You pay only if you want the full job.</dd></div>
         <div><dt>How do I pay?</dt><dd>PayPal or Wise, in US dollars, before I start. Monthly plans pay at the start of each month. See the <a href="terms.html">terms</a>.</dd></div>
-        <div><dt>How many changes do I get?</dt><dd>One round, back within 24 hours. Extra rounds cost 25% of the video's price (minimum $5).</dd></div>
+        <div><dt>How many changes do I get?</dt><dd>One round on clips, two on videos, back within 24 hours. Extra rounds cost 25% of the item's price (minimum $5).</dd></div>
         <div><dt>Who owns the finished video?</dt><dd>You do, once it's paid.</dd></div>
       </dl>
     </div>
@@ -224,7 +271,7 @@
   </div>
 </dialog>
 
-<script src="app.js?v=9"></script>
+<script src="app.js?v=11"></script>
 
 </body>
 </html>

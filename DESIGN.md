@@ -51,7 +51,7 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 
 ## Page order
 
-Header → hero and showreel → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Pricing → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
+Header → hero and showreel → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Pricing (tabs: Clips | Long-form, three boxes each; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
 
 ## Components
 
