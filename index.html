@@ -6,7 +6,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Katt Editing: long-form video edits, podcast clips, motion design and ads by Ayan. Clips from $39, long-form videos from $99. Free sample before you pay.">
-<meta name="theme-color" content="#0B0B0D">
+<meta name="theme-color" content="#15110D">
 <title>Katt Editing</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="video.other">
@@ -35,7 +35,7 @@
 <meta name="twitter:player:stream:content_type" content="video/mp4">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css?v=2">
-<link rel="stylesheet" href="styles.css?v=33">
+<link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body>
 
@@ -106,8 +106,8 @@
         <p>US dollars.</p>
       </div>
       <div class="tabs ptabs" id="priceTabs" role="tablist" aria-label="Type of package">
-        <button type="button" class="tab" role="tab" id="ptab-clips" aria-controls="prices-clips" aria-selected="true">Clips</button>
-        <button type="button" class="tab" role="tab" id="ptab-longform" aria-controls="prices-longform" aria-selected="false" tabindex="-1">Long-form</button>
+        <button type="button" class="tab" role="tab" id="ptab-clips" data-cat="clips" aria-controls="prices-clips" aria-selected="true">Clips</button>
+        <button type="button" class="tab" role="tab" id="ptab-longform" data-cat="longform" aria-controls="prices-longform" aria-selected="false" tabindex="-1">Long-form</button>
       </div>
 
       <div class="prices" id="prices-clips" role="tabpanel" aria-labelledby="ptab-clips">
@@ -270,7 +270,7 @@
   </div>
 </dialog>
 
-<script src="app.js?v=46"></script>
+<script src="app.js?v=47"></script>
 
 </body>
 </html>

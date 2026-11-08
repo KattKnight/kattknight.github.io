@@ -3,19 +3,25 @@
 
 /* ========== Tokens ========== */
 :root {
-  /* Colour: neutrals */
-  --ink: #0B0B0D;          /* page background */
-  --ink-2: #141417;        /* panels: cards, price boxes, the order form */
-  --ink-3: #1C1C21;        /* hover and pressed fill inside panels */
-  --line: #26262C;         /* hairlines and dividers (decoration only) */
-  --line-strong: #66646C;  /* borders people must see: inputs, options, secondary buttons (3.2:1) */
-  --fg: #F3F0E7;           /* level 1: everything people read: headings, sentences, list items, nav (17:1 on ink) */
-  --mute: #9C988D;         /* level 2: notes only: hints, per-clip maths, footer, step count (6.8:1 on ink) */
-  --faint: #85827A;        /* placeholders, disabled text (5.1:1 on ink) */
+  /* Colour: neutrals ("Darkroom": warm brown-black, like a film darkroom, not flat black) */
+  --ink: #15110D;          /* page background */
+  --ink-2: #1F1914;        /* panels: bands, the recommended price box, the order form */
+  --ink-3: #2A221B;        /* hover and pressed fill inside panels */
+  --line: #342A21;         /* hairlines and dividers (decoration only) */
+  --line-strong: #7A6A58;  /* borders people must see: inputs, options, secondary buttons (3.6:1, 3.3:1 on ink-2) */
+  --fg: #F4EBDD;           /* level 1: everything people read: headings, sentences, list items, nav (15.9:1 on ink) */
+  --mute: #B2A28C;         /* level 2: notes only: hints, per-clip maths, footer, step count (7.5:1 on ink) */
+  --faint: #8F8270;        /* placeholders, disabled text (5.0:1 on ink) */
   /* Colour: the one accent */
   --cut: #FFC21A;          /* Cut Yellow: primary buttons, selected state, progress, focus ring, key words */
   --cut-ink: #1A1400;      /* text and icons on yellow (11:1) */
-  --cut-soft: rgba(255, 194, 26, .12); /* selected option fill */
+  --cut-soft: rgba(255, 194, 26, .13); /* selected option fill */
+  /* Colour: timeline labels ("Earth": old film boxes and paper labels). Each type of work has its own clip colour.
+     Only on the work tabs, price tabs, a card's kind label and its video tag; never on buttons or text runs. */
+  --c-motion: #E3956C;     /* terracotta (7.9:1 on ink) */
+  --c-clips: #ACB977;      /* olive (8.9:1) */
+  --c-ads: #86B0D5;        /* faded denim, the one cool colour so Ads stays apart from Motion (8.2:1) */
+  --c-longform: #FFC21A;   /* Cut Yellow (11.6:1) */
   /* Colour: status */
   --bad: #FF7A66;          /* errors (7.7:1 on ink) */
   --ok: #5BD08A;           /* success (10:1 on ink) */
@@ -118,6 +124,14 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
 .tab:hover { color: var(--fg); }
 .tab[aria-selected="true"] { color: var(--fg); }
 .tab[aria-selected="true"]::after { background: var(--cut); }
+/* Timeline colours: a tab, card or before/after piece tagged with a type of work carries its colour */
+[data-cat="motion"] { --cat: var(--c-motion); }
+[data-cat="clips"] { --cat: var(--c-clips); }
+[data-cat="ads"] { --cat: var(--c-ads); }
+[data-cat="longform"] { --cat: var(--c-longform); }
+.tab[data-cat]::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 2px; background: var(--cat); vertical-align: 1px; }
+.tab[data-cat][aria-selected="true"]::after { background: var(--cat); }
+@media (max-width: 560px) { .tab[data-cat]::before { display: none; } }   /* phones: four tabs only just fit */
 @media (max-width: 560px) { .tabs { gap: var(--s-4); } }
 
 /* Logo: cat-head play mark + wordmark */
@@ -161,12 +175,16 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .thumb video, .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .thumb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 0 var(--cut); transition: box-shadow var(--fast); }
 .thumb:hover::after, .thumb:focus-visible::after { box-shadow: inset 0 0 0 2px var(--cut); }
-.tag { position: absolute; left: 10px; top: 10px; padding: 5px 8px; border-radius: var(--r-xs); background: rgba(11, 11, 13, .8); font: var(--t-meta); }
+.card[data-cat] .thumb::after { box-shadow: inset 0 -3px 0 var(--cat); }
+.card[data-cat] .thumb:hover::after, .card[data-cat] .thumb:focus-visible::after { box-shadow: inset 0 0 0 2px var(--cut), inset 0 -3px 0 var(--cat); }
+.tag { position: absolute; left: 10px; top: 10px; padding: 5px 8px; border-radius: var(--r-xs); background: rgba(21, 17, 13, .8); font: var(--t-meta); }
 .play { position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; border-radius: 50%; background: var(--cut); color: var(--cut-ink); display: grid; place-items: center; transition: transform var(--fast) var(--ease); }
 .play svg { width: 13px; height: 13px; margin-left: 3px; }
 .thumb:hover .play { transform: scale(1.08); }
 .card-text { display: grid; gap: var(--s-2); }
 .card .kind { font: 600 13px/1.2 var(--body); color: var(--cut); }
+[data-cat] .kind { color: var(--cat); }
+.card[data-cat] .tag { box-shadow: inset 3px 0 0 var(--cat); padding-left: 11px; }
 .card h4 { font: 600 17px/1.3 var(--body); }
 @media (max-width: 560px) { .card h4 { font-size: 15px; } }
 
@@ -361,7 +379,7 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .viewer-bar .tc b { color: var(--cut); font-weight: 400; }
 .scrub { flex: 1 1 200px; height: 3px; background: var(--line); border-radius: 2px; position: relative; overflow: hidden; }
 .scrub i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--cut); }
-.sound { position: absolute; right: max(14px, 2%); bottom: max(14px, 3%); min-height: 40px; background: rgba(11, 11, 13, .72); border-color: rgba(243, 240, 231, .25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 14px; }
+.sound { position: absolute; right: max(14px, 2%); bottom: max(14px, 3%); min-height: 40px; background: rgba(21, 17, 13, .72); border-color: rgba(243, 240, 231, .25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 14px; }
 @media (max-width: 560px) { .sound { min-height: 40px; padding: 0 14px; gap: 8px; font-size: 13px; right: 10px; bottom: 10px; } }
 
 /* Footer */
@@ -393,7 +411,7 @@ footer a { text-underline-offset: 3px; }
 
 /* ========== Clip player ========== */
 dialog.player { border: 0; padding: 0; background: transparent; color: var(--fg); max-width: min(92vw, 1100px); max-height: 92vh; width: 100%; }
-dialog.player::backdrop { background: rgba(5, 5, 6, .9); }
+dialog.player::backdrop { background: rgba(10, 8, 6, .9); }
 .player-inner { display: grid; gap: var(--s-3); justify-items: center; }
 .player video { display: block; max-width: 100%; max-height: 80vh; border-radius: var(--r); background: #000; }
 .player-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); }

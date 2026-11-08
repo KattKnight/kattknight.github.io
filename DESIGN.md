@@ -4,7 +4,7 @@ The full system (tokens, component previews, logo files) lives in the Claude app
 
 ## Direction
 
-The page looks like the dark interface of an editing app. The work is the brightest thing on screen, and Cut Yellow marks the one thing to do next.
+The page looks like the dark interface of an editing app in a darkroom: warm brown-black instead of flat black, cream text. The work is the brightest thing on screen, and Cut Yellow marks the one thing to do next.
 
 Not used: gradients, glass blur, drop shadows, emoji, stock photos, centred sections, invented numbers or testimonials.
 
@@ -12,17 +12,19 @@ Not used: gradients, glass blur, drop shadows, emoji, stock photos, centred sect
 
 | Token | Value | Use |
 |---|---|---|
-| `--ink` | #0B0B0D | Page |
-| `--ink-2` | #141417 | Panels: order form, recommended price box |
-| `--ink-3` | #1C1C21 | Hover inside panels |
-| `--line` | #26262C | Hairlines only |
-| `--line-strong` | #66646C | Borders on anything clickable (3.4:1) |
-| `--fg` | #F3F0E7 | Text (17:1) |
-| `--mute` | #9C988D | Secondary text (6.8:1) |
-| `--faint` | #85827A | Placeholders (5.1:1) |
+| `--ink` | #15110D | Page ("Darkroom" brown-black) |
+| `--ink-2` | #1F1914 | Panels: bands, order form, recommended price box |
+| `--ink-3` | #2A221B | Hover inside panels |
+| `--line` | #342A21 | Hairlines only |
+| `--line-strong` | #7A6A58 | Borders on anything clickable (3.6:1) |
+| `--fg` | #F4EBDD | Text (15.9:1) |
+| `--mute` | #B2A28C | Secondary text (7.5:1) |
+| `--faint` | #8F8270 | Placeholders (5.0:1) |
 | `--cut` | #FFC21A | Primary button, selected tab and answer, progress, focus, one headline word |
 | `--cut-ink` | #1A1400 | Text on yellow |
 | `--bad` / `--ok` | #FF7A66 / #5BD08A | Errors / sent |
+
+Timeline colours ("Earth"): each type of work has its own clip colour, like labels on an editing timeline. `--c-motion` #E3956C terracotta, `--c-clips` #ACB977 olive, `--c-ads` #86B0D5 faded denim, `--c-longform` #FFC21A Cut Yellow. Tag an element with `data-cat="motion|clips|ads|longform"` and it gets `--cat`. They appear only on the work and price tabs (dot and underline), a card's kind label, its video tag stripe and the line under its thumbnail. Never on buttons, headings or sentences.
 
 One yellow button per screen height. Dark only.
 

@@ -40,6 +40,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 function card(w) {
   const el = document.createElement("article");
   el.className = `card ${w.fmt === "v" ? "is-v" : "is-h"}`;
+  el.dataset.cat = w.cat;                                      // timeline colour (styles.css)
   el.innerHTML = `
     <button class="thumb" type="button" data-id="${w.id}" aria-label="Play ${esc(w.title)} with sound">
       <img src="media/${w.id}.jpg" alt="" loading="lazy">
@@ -56,7 +57,7 @@ function card(w) {
 
 function baCard(b, n) {
   const el = document.createElement("article");
-  el.className = "ba";
+  el.className = "ba"; el.dataset.cat = "longform";
   const seg = `<div class="ba-seg" role="radiogroup" aria-label="Show raw footage or the edit">
       <button type="button" role="radio" aria-checked="false" data-v="before"${b.ready ? "" : " disabled"}>Before</button>
       <button type="button" role="radio" aria-checked="true" data-v="after"${b.ready ? "" : " disabled"}>After</button>
@@ -118,7 +119,7 @@ CATS.forEach((c, i) => {
   workRoot.appendChild(panel);
 
   const t = document.createElement("button");
-  t.type = "button"; t.className = "tab"; t.id = `tab-${c.id}`; t.textContent = c.short;
+  t.type = "button"; t.className = "tab"; t.id = `tab-${c.id}`; t.textContent = c.short; t.dataset.cat = c.id;
   t.setAttribute("role", "tab"); t.setAttribute("aria-controls", panel.id);
   t.setAttribute("aria-selected", String(i === 0)); t.tabIndex = i === 0 ? 0 : -1;
   tabList.appendChild(t);
