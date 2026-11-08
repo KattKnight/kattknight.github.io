@@ -430,7 +430,7 @@ function render(dir) {
     body = `<div class="of-field"><label for="of-name">Your name</label>
         <input id="of-name" autocomplete="name" maxlength="100" value="${esc(state.name || "")}"></div>
       <div class="of-field"><span class="of-label" id="of-via-l">Reply by</span>
-        <div class="seg" role="radiogroup" aria-labelledby="of-via-l">
+        <div class="seg" role="radiogroup" aria-labelledby="of-via-l"><span class="seg-pill" aria-hidden="true"></span>
           ${[["email", "Email"], ["instagram", "Instagram"], ["x", "X"]].map(([v, l]) => `<button type="button" role="radio" class="seg-btn" data-via="${v}" aria-checked="${via === v}">${l}</button>`).join("")}
         </div>
         <input id="of-reach" maxlength="254" aria-label="Your email or handle" value="${esc(state.reach || "")}">
@@ -440,17 +440,57 @@ function render(dir) {
       <div class="of-actions"><button class="btn btn-primary" type="submit" id="of-send">Send request</button></div>
       <p class="of-note">Your answers go to my inbox and nowhere else. <a href="privacy.html">Privacy policy</a></p>`;
   }
+  const before = ofStage.offsetHeight;
   ofStage.innerHTML = `<div class="of-step ${dir ? "in-" + dir : ""}"><h3 id="of-q" tabindex="-1">${esc(title)}</h3>${(text ? text.hint : s.hint) ? `<p class="of-hint">${esc(text ? text.hint : s.hint)}</p>` : ""}${body}</div>`;
+  growTo(before);
+  advancing = false;
   updateProgress();
-  if (s.contact) syncVia();
+  if (s.contact) syncVia(true);
   const focusEl = ofStage.querySelector("textarea, input:not(.hp)") || ofStage.querySelector("#of-q");
   // On phones, don't pop the keyboard open on arrival; focus the question instead
   if (dir && focusEl) (window.matchMedia("(pointer: coarse)").matches ? ofStage.querySelector("#of-q") : focusEl).focus({ preventScroll: true });
 }
 
-function syncVia() {
+// The card animates from its old height to the new one instead of jumping, so nothing below it jolts
+function growTo(before) {
+  if (reduceMotion || !before) return;
+  const after = ofStage.scrollHeight;
+  if (Math.abs(after - before) < 2) return;
+  ofStage.style.height = before + "px";
+  ofStage.style.overflow = "hidden";
+  void ofStage.offsetHeight;                                   // start from the old height
+  ofStage.style.transition = "height .22s cubic-bezier(.2, .7, .2, 1)";
+  ofStage.style.height = after + "px";
+  const done = () => { ofStage.style.height = ""; ofStage.style.overflow = ""; ofStage.style.transition = ""; };
+  ofStage.addEventListener("transitionend", done, { once: true });
+  setTimeout(done, 320);
+}
+let advancing = false;
+
+// Reply-by switch: one pill slides between Email, Instagram and X. It follows the mouse while you
+// hover the options and slides back to the chosen one when the mouse leaves.
+function movePill(btn, instant) {
+  const seg = btn && btn.closest(".seg"); if (!seg) return;
+  const pill = seg.querySelector(".seg-pill");
+  if (instant) pill.style.transition = "none";
+  pill.style.width = btn.offsetWidth + "px";
+  pill.style.transform = `translateX(${btn.offsetLeft - 4}px)`;
+  seg.querySelectorAll(".seg-btn").forEach(b => b.classList.toggle("lit", b === btn));
+  if (instant) { void pill.offsetWidth; pill.style.transition = ""; }
+}
+const chosenSeg = () => ofStage.querySelector('.seg-btn[aria-checked="true"]');
+ofStage.addEventListener("pointerover", e => { const b = e.target.closest(".seg-btn"); if (b) movePill(b); });
+ofStage.addEventListener("pointerout", e => {
+  const seg = e.target.closest(".seg");
+  if (seg && !seg.contains(e.relatedTarget)) movePill(chosenSeg());
+});
+ofStage.addEventListener("focusin", e => { const b = e.target.closest(".seg-btn"); if (b) movePill(b); });
+ofStage.addEventListener("focusout", e => { if (e.target.closest(".seg-btn") && !(e.relatedTarget && e.relatedTarget.closest(".seg"))) movePill(chosenSeg()); });
+
+function syncVia(first) {
   const via = state.via || "email", reach = document.getElementById("of-reach");
   ofStage.querySelectorAll(".seg-btn").forEach(b => b.setAttribute("aria-checked", String(b.dataset.via === via)));
+  movePill(chosenSeg(), first);
   reach.type = via === "email" ? "email" : "text";
   reach.inputMode = via === "email" ? "email" : "text";
   reach.autocomplete = via === "email" ? "email" : "off";
@@ -474,6 +514,12 @@ function clean(v, max) {
 }
 function setErr(msg) { const e = document.getElementById("of-err"); if (e) e.textContent = msg; }
 
+// Instant feedback: an answer lights up the moment it's pressed, not when the finger lifts
+ofStage.addEventListener("pointerdown", e => { const o = e.target.closest(".option"); if (o) o.classList.add("pressing"); });
+["pointerup", "pointerleave", "pointercancel"].forEach(t => ofStage.addEventListener(t, e => {
+  const o = e.target.closest && e.target.closest(".option"); if (o) o.classList.remove("pressing");
+}, true));
+
 ofStage.addEventListener("click", e => {
   const s = STEPS[current];
   const opt = e.target.closest(".option");
@@ -485,9 +531,11 @@ ofStage.addEventListener("click", e => {
     skipped = baseSkips();
     const amt = state.need && AMOUNTS[state.need] && AMOUNTS[state.need].opts.find(x => x.v === state.amount);
     (amt && amt.skip || []).forEach(id => skipped.add(id));
+    if (advancing) return;                                     // a quick double tap can't skip a question
+    advancing = true;
     ofStage.querySelectorAll(".option").forEach(b => b.setAttribute("aria-checked", String(b === opt)));
     opt.classList.add("picked");
-    setTimeout(advance, reduceMotion ? 0 : 220);
+    setTimeout(advance, reduceMotion ? 0 : 120);               // just long enough to see the pick
     return;
   }
   if (e.target.closest(".seg-btn")) { state.via = e.target.closest(".seg-btn").dataset.via; syncVia(); document.getElementById("of-reach").focus(); return; }
@@ -552,8 +600,8 @@ function collect() {
 function checkContact(d) {
   if (!d.name) return ["of-name", "Add your name so I know who to reply to."];
   if (state.via === "instagram" || state.via === "x") {
-    if (!/^@?[A-Za-z0-9._]{1,30}$/.test(d.reply_to)) return ["of-reach", "Enter your handle, like @yourname."];
-  } else if (!/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(d.reply_to)) return ["of-reach", "Enter an email address like name@example.com."];
+    if (!/^@?[A-Za-z0-9._]{1,30}$/.test(d.reply_to)) return ["of-reach", "Enter your handle, like @yourhandle."];
+  } else if (!/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(d.reply_to)) return ["of-reach", "Enter an email address, like you@example.com."];
   return null;
 }
 
@@ -584,10 +632,12 @@ ofForm.addEventListener("submit", async e => {
 
 function showSent(d) {
   document.getElementById("ofTop").hidden = true;
+  const before = ofStage.offsetHeight;
   ofStage.innerHTML = `<div class="of-step of-done"><span class="done-mark" aria-hidden="true">${playIcon}</span><h3 tabindex="-1">Request sent</h3><p></p></div>`;
   ofStage.querySelector("p").textContent = d.reply_via === "Email"
     ? `Thanks, ${d.name}. I'll reply to ${d.reply_to} within a day.`
     : `Thanks, ${d.name}. I'll message ${d.reply_to} on ${d.reply_via} within a day.`;
+  growTo(before);
   ofStage.querySelector("h3").focus();
 }
 function showFallback(d) {

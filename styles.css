@@ -259,10 +259,10 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .of-progress i { display: block; height: 100%; width: 0; background: var(--cut); transition: width .3s var(--ease); }
 .of-count { font: var(--t-meta); color: var(--mute); min-width: 4ch; text-align: right; }
 .of-step { display: grid; gap: var(--s-4); }
-.of-step.in-fwd { animation: in-fwd .28s var(--ease); }
-.of-step.in-back { animation: in-back .28s var(--ease); }
-@keyframes in-fwd { from { opacity: 0; transform: translateX(24px); } }
-@keyframes in-back { from { opacity: 0; transform: translateX(-24px); } }
+.of-step.in-fwd { animation: in-fwd .18s var(--ease); }
+.of-step.in-back { animation: in-back .18s var(--ease); }
+@keyframes in-fwd { from { opacity: 0; transform: translateX(12px); } }
+@keyframes in-back { from { opacity: 0; transform: translateX(-12px); } }
 .of-step h3 { font: var(--t-h3); text-transform: uppercase; letter-spacing: .01em; outline: none; }
 .of-hint { color: var(--mute); margin-top: calc(var(--s-2) * -1); }
 .of-hint a { color: var(--fg); }
@@ -276,9 +276,11 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
   font: var(--t-body); cursor: pointer; transition: border-color var(--fast), background var(--fast);
 }
 .option:hover { border-color: var(--fg); background: var(--ink-3); }
-.option[aria-checked="true"], .option.picked { border-color: var(--cut); background: var(--cut-soft); }
+.option[aria-checked="true"], .option.picked, .option.pressing { border-color: var(--cut); background: var(--cut-soft); transition: none; }
+.option:active { transform: scale(.985); }
+.option, .btn, .tab, .seg-btn, .of-back { touch-action: manipulation; }
 .option-key { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r-xs); border: 1px solid var(--line-strong); font-size: 12px; color: var(--mute); }
-.option[aria-checked="true"] .option-key, .option.picked .option-key { background: var(--cut); border-color: var(--cut); color: var(--cut-ink); }
+.option[aria-checked="true"] .option-key, .option.picked .option-key, .option.pressing .option-key { background: var(--cut); border-color: var(--cut); color: var(--cut-ink); }
 .option-text { display: grid; gap: 2px; min-width: 0; }
 .option-text b { font-weight: 600; }
 .option-text small { font: var(--t-small); color: var(--mute); }
@@ -292,9 +294,12 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .of-field textarea { min-height: 120px; resize: vertical; }
 .of-field input::placeholder, .of-field textarea::placeholder { color: var(--faint); }
 .of-field input:focus, .of-field textarea:focus { outline: 2px solid var(--cut); outline-offset: 1px; border-color: transparent; }
-.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: var(--r-pill); border: 1px solid var(--line-strong); background: var(--ink); }
-.seg-btn { min-height: 40px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--mute); font: 600 14px/1 var(--body); cursor: pointer; }
-.seg-btn[aria-checked="true"] { background: var(--fg); color: var(--ink); }
+.seg { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: var(--r-pill); border: 1px solid var(--line-strong); background: var(--ink); }
+/* One pill slides under the options: it follows the mouse, then rests on the chosen one */
+.seg-pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: 0; border-radius: var(--r-pill); background: var(--fg);
+  transition: transform .24s cubic-bezier(.3, .9, .3, 1), width .24s cubic-bezier(.3, .9, .3, 1); pointer-events: none; }
+.seg-btn { position: relative; z-index: 1; min-height: 40px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--mute); font: 600 14px/1 var(--body); cursor: pointer; transition: color .18s; }
+.seg-btn.lit { color: var(--ink); }
 .of-err { font: var(--t-small); color: var(--bad); min-height: 0; }
 .of-err:empty { display: none; }
 .of-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-2); }
