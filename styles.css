@@ -498,6 +498,9 @@ footer a { text-underline-offset: 3px; }
   .mbar .btn { min-height: 44px; }
 }
 
+/* Overscroll gap waveform (app.js): a fixed canvas that only paints inside the gap the rubber band opens */
+.gap-wave { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 15; pointer-events: none; }
+
 /* ========== Clip player ========== */
 dialog.player { border: 0; padding: 0; background: transparent; color: var(--fg); max-width: min(92vw, 1100px); max-height: 92vh; width: 100%; }
 dialog.player::backdrop { background: rgba(10, 8, 6, .9); }

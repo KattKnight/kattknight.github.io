@@ -1010,7 +1010,53 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   const draw = () => {
     const t = Math.abs(x) < 0.05 ? "" : `translate3d(0, ${x.toFixed(2)}px, 0)`;
     for (const el of layers) el.style.transform = t;
+    gapWave(x);
   };
+
+  /* The gap an overscroll opens (under the header at the top, above the footer at the bottom) shows the same
+     audio track as the hero. A small pull shows a calm waveform; the further it's pulled, the more it freaks
+     out: bars jitter harder and taller, and near the limit they hit the top of the gap and "clip" in Cut
+     Yellow, like an audio meter peaking. It lives in a fixed canvas that only paints inside the gap. */
+  const gapCv = document.createElement("canvas"), gg = gapCv.getContext("2d");
+  gapCv.className = "gap-wave"; gapCv.setAttribute("aria-hidden", "true"); document.body.appendChild(gapCv);
+  const header = document.querySelector("header.top"), footer = document.querySelector("footer");
+  const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const rgbOf = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255].join(","); };
+  const G = { fg: rgbOf(cssv("--fg")), cut: rgbOf(cssv("--cut")), bar: rgbOf(cssv("--line-strong")) };
+  let gapW = 0, gapH = 0, gapAmp = [], gapOn = false;
+  function gapSize() {
+    const dpr = Math.min(2, devicePixelRatio || 1); gapW = innerWidth; gapH = innerHeight;
+    gapCv.width = Math.round(gapW * dpr); gapCv.height = Math.round(gapH * dpr); gg.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.ceil(gapW / 7); gapAmp = [];
+    for (let i = 0; i < n; i++) { const u = i / n; gapAmp.push(.25 + .75 * Math.abs(Math.sin(u * 37) * .5 + Math.sin(u * 113 + 1) * .3 + Math.sin(u * 7.3) * .35) * (.35 + .65 * Math.abs(Math.sin(u * 4.1 + .6)))); }
+  }
+  gapSize(); addEventListener("resize", gapSize);
+  function gapWave(pull) {
+    const size = Math.abs(pull);
+    if (size < 1) { if (gapOn) { gg.clearRect(0, 0, gapW, gapH); gapOn = false; } return; }
+    gapOn = true;
+    // Where the gap is on screen right now
+    let top;
+    if (pull > 0) top = header ? header.getBoundingClientRect().bottom : 0;
+    else top = (footer ? footer.getBoundingClientRect().top : gapH) - size;
+    const h = size, mid = top + h / 2, freak = Math.min(1, size / limit()), f2 = freak * freak;
+    const now = performance.now();
+    gg.clearRect(0, 0, gapW, gapH);
+    gg.save(); gg.beginPath(); gg.rect(0, top, gapW, h); gg.clip();
+    for (let i = 0; i < gapAmp.length; i++) {
+      const x0 = i * 7 + 3.5;
+      // Calm: the track breathes a little. Pulled hard: every bar jumps randomly and the whole row tears sideways
+      const calm = .55 + .2 * Math.sin(now / 260 + i * .45);
+      const wild = Math.random();
+      const v = Math.min(1, gapAmp[i] * (calm * (1 - f2) + wild * f2 * 1.25) * (.55 + .45 * freak));
+      const bh = Math.max(2, v * (h - 6));
+      const tear = f2 > .3 && Math.random() < f2 * .25 ? (Math.random() - .5) * 14 * f2 : 0;
+      const clip = v > .92 && freak > .55;
+      gg.fillStyle = clip ? `rgba(${G.cut},${.55 + .4 * freak})` : `rgba(${freak > .5 ? G.fg : G.bar},${.22 + .3 * freak})`;
+      gg.fillRect(Math.round(x0 - 1.5 + tear), Math.round(mid - bh / 2), 3, Math.round(bh));
+    }
+    gg.restore();
+  }
   function schedule() {
     raf = requestAnimationFrame(tick);
     timer = setTimeout(() => { cancelAnimationFrame(raf); tick(); }, 40);   // backup if frames stall
