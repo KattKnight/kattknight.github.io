@@ -790,12 +790,13 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   let edgeStart = 0, lastWheel = 0, ema = 0, shrinking = 0, spent = false, wasAtEdge = false;
   const GAP = 150, MAX_HOLD = 450;
   // Trackpad model
-  const PAD_HOLD = 220;       // ms: how slowly the pull drains while the fingers are moving
-  const PAD_BACK = 35;        // ms: how fast it drains once they stop or lift (back in about 0.2 s)
-  const PAD_IDLE = 30;        // ms without a step = the fingers have stopped
-  const PAD_COAST = 4;        // raw steps each a little smaller than the last, this many in a row = a momentum tail
+  const PAD_HOLD = 130;       // ms: how slowly the pull drains while the fingers are moving
+  const PAD_BACK = 22;        // ms: how fast it drains once they stop or lift (back in about 0.12 s)
+  const PAD_IDLE = 25;        // ms without a step = the fingers have stopped
+  const PAD_RATIO = 2.2;      // trackpad pull per px scrolled (stronger than the wheel's 1/3, since it drains faster)
+  const PAD_COAST = 3;        // momentum: the recent step size has stayed well under the gesture's usual size this many steps
   const PAD_IMPACT = 70;      // ms of a momentum tail that may still push, when it is what reaches the edge
-  let pad = false, padGesture = false, lastPad = 0, padAtEdge = false, padArrived = 0, prevStep = 0, decaying = 0;
+  let pad = false, padGesture = false, lastPad = 0, padAtEdge = false, padArrived = 0, fastE = 0, slowE = 0, falling = 0;
 
   const limit = () => innerHeight * REACH;
   const draw = () => {
@@ -810,9 +811,12 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     clearTimeout(timer);
     const now = performance.now(), dt = Math.min(48, Math.max(1, now - last)); last = now;
     if (pad) {
-      const idle = now - lastPad > PAD_IDLE, coasting = decaying >= PAD_COAST && now - padArrived > PAD_IMPACT;
-      target *= Math.exp(-dt / (idle || coasting ? PAD_BACK : PAD_HOLD));
-      x += (target - x) * (1 - Math.exp(-dt / SMOOTH));
+      const idle = now - lastPad > PAD_IDLE, coasting = falling >= PAD_COAST && now - padArrived > PAD_IMPACT;
+      // The surer it is that the fingers have lifted, the faster it drains: one dip in the step size
+      // (a wobbly finger) barely matters, a run of them (momentum) brings the page straight back.
+      const tau = idle || falling >= 5 ? PAD_BACK : falling >= PAD_COAST ? PAD_BACK * 2 : falling ? PAD_HOLD * 0.7 : PAD_HOLD;
+      target *= Math.exp(-dt / tau);
+      x += (target - x) * (1 - Math.exp(-dt / (idle || coasting ? SMOOTH * 0.6 : SMOOTH)));
       if (idle && Math.abs(target) < 0.3 && Math.abs(x) < 0.3) { x = 0; target = 0; pad = false; draw(); running = false; return; }
     } else if (back) {
       const k = Math.min(1, (now - back.start) / back.ms);
@@ -842,9 +846,11 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const prevEma = ema;
     ema = newGesture ? step : ema * 0.6 + step * 0.4;
     shrinking = newGesture ? 0 : (ema < prevEma * 0.985 ? shrinking + 1 : 0);
-    // A momentum tail shrinks by a steady few percent per step; finger steps jump around
-    decaying = !newGesture && step < prevStep && step > prevStep * 0.75 ? decaying + 1 : 0;
-    prevStep = step;
+    // Momentum: after the fingers lift the steps keep shrinking, so a quick average of the step size
+    // drops well below a slow one and stays there. Finger steps jump around both averages, and uneven
+    // momentum steps (rounding, frame timing) still pull the quick average down.
+    if (newGesture) { fastE = slowE = step; falling = 0; }
+    else { fastE = fastE * 0.4 + step * 0.6; slowE = slowE * 0.88 + step * 0.12; falling = fastE < slowE * 0.8 ? falling + 1 : 0; }
     // A gesture made of small steps is a trackpad; one made only of big notches is a mouse wheel
     if (newGesture) padGesture = false;
     if (step < 50) padGesture = true;
@@ -852,7 +858,7 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
     if (padGesture) {
       lastPad = now;
-      const atEdge = atTop || atBottom, coasting = decaying >= PAD_COAST;
+      const atEdge = atTop || atBottom, coasting = falling >= PAD_COAST;
       if (atEdge && !padAtEdge) padArrived = now;
       padAtEdge = atEdge;
       if (!atEdge) return;
@@ -862,7 +868,7 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
       clearTimeout(release); back = null; pad = true;
       const L = limit(), room = 1 - Math.min(1, Math.abs(target) / L);
       const kick = coasting ? 1.8 : 1;                              // arriving on momentum: a firmer bounce
-      target = Math.max(-L, Math.min(L, target - (dy / RATIO) * room * kick));
+      target = Math.max(-L, Math.min(L, target - (dy / PAD_RATIO) * room * kick));
       start();
       return;
     }
