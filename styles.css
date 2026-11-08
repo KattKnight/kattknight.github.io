@@ -7,6 +7,7 @@
   --ink: #15110D;          /* page background */
   --ink-2: #1F1914;        /* panels: bands, the recommended price box, the order form */
   --ink-3: #2A221B;        /* hover and pressed fill inside panels */
+  --bar: #251E18;          /* the header bar once the page scrolls: a step lighter than the page and the Work/FAQ bands, so it never blends in */
   --line: #342A21;         /* hairlines and dividers (decoration only) */
   --line-strong: #7A6A58;  /* borders people must see: inputs, options, secondary buttons (3.6:1, 3.3:1 on ink-2) */
   --fg: #F4EBDD;           /* level 1: everything people read: headings, sentences, list items, nav (15.9:1 on ink) */
@@ -157,7 +158,7 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
    either way, so nothing below it moves. */
 header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   background-color: transparent; border-bottom: 1px solid transparent; transition: background-color .2s var(--ease), border-color .2s var(--ease); }
-header.top.scrolled { background-color: var(--ink); border-bottom-color: var(--line); }
+header.top.scrolled { background-color: var(--bar); border-bottom-color: var(--line); }
 header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 71px; }
 /* The logo is bigger at the top of the page and shrinks back toward its own top-left corner once the page
    scrolls. Only the logo scales (a transform, so it takes no extra room): the links and button never move. */
