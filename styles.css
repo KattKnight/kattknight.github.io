@@ -349,6 +349,16 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 /* First screen: headline, text and buttons left, reel right; everything visible without scrolling.
    Below 1000px it stacks: headline, text, then the reel. */
 .hero { padding-block: clamp(32px, 6vw, 72px) var(--section); }
+/* Waveform behind the hero (app.js): an audio track whose playhead is the cursor. Desktop with a mouse only;
+   it fades out at every edge so it never meets the header or the Work band with a hard line. */
+.hero { position: relative; isolation: isolate; overflow: clip; }
+.hero > .wrap { position: relative; z-index: 1; }
+.hero-wave { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; display: none; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 80%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 80%, transparent);
+  mask-composite: intersect; }
+@media (min-width: 1000px) and (pointer: fine) { .hero-wave { display: block; } }
 .hero-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-6); }
 .hero-grid > .viewer { margin-top: var(--s-2); }
 @media (min-width: 1000px) {

@@ -43,7 +43,7 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 - Work cards: rows of equal height that fill the width (flex grows by aspect ratio `--ar`), so a 9:16 piece never sits alone beside empty space.
 - Inner radius = outer minus padding: form panel 16, options 8, option keys and video tags 4. Cards 12. Buttons are pills.
 - No shadows. Motion: 0.15s hovers, 0.28s form slides, all off with reduced motion.
-- **One motion on load, nothing that asks for attention.** The reel's poster shows instantly and the video fades in over it (0.6s); headline, text and reel ease up 10px once, 0.1s apart. No loaders, word pops, flashing or big overlay buttons. Sound only on request: the corner button says "Play with sound" / "Mute", and clicking the reel does the same.
+- **One motion on load, nothing that asks for attention.** The reel's poster shows instantly and the video fades in over it (0.6s); headline, text and reel ease up 10px once, 0.1s apart. No loaders, word pops, flashing or big overlay buttons. The one ambient piece is the hero waveform: an audio waveform behind the hero whose playhead is the cursor (bars near it swell yellow, the played part is brighter) and which follows the reel's progress when the cursor is elsewhere. Desktop with a mouse only, faded at every edge, paused off screen, a still frame with reduced motion. Sound only on request: the corner button says "Play with sound" / "Mute", and clicking the reel does the same.
 - **Bands, not lines:** Work and FAQ sit on `--ink-2`, the rest on `--ink`, so sections read as blocks without dividers.
 
 ## Copy

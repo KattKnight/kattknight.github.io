@@ -756,6 +756,63 @@ function cleanUrl() {
 }
 window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
+/* ---------- Hero waveform ----------
+   An audio waveform runs behind the hero like the showreel's sound track. The cursor is the playhead: bars
+   near it swell and turn yellow, and the part to its left (already "played") sits a shade brighter. With no
+   cursor over the hero, the playhead follows the showreel's own progress. Desktop with a mouse only (CSS
+   shows the canvas there); it stops drawing when the hero is off screen or the tab is hidden, and draws one
+   still frame for reduced motion. */
+(function heroWave() {
+  const cv = document.getElementById("heroWave");
+  if (!cv || getComputedStyle(cv).display === "none" && !matchMedia("(min-width: 1000px) and (pointer: fine)").matches) return;
+  const hero = cv.parentElement, g = cv.getContext("2d");
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const rgb = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255].join(","); };
+  const CUT = rgb(css("--cut")), BAR = rgb(css("--line-strong"));
+  const STEP = 7;                                  // px between bars
+  let W = 0, H = 0, amp = [], head = null, visible = true, raf = 0, last = 0;
+  const m = { x: 0, on: false };
+  function size() {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    W = hero.clientWidth; H = hero.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // A made-up but speech-like envelope: loud and quiet passages, fixed so it looks the same every visit
+    const n = Math.ceil(W / STEP); amp = [];
+    for (let i = 0; i < n; i++) { const x = i / n; amp.push(Math.abs(Math.sin(x * 37) * .5 + Math.sin(x * 113 + 1) * .3 + Math.sin(x * 7.3) * .35) * (.35 + .65 * Math.abs(Math.sin(x * 4.1 + .6)))); }
+  }
+  function draw(now) {
+    const dt = Math.min(50, now - (last || now)); last = now;
+    // Where the playhead wants to be: the cursor, or the reel's progress across the middle 80%
+    const prog = reel && reel.duration ? reel.currentTime / reel.duration : (now / 14000) % 1;
+    const want = m.on ? m.x : W * (.1 + .8 * prog);
+    head = head == null || (!m.on && Math.abs(want - head) > W * .3) ? want : head + (want - head) * (1 - Math.exp(-dt / 70));
+    g.clearRect(0, 0, W, H);
+    const mid = H * .56;
+    for (let i = 0; i < amp.length; i++) {
+      const x = i * STEP + STEP / 2, k = Math.max(0, 1 - Math.abs(x - head) / 120), e = k * k * (3 - 2 * k);
+      const h = amp[i] * H * .22 * (1 + e * .7) + 2;
+      g.fillStyle = e > .03 ? `rgba(${CUT},${.22 + .45 * e})` : `rgba(${BAR},${x < head ? .34 : .18})`;
+      g.fillRect(Math.round(x - 1.5), Math.round(mid - h / 2), 3, Math.round(h));
+    }
+    g.fillStyle = `rgba(${CUT},.75)`; g.fillRect(Math.round(head), Math.round(mid - H * .2), 2, Math.round(H * .4));
+  }
+  function loop(now) { draw(now); raf = visible && !document.hidden ? requestAnimationFrame(loop) : 0; }
+  function wake() { if (!raf && !reduceMotion && visible && !document.hidden) { last = 0; raf = requestAnimationFrame(loop); } }
+  addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse") return;
+    const r = hero.getBoundingClientRect();
+    m.x = e.clientX - r.left; m.on = e.clientY >= r.top && e.clientY <= r.bottom;
+    if (reduceMotion) draw(performance.now());
+  }, { passive: true });
+  document.documentElement.addEventListener("pointerleave", () => { m.on = false; });
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; wake(); }).observe(hero);
+  document.addEventListener("visibilitychange", wake);
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { size(); draw(performance.now()); }, 150); });
+  size();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { size(); draw(performance.now()); });   // hero height settles once fonts load
+  draw(performance.now()); wake();
+})();
+
 /* ---------- Rubber-band overscroll (mouse wheel and trackpads on Windows, Linux, ChromeOS) ----------
    Modelled on Android's OverScrollDecor (the "iOS-like overscroll" Ayan picked): past the top or
    bottom the page follows the scroll at a third of its distance, up to about 15% of the screen
