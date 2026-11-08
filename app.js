@@ -2,13 +2,12 @@
 // Style tokens and component rules live in styles.css and DESIGN.md.
 
 /* ---------- Work, grouped by type of work ---------- */
-// Every piece here exists in the Drive "Portfolio Pieces" folder. A category with no piece
-// shows an empty slot that asks for footage instead of filler.
+// Every piece here exists in the Drive "Portfolio Pieces" folder.
 const CATS = [
-  { id: "motion", short: "Motion", name: "Motion design & animation", note: "Lesson graphics, transitions, logo stings" },
-  { id: "clips", short: "Clips", name: "Podcast & creator clips", note: "Vertical clips for Shorts, Reels and TikTok" },
-  { id: "ads", short: "Ads & demos", name: "Trailers, demos & ads", note: "Short promos for a course, product or app" },
-  { id: "longform", short: "Long-form", name: "Long-form videos", note: "Full videos, cut for watch time" }
+  { id: "motion", short: "Motion" },
+  { id: "clips", short: "Clips" },
+  { id: "ads", short: "Ads & demos" },
+  { id: "longform", short: "Long-form" }
 ];
 const WORK = [
   { id: "podcast", cat: "clips", fmt: "v", kind: "Podcast clip", title: "Two-host podcast",
@@ -24,7 +23,6 @@ const WORK = [
   { id: "logo", cat: "motion", fmt: "h", kind: "Logo animation", title: "FurblowCraft logo sting",
     dur: "00:03", fps: "00:00:02:15" }
 ];
-const EMPTY = {};
 
 // Long-form pieces show as before/after: the same 60-90 second excerpt, raw and edited.
 // To add a piece: put media/<id>-before.mp4 (raw), media/<id>-after.mp4 (the edit) and
@@ -55,18 +53,10 @@ function card(w) {
     </div>`;
   return el;
 }
-function emptyCard(e) {
-  const el = document.createElement("article");
-  el.className = `card empty ${e.fmt === "v" ? "is-v" : "is-h"}`;
-  el.innerHTML = `
-    <div class="slot"><p>${e.text}</p>
-      <a class="btn btn-quiet" href="#order" data-need="${e.need}">Send footage</a></div>`;
-  return el;
-}
 
 function baCard(b, n) {
   const el = document.createElement("article");
-  el.className = "ba" + (b.ready ? "" : " ba-empty");
+  el.className = "ba";
   const seg = `<div class="ba-seg" role="radiogroup" aria-label="Show raw footage or the edit">
       <button type="button" role="radio" aria-checked="false" data-v="before"${b.ready ? "" : " disabled"}>Before</button>
       <button type="button" role="radio" aria-checked="true" data-v="after"${b.ready ? "" : " disabled"}>After</button>
@@ -124,7 +114,6 @@ CATS.forEach((c, i) => {
     panel.innerHTML = `<div class="work-grid"></div>`;
     const grid = panel.querySelector(".work-grid");
     items.forEach(w => grid.appendChild(card(w)));
-    if (!items.length && EMPTY[c.id]) grid.appendChild(emptyCard(EMPTY[c.id]));
   }
   workRoot.appendChild(panel);
 
@@ -393,10 +382,13 @@ const STEPS = [
     { v: "$350 to $650", label: "$350 to $650" }, { v: "Over $650", label: "Over $650" }, { v: "Not sure yet", label: "Not sure yet" }
   ] },
   { id: "link", title: "Got a link to the footage or your channel?", hint: "Optional.", link: true },
-  { id: "contact", title: "Where should I reply?", hint: "I reply within a day.", contact: true }
+  { id: "contact", title: "Where should I reply?", hint: () => state.pkg ? `${state.amount}. I reply within a day to get started.` : "I reply within a day.", contact: true }
 ];
 
 const state = {};
+// A package picked from a price box ("Choose Monthly") is a complete order: the form skips to the
+// contact step and names the package there.
+const PKG_SKIPS = ["length", "thumbs", "deadline", "budget", "link"];
 // The length question only applies to long-form orders (it sets the price band)
 function baseSkips() { return new Set(state.need === "longform" ? [] : ["length", "thumbs"]); }
 let skipped = new Set(["length", "thumbs"]);
@@ -425,8 +417,9 @@ function updateProgress() {
 function esc(t) { return String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 function stepMarkup(s, dir) {
-  const title = typeof s.title === "function" ? s.title() : s.title;
   const text = s.text && s.text();
+  const title = text ? text.title : typeof s.title === "function" ? s.title() : s.title;
+  const hint = text ? text.hint : typeof s.hint === "function" ? s.hint() : s.hint;
   let body = "";
   if (text) {
     body = `<div class="of-field"><textarea id="of-text" rows="4" maxlength="${text.max}" placeholder="${esc(text.ph)}" aria-describedby="of-err">${esc(state.amount || "")}</textarea>
@@ -457,7 +450,7 @@ function stepMarkup(s, dir) {
       <div class="of-actions"><button class="btn btn-primary" type="submit" id="of-send">Send request</button></div>
       <p class="of-note">Your answers go to my inbox and nowhere else. <a href="privacy.html">Privacy policy</a></p>`;
   }
-  return `<div class="of-step ${dir ? "in-" + dir : ""}"><h3 id="of-q" tabindex="-1">${esc(title)}</h3>${(text ? text.hint : s.hint) ? `<p class="of-hint">${esc(text ? text.hint : s.hint)}</p>` : ""}${body}</div>`;
+  return `<div class="of-step ${dir ? "in-" + dir : ""}"><h3 id="of-q" tabindex="-1">${esc(title)}</h3>${hint ? `<p class="of-hint">${esc(hint)}</p>` : ""}${body}</div>`;
 }
 
 function render(dir) {
@@ -492,6 +485,15 @@ function fitStage() {
       tallest = Math.max(tallest, probe.offsetHeight);
     }
   }
+  const savedAmount = state.amount, savedPkg = state.pkg;
+  state.pkg = true;
+  document.querySelectorAll("[data-amount]").forEach(a => {
+    state.amount = a.dataset.amount;
+    probe.innerHTML = stepMarkup(STEPS.find(st => st.contact));
+    probe.querySelectorAll(".of-err").forEach(e => { e.textContent = "Enter an email address, like you@example.com."; });
+    tallest = Math.max(tallest, probe.offsetHeight);
+  });
+  state.amount = savedAmount; state.pkg = savedPkg;
   state.need = saved;
   probe.remove();
   if (tallest) ofStage.style.height = Math.ceil(tallest) + 2 + "px";   // a hard height: rounding can't nudge the page
@@ -591,6 +593,7 @@ ofStage.addEventListener("click", e => {
     const o = s.opts()[+opt.dataset.i];
     if (s.id === "need" && state.need !== o.v) { delete state.amount; }
     state[s.id] = o.v;
+    state.pkg = false;                                         // answering by hand: ask every question that applies
     // Recompute which later questions apply
     skipped = baseSkips();
     const amt = state.need && AMOUNTS[state.need] && AMOUNTS[state.need].opts.find(x => x.v === state.amount);
@@ -654,9 +657,9 @@ function collect() {
     reply_to: clean(state.reach || "", 254),
     need: needLabel(state.need),
     amount: state.amount || "",
-    length: skipped.has("length") ? "" : (state.length || ""),
+    length: state.pkg && state.need === "longform" ? "Up to 20 minutes (package)" : skipped.has("length") ? "" : (state.length || ""),
     thumbnails: state.amount && state.amount.startsWith("Channel") ? "Included" : (skipped.has("thumbs") ? "" : (state.thumbs || "")),
-    deadline: state.deadline || "",
+    deadline: state.pkg ? "Package turnaround" : (state.deadline || ""),
     budget: skipped.has("budget") ? "Package price" : (state.budget || ""),
     link: state.link || ""
   };
@@ -715,18 +718,17 @@ function showFallback(d) {
   send.parentNode.after(box);
 }
 
-// Buttons elsewhere on the page pre-answer the first questions, e.g. "Choose Starter"
-// answers "clips" and "3 clips", then the form opens on the deadline question.
+// Buttons elsewhere on the page pre-answer the form. A package button ("Choose Monthly") answers
+// everything, so the form opens on the contact step; Back still leads to the package question.
+// A quote button ("Get a quote") answers the type of work and opens on the next question.
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-need]"); if (!a) return;
-  state.need = a.dataset.need; history = [0]; skipped = baseSkips(); delete state.amount;
+  state.need = a.dataset.need; history = [0]; skipped = baseSkips(); delete state.amount; state.pkg = false;
   let to = 1;
   if (a.dataset.amount) {
-    state.amount = a.dataset.amount; history.push(1);
-    const o = (AMOUNTS[state.need].opts || []).find(x => x.v === state.amount);
-    (o && o.skip || []).forEach(id => skipped.add(id));
-    // The next question that applies (clip orders skip the video-length question)
-    to = nextIdFrom(1);
+    state.amount = a.dataset.amount; state.pkg = true; history.push(1);
+    PKG_SKIPS.forEach(id => skipped.add(id));
+    to = STEPS.findIndex(st => st.contact);
   }
   current = to; render();
 });
