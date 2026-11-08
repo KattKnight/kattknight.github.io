@@ -719,11 +719,12 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
    height, then 70 ms after the last scroll step it comes straight back with a decelerate curve
    (fast first, soft landing): 200 ms for small pulls, up to ~400 ms for big ones. No overshoot.
    A wheel notch is smoothed over ~30 ms so it doesn't teleport. Apple devices bounce natively and
-   touch screens have their own effect, so this only runs for wheel input elsewhere. Header stays. */
+   touch screens have their own effect, so this only runs for wheel input elsewhere. The header and
+   footer stay put; only the content between them moves. */
 (function rubberBand() {
   const apple = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
   if (apple || reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
-  const layers = [document.querySelector("main"), document.querySelector("footer")];
+  const layers = [document.querySelector("main")];               // the footer stays anchored
   const RATIO = 3;            // page moves 1/3 of the scroll distance (OverScrollDecor's drag ratio)
   const REACH = 0.15;         // furthest pull: 15% of the window height
   const SMOOTH = 30;          // ms: how quickly the page catches up with the scroll
