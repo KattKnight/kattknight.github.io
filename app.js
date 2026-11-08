@@ -445,6 +445,7 @@ function stepMarkup(s, dir) {
 function render(dir) {
   const s = STEPS[current];
   ofStage.innerHTML = stepMarkup(s, dir);
+  sizeTiles();
   advancing = false;
   updateProgress();
   if (s.contact) syncVia(true);
@@ -477,8 +478,21 @@ function fitStage() {
   probe.remove();
   if (tallest) ofStage.style.minHeight = tallest + "px";
 }
+// Answer text is sized by eye to its tile: about a fifth of the tile height, 16 to 24 px. Bigger tiles
+// (fewer answers) get bigger text. If a label would overflow its tile, it steps down until it fits,
+// so the card never grows.
+function sizeTiles() {
+  const tiles = [...ofStage.querySelectorAll(".option")];
+  ofStage.style.setProperty("--fs", "16px");
+  if (!tiles.length) return;
+  const limit = parseFloat(ofStage.style.minHeight) || ofStage.offsetHeight;
+  let fs = Math.round(Math.min(24, Math.max(16, tiles[0].getBoundingClientRect().height * 0.2)));
+  const fits = () => ofStage.offsetHeight <= limit + 1 && tiles.every(t => t.scrollHeight <= t.clientHeight + 1);
+  ofStage.style.setProperty("--fs", fs + "px");
+  while (fs > 16 && !fits()) { fs--; ofStage.style.setProperty("--fs", fs + "px"); }
+}
 let fitWidth = 0;
-const refit = () => { if (ofStage.clientWidth !== fitWidth) { fitWidth = ofStage.clientWidth; fitStage(); } };
+const refit = () => { if (ofStage.clientWidth !== fitWidth) { fitWidth = ofStage.clientWidth; fitStage(); sizeTiles(); } };
 refit();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitWidth = 0; refit(); });
 addEventListener("resize", () => { clearTimeout(refit.t); refit.t = setTimeout(refit, 150); });
@@ -717,6 +731,11 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   const MIN_BACK = 200, MAX_BACK = 800;                          // bounce-back time scales with the pull
   const decelerate = t => 1 - (1 - t) * (1 - t);
   let x = 0, target = 0, back = null, raf = 0, timer = 0, release = 0, last = 0, running = false;
+  // Trackpads keep sending a "momentum" tail of shrinking scroll steps after the fingers lift.
+  // Once the steps shrink twice in a row (or one gesture has held for 450 ms), the gesture counts as
+  // over: the page comes back straight away and the rest of the tail is ignored.
+  let gestureStart = 0, lastWheel = 0, prevStep = 0, shrinking = 0, spent = false;
+  const GAP = 150, MAX_HOLD = 450;
 
   const limit = () => innerHeight * REACH;
   const draw = () => {
@@ -741,22 +760,33 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     schedule();
   }
   function start() { if (!running) { running = true; last = performance.now(); schedule(); } }
+  function comeBack() {
+    clearTimeout(release);
+    if (back || !x && !target) return;
+    back = { from: x, start: performance.now(), ms: Math.min(MAX_BACK, Math.max(MIN_BACK, Math.abs(x) / innerHeight * MAX_BACK * 2)) };
+    start();
+  }
 
   addEventListener("wheel", e => {
     if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || (e.target.closest && e.target.closest("dialog, textarea, .tabs"))) return;
     const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;        // lines → px for some mice
+    const now = performance.now();
+    if (now - lastWheel > GAP) { gestureStart = now; prevStep = 0; shrinking = 0; spent = false; }   // a new gesture
+    lastWheel = now;
+    const step = Math.abs(dy);
+    shrinking = step < prevStep ? shrinking + 1 : 0;
+    prevStep = step;
     const max = document.documentElement.scrollHeight - innerHeight;
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
     if (!atTop && !atBottom) return;
+    if (spent) return;                                               // momentum tail: ignore
+    if (shrinking >= 2 || now - gestureStart > MAX_HOLD) { spent = true; comeBack(); return; }
     if (back) { target = x; back = null; }                           // caught mid-return: carry on from here
     const L = limit();
     const room = 1 - Math.min(1, Math.abs(target) / L);              // soft stop as it nears the limit
     target = Math.max(-L, Math.min(L, target - (dy / RATIO) * room));
     clearTimeout(release);
-    release = setTimeout(() => {
-      back = { from: x, start: performance.now(), ms: Math.min(MAX_BACK, Math.max(MIN_BACK, Math.abs(x) / innerHeight * MAX_BACK * 2)) };
-      start();
-    }, RELEASE);
+    release = setTimeout(comeBack, RELEASE);
     start();
   }, { passive: true });
 })();

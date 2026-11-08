@@ -265,6 +265,10 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .of-stage > .of-step { flex: 1; grid-template-rows: auto auto 1fr; align-content: stretch; }
 .of-stage > .of-step:not(:has(.of-hint)) { grid-template-rows: auto 1fr; }
 .of-stage .of-options { grid-auto-rows: 1fr; align-content: stretch; }
+/* Text scales with the tile (--fs is set per question from the tile height, 16-24 px) */
+.of-stage .option-text b { font-size: var(--fs, 16px); line-height: 1.25; }
+.of-stage .option-text small { font-size: max(13px, calc(var(--fs, 16px) * .78)); }
+.of-stage .option-key { width: calc(var(--fs, 16px) * 1.75); height: calc(var(--fs, 16px) * 1.75); font-size: calc(var(--fs, 16px) * .72); }
 .of-stage > .of-step:not(:has(.of-options)) { grid-template-rows: none; align-content: start; }
 .of-step.in-fwd { animation: in-fwd .18s var(--ease); }
 .of-step.in-back { animation: in-back .18s var(--ease); }
