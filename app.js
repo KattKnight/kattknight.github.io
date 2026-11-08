@@ -342,9 +342,8 @@ const STEPS = [
   { id: "amount", title: () => (AMOUNTS[state.need] || {}).title, opts: () => (AMOUNTS[state.need] || {}).opts,
     text: () => state.need === "other" ? { title: "What do you need done?", hint: "One or two sentences.", ph: "A 60-second trailer for my course", max: 1000 } : null },
   { id: "length", title: "How long is each finished video?", hint: "Agreed before I start, so the price is fixed.", opts: () => [
-    { v: "Up to 12 minutes", label: "Up to 12 minutes", sub: "Base price" },
-    { v: "13 to 20 minutes", label: "13 to 20 minutes", sub: "+$50 a video" },
-    { v: "21 to 30 minutes", label: "21 to 30 minutes", sub: "+$100 a video" },
+    { v: "Up to 20 minutes", label: "Up to 20 minutes", sub: "Base price" },
+    { v: "21 to 30 minutes", label: "21 to 30 minutes", sub: "+$50 a video" },
     { v: "Over 30 minutes", label: "Over 30 minutes", sub: "Quoted" },
     { v: "Not sure yet", label: "Not sure yet" }
   ] },
