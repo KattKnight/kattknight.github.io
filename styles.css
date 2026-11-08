@@ -227,6 +227,10 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .price-note { margin-top: var(--s-5); font: var(--t-fine); color: var(--mute); }
 .prices .price-note { grid-column: 1 / -1; margin-top: 0; }
 .ptabs { margin-bottom: var(--s-5); }
+/* Both package panels share one grid cell: the section is as tall as the taller panel in either tab */
+.price-panels { display: grid; }
+.price-panels > .prices { grid-area: 1 / 1; }
+.price-panels > .prices.off { visibility: hidden; }
 /* Phones and tablets: most expensive first, then the recommended plan, then the cheap one */
 @media (max-width: 900px) { .prices .price.top { order: -2; } .prices .price.lead { order: -1; } }
 /* Phones: tighter boxes so the three plans take less scrolling */
@@ -402,6 +406,41 @@ footer a { text-underline-offset: 3px; }
   footer .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 var(--s-3); padding-block: var(--s-2); }
   footer nav { gap: 0; margin-right: -6px; justify-self: end; }
   footer nav a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 6px; }
+}
+
+/* ========== Phones: shorter page ==========
+   Rows of cards scroll sideways instead of stacking, FAQ answers open on tap, and notes the bottom bar
+   already says are dropped. Below 760px. */
+@media (max-width: 760px) {
+  /* Work: one swipeable row per tab; vertical pieces 300px tall, horizontal ones most of the screen wide */
+  .work-grid { flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    margin-inline: calc(var(--gutter) * -1); padding: 0 var(--gutter) var(--s-2); scroll-padding-inline: var(--gutter); gap: var(--s-3); }
+  .work-grid::-webkit-scrollbar { display: none; }
+  .work-grid .card { flex: none; max-width: none; scroll-snap-align: start; }
+  .work-grid .card.is-v { width: 169px; }
+  .work-grid .card.is-h { width: min(82vw, 340px); }
+  /* Packages: the three boxes sit side by side and swipe; the recommended one comes first, the next peeks in */
+  .prices { display: grid; grid-template-columns: repeat(3, min(82vw, 320px));
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: var(--s-3);
+    margin-inline: calc(var(--gutter) * -1); padding: 0 var(--gutter) var(--s-2); scroll-padding-inline: var(--gutter); align-items: stretch; }
+  .prices::-webkit-scrollbar { display: none; }
+  .prices .price { scroll-snap-align: start; }
+  .prices .price.lead { grid-area: 1 / 1; } .prices .price.top { grid-area: 1 / 2; } .prices .price:not(.lead):not(.top) { grid-area: 1 / 3; }
+  .prices .price-note { grid-area: 2 / 1; position: sticky; left: 0; width: calc(100vw - var(--gutter) * 2); }
+  /* FAQ: questions only until tapped */
+  .faq { gap: 0; padding-top: 0; }
+  .faq > div { border-bottom: 1px solid var(--line); }
+  .faq dt { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); min-height: 56px; cursor: pointer; }
+  .faq dt::after { content: "+"; font: 400 24px/1 var(--body); color: var(--mute); }
+  .faq dt[aria-expanded="true"]::after { content: "2"; }
+  .faq dd { display: none; margin: 0 0 var(--s-4); }
+  .faq dt[aria-expanded="true"] + dd { display: block; }
+  /* Said elsewhere on phones: the bottom bar repeats the hero note, the form itself shows the steps */
+  .hero-side .hero-note, .order .how { display: none; }
+  /* Order: heading, then the form, then the other ways to reach me */
+  .order-copy { display: contents; }
+  .order-grid > .of { order: 1; }
+  .order-alt { order: 2; }
 }
 
 /* Sticky order bar on phones: shows once the hero is off screen, hides at the form */

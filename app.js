@@ -150,13 +150,15 @@ if (!reduceMotion && "IntersectionObserver" in window) {
   document.querySelectorAll(".thumb video").forEach(v => io.observe(v));
 }
 
-// Pricing tabs: Clips | Long-form
+// Package tabs: Clips | Long-form. Both panels sit in the same grid cell, so the section is always as tall as
+// the taller one and switching tabs never moves the page below.
 const priceTabs = document.getElementById("priceTabs");
 function showPriceTab(t, focus) {
   priceTabs.querySelectorAll(".tab").forEach(x => {
     const on = x === t;
     x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1;
-    document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+    const p = document.getElementById(x.getAttribute("aria-controls"));
+    p.classList.toggle("off", !on); p.inert = !on;               // stays in layout, keeping the section's height
   });
   if (focus) t.focus();
 }
@@ -166,6 +168,25 @@ priceTabs.addEventListener("keydown", e => {
   if (i < 0 || !["ArrowRight", "ArrowLeft"].includes(e.key)) return;
   e.preventDefault(); showPriceTab(tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length], true);
 });
+
+// FAQ on phones: questions only, an answer opens on tap (styles.css hides the answers below 760px).
+// On wider screens every answer is open and the questions are plain text.
+const faqPhone = matchMedia("(max-width: 760px)");
+function setupFaq() {
+  document.querySelectorAll(".faq dt").forEach(dt => {
+    if (faqPhone.matches) { dt.setAttribute("role", "button"); dt.tabIndex = 0; if (!dt.hasAttribute("aria-expanded")) dt.setAttribute("aria-expanded", "false"); }
+    else { dt.removeAttribute("role"); dt.removeAttribute("tabindex"); dt.removeAttribute("aria-expanded"); }
+  });
+}
+document.addEventListener("click", e => {
+  const dt = e.target.closest && e.target.closest(".faq dt"); if (!dt || !faqPhone.matches) return;
+  dt.setAttribute("aria-expanded", String(dt.getAttribute("aria-expanded") !== "true"));
+});
+document.addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches(".faq dt[role=button]")) { e.preventDefault(); e.target.click(); }
+});
+faqPhone.addEventListener("change", setupFaq);
+setupFaq();
 
 /* ---------- Showreel: muted autoplay, live SMPTE timecode, sound toggle ---------- */
 const reel = document.getElementById("reel");
@@ -758,7 +779,7 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
 /* ---------- Hero waveform ----------
    An audio waveform runs behind the hero like the showreel's sound track. The cursor is the playhead: bars
-   near it swell and turn yellow, and the part to its left (already "played") sits a shade brighter. With no
+   near it swell and brighten a little (never yellow: yellow is for the headline word and buttons), and the part to its left (already "played") sits a shade brighter. With no
    cursor over the hero, the playhead follows the showreel's own progress. Desktop with a mouse only (CSS
    shows the canvas there); it stops drawing when the hero is off screen or the tab is hidden, and draws one
    still frame for reduced motion. */
@@ -768,7 +789,7 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   const hero = cv.parentElement, g = cv.getContext("2d");
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const rgb = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255].join(","); };
-  const CUT = rgb(css("--cut")), BAR = rgb(css("--line-strong"));
+  const FG = rgb(css("--fg")), BAR = rgb(css("--line-strong"));
   const STEP = 7;                                  // px between bars
   let W = 0, H = 0, amp = [], head = null, visible = true, raf = 0, last = 0;
   const m = { x: 0, on: false };
@@ -790,11 +811,11 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const mid = H * .56;
     for (let i = 0; i < amp.length; i++) {
       const x = i * STEP + STEP / 2, k = Math.max(0, 1 - Math.abs(x - head) / 120), e = k * k * (3 - 2 * k);
-      const h = amp[i] * H * .22 * (1 + e * .7) + 2;
-      g.fillStyle = e > .03 ? `rgba(${CUT},${.22 + .45 * e})` : `rgba(${BAR},${x < head ? .34 : .18})`;
+      const h = amp[i] * H * .2 * (1 + e * .45) + 2;
+      g.fillStyle = e > .03 ? `rgba(${FG},${.08 + .16 * e})` : `rgba(${BAR},${x < head ? .2 : .1})`;
       g.fillRect(Math.round(x - 1.5), Math.round(mid - h / 2), 3, Math.round(h));
     }
-    g.fillStyle = `rgba(${CUT},.75)`; g.fillRect(Math.round(head), Math.round(mid - H * .2), 2, Math.round(H * .4));
+    g.fillStyle = `rgba(${FG},.28)`; g.fillRect(Math.round(head), Math.round(mid - H * .18), 1, Math.round(H * .36));
   }
   function loop(now) { draw(now); raf = visible && !document.hidden ? requestAnimationFrame(loop) : 0; }
   function wake() { if (!raf && !reduceMotion && visible && !document.hidden) { last = 0; raf = requestAnimationFrame(loop); } }

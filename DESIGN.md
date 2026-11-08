@@ -43,20 +43,24 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 - Work cards: rows of equal height that fill the width (flex grows by aspect ratio `--ar`), so a 9:16 piece never sits alone beside empty space.
 - Inner radius = outer minus padding: form panel 16, options 8, option keys and video tags 4. Cards 12. Buttons are pills.
 - No shadows. Motion: 0.15s hovers, 0.28s form slides, all off with reduced motion.
-- **One motion on load, nothing that asks for attention.** The reel's poster shows instantly and the video fades in over it (0.6s); headline, text and reel ease up 10px once, 0.1s apart. No loaders, word pops, flashing or big overlay buttons. The one ambient piece is the hero waveform: an audio waveform behind the hero whose playhead is the cursor (bars near it swell yellow, the played part is brighter) and which follows the reel's progress when the cursor is elsewhere. Desktop with a mouse only, faded at every edge, paused off screen, a still frame with reduced motion. Sound only on request: the corner button says "Play with sound" / "Mute", and clicking the reel does the same.
+- **One motion on load, nothing that asks for attention.** The reel's poster shows instantly and the video fades in over it (0.6s); headline, text and reel ease up 10px once, 0.1s apart. No loaders, word pops, flashing or big overlay buttons. The one ambient piece is the hero waveform: an audio waveform behind the hero whose playhead is the cursor (bars near it brighten a little, the played part is a shade lighter; neutral grey, never yellow, so it never competes with the headline word or buttons) and which follows the reel's progress when the cursor is elsewhere. Desktop with a mouse only, faded at every edge, paused off screen, a still frame with reduced motion. Sound only on request: the corner button says "Play with sound" / "Mute", and clicking the reel does the same.
 - **Bands, not lines:** Work and FAQ sit on `--ink-2`, the rest on `--ink`, so sections read as blocks without dividers.
 
 ## Copy
 
-- Headings are one or two words: Work, Pricing, FAQ, Order.
+- Headings are one or two words: Work, Packages, FAQ, Order.
 - No description under a heading unless it adds a fact.
 - Card titles name the piece in a few words. No paragraph under them.
 - First person, short sentences, plain words.
 
 ## Page order
 
-Header → first screen (headline, text and buttons left, reel right; stacked below 1000px; everything visible without scrolling) → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Pricing (tabs: Clips | Long-form, three boxes each; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
+Header → first screen (headline, text and buttons left, reel right; stacked below 1000px; everything visible without scrolling) → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Packages (tabs: Clips | Long-form, three boxes each, both panels one height so switching never moves the page; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
 
 ## Components
 
 Button (primary, secondary, quiet) · Tabs · FAQ grid · BeforeAfter (Long-form: one player, Before | After switch, same timestamp; empty slots in one short row) · WorkCard and empty slot · PriceBox and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.
+
+## Phones (below 760px)
+
+Shorter page, same content: work cards and package boxes sit in swipeable rows (Recommended first, the next box peeking in), FAQ answers open on tap, the hero note and the three-step list are dropped (the bottom bar and the form say the same), and the order form comes before the other ways to get in touch.
