@@ -43,15 +43,15 @@ function card(w) {
   const el = document.createElement("article");
   el.className = `card ${w.fmt === "v" ? "is-v" : "is-h"}`;
   el.innerHTML = `
-    <button class="thumb" type="button" data-id="${w.id}" aria-label="Play ${w.title} with sound">
+    <button class="thumb" type="button" data-id="${w.id}" aria-label="Play ${esc(w.title)} with sound">
       <img src="media/${w.id}.jpg" alt="" loading="lazy">
       ${reduceMotion ? "" : `<video src="media/${w.id}-loop.mp4" muted loop playsinline preload="none" aria-hidden="true"></video>`}
       <span class="tag">${w.fmt === "v" ? "9:16" : "16:9"} · ${w.dur}</span>
       <span class="play">${playIcon}</span>
     </button>
     <div class="card-text">
-      <span class="kind">${w.kind}</span>
-      <h4>${w.title}</h4>
+      <span class="kind">${esc(w.kind)}</span>
+      <h4>${esc(w.title)}</h4>
     </div>`;
   return el;
 }
@@ -75,15 +75,15 @@ function baCard(b, n) {
     el.innerHTML = `
       <div class="ba-frame ba-slot"><span class="ba-label">Slot ${n}</span>
         <p>Coming soon: raw footage next to my edit.</p></div>
-      <div class="ba-bar"><div class="card-text"><span class="kind">${b.kind}</span><h4>${b.title}</h4></div>${seg}</div>`;
+      <div class="ba-bar"><div class="card-text"><span class="kind">${esc(b.kind)}</span><h4>${esc(b.title)}</h4></div>${seg}</div>`;
     return el;
   }
   el.innerHTML = `
     <div class="ba-frame">
-      <video controls playsinline preload="none" poster="media/${b.id}.jpg" src="media/${b.id}-after.mp4" aria-label="${b.title}, edited version"></video>
+      <video controls playsinline preload="none" poster="media/${b.id}.jpg" src="media/${b.id}-after.mp4" aria-label="${esc(b.title)}, edited version"></video>
       <span class="ba-label">After · edited</span>
     </div>
-    <div class="ba-bar"><div class="card-text"><span class="kind">${b.kind}</span><h4>${b.title}</h4></div>${seg}</div>`;
+    <div class="ba-bar"><div class="card-text"><span class="kind">${esc(b.kind)}</span><h4>${esc(b.title)}</h4></div>${seg}</div>`;
   const v = el.querySelector("video"), label = el.querySelector(".ba-label");
   el.querySelector(".ba-seg").addEventListener("click", e => {
     const btn = e.target.closest("button"); if (!btn || btn.getAttribute("aria-checked") === "true") return;
@@ -356,7 +356,8 @@ function updateProgress() {
   ofBar.style.width = `${(pos - 1) / list.length * 100 + 100 / list.length / 2}%`;
   ofBack.hidden = history.length === 0;
 }
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// Escapes text for HTML. A function declaration (hoisted) so the work cards, built earlier in this file, can use it too.
+function esc(t) { return String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 function render(dir) {
   const s = STEPS[current];
@@ -421,7 +422,7 @@ function advance() { go(nextIdFrom(current), "fwd"); }
 // that can disguise what a message or link says. Nothing typed is ever inserted as HTML.
 function clean(v, max) {
   return v.normalize("NFC")
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F​-‏‪-‮⁠-⁤⁦-⁩﻿]/g, "")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]/g, "")
     .trim().slice(0, max);
 }
 function setErr(msg) { const e = document.getElementById("of-err"); if (e) e.textContent = msg; }
@@ -518,7 +519,8 @@ ofForm.addEventListener("submit", async e => {
   const send = document.getElementById("of-send");
   send.disabled = true; send.textContent = "Sending...";
   const payload = {
-    access_key: FORM_KEY, subject: `New request: ${d.need} · ${d.amount}`, from_name: "Katt Editing website", ...d
+    access_key: FORM_KEY, subject: `New request: ${d.need} · ${d.amount}`.replace(/\s+/g, " ").slice(0, 80),
+    from_name: "Katt Editing website", botcheck: false, ...d
   };
   if (d.reply_via === "Email") payload.email = d.reply_to;
   try {
