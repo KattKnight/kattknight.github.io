@@ -692,39 +692,42 @@ function cleanUrl() {
 window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
 /* ---------- Rubber-band overscroll (mouse wheel and trackpads on Windows, Linux, ChromeOS) ----------
-   One spring, always active, like iOS: scrolling past the top or bottom pushes the page a little
-   (less for each extra notch), and the spring pulls it back the whole time, so it follows your scroll,
-   overshoots slightly and settles about 0.2 s after you stop. One physics loop draws every frame,
-   so nothing is left pulled and nothing jumps. Apple devices bounce natively and touch screens have
-   their own effect, so this only runs for wheel input elsewhere. Only the content moves, not the header. */
+   Scrolling past the top or bottom moves the page right away, against growing resistance. About 50 ms
+   after the last scroll step it eases back to rest along an S-curve (slow start, fast middle, soft
+   landing) in about 0.18 s. Scrolling again mid-return carries on from where it is, so nothing jumps.
+   Apple devices bounce natively and touch screens have their own effect, so this only runs for wheel
+   input elsewhere. Only the content moves, not the header. */
 (function rubberBand() {
   const apple = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
   if (apple || reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
   const layers = [document.querySelector("main"), document.querySelector("footer")];
-  const MAX = 80;                 // furthest the page can be pushed, px
-  const GAIN = 0.32;              // how much of each scroll step becomes pull (one wheel notch ≈ 30 px)
-  const K = 380;                  // spring stiffness: higher snaps back faster
-  const C = 2 * Math.sqrt(K);     // critical damping: returns without wobbling past zero
-  let x = 0, v = 0, raf = 0, timer = 0, last = 0, running = false;
+  const MAX = 80;        // furthest the page can be pushed, px
+  const GAIN = 0.32;     // share of each scroll step that becomes pull (one wheel notch ≈ 30 px)
+  const HOLD = 50;       // ms without scrolling before it returns
+  const BASE = 150, PER_PX = 1;     // return time: 150 ms + 1 ms per px pulled (≈ 0.18–0.23 s)
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // ease-in-out cubic (S-curve)
+  let x = 0, hold = 0, raf = 0, backup = 0, tween = null;
 
   const draw = () => {
     const t = Math.abs(x) < 0.05 ? "" : `translate3d(0, ${x.toFixed(2)}px, 0)`;
     for (const el of layers) el.style.transform = t;
   };
-  // Next frame from requestAnimationFrame, with a timer as backup: if frames stall (hidden tab,
-  // busy page), the timer keeps the spring moving, so the page can never stay pulled.
-  function schedule() {
-    raf = requestAnimationFrame(loop);
-    timer = setTimeout(() => { cancelAnimationFrame(raf); loop(performance.now()); }, 40);
-  }
-  function loop(now) {
-    clearTimeout(timer);
-    const dt = Math.min(0.032, Math.max(0, now - last) / 1000); last = now;
-    v += (-K * x - C * v) * dt;   // spring force toward 0, damped
-    x += v * dt;
-    if (Math.abs(x) < 0.05 && Math.abs(v) < 0.5) { x = 0; v = 0; draw(); running = false; return; }
+  const stop = () => { cancelAnimationFrame(raf); clearTimeout(backup); tween = null; };
+  // Frames from requestAnimationFrame, with a timer as backup so it always finishes, even if frames stall
+  function frame() {
+    clearTimeout(backup);
+    if (!tween) return;
+    const k = Math.min(1, (performance.now() - tween.start) / tween.ms);
+    x = tween.from * (1 - ease(k));
     draw();
-    schedule();
+    if (k >= 1) { x = 0; draw(); tween = null; return; }
+    raf = requestAnimationFrame(frame);
+    backup = setTimeout(() => { cancelAnimationFrame(raf); frame(); }, 40);
+  }
+  function release() {
+    if (!x) return;
+    tween = { from: x, start: performance.now(), ms: BASE + Math.abs(x) * PER_PX };
+    frame();
   }
 
   addEventListener("wheel", e => {
@@ -733,10 +736,12 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const max = document.documentElement.scrollHeight - innerHeight;
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
     if (!atTop && !atBottom) return;
+    stop();                                                           // grab it from wherever it is
     const room = 1 - Math.min(1, Math.abs(x) / MAX);                  // resistance grows near MAX
     x = Math.max(-MAX, Math.min(MAX, x - dy * GAIN * room * room));
     draw();                                                           // respond on this event, not next frame
-    if (!running) { running = true; last = performance.now(); schedule(); }
+    clearTimeout(hold);
+    hold = setTimeout(release, HOLD);
   }, { passive: true });
 })();
 
