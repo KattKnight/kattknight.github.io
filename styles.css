@@ -142,8 +142,18 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
 @media (max-width: 560px) { .tabs { gap: var(--s-4); } }
 
 /* Logo: cat-head play mark + wordmark */
-.mark { display: flex; align-items: center; gap: var(--s-3); text-decoration: none; }
-.mark svg { width: 26px; height: auto; display: block; }
+.mark { display: flex; align-items: center; gap: var(--s-3); text-decoration: none; color: var(--fg); }
+.mark svg { width: 30px; height: auto; display: block; }
+/* Logo: the name sits on an editing track. Four clips in the brand's own neutrals plus one Cut Yellow clip,
+   and a cream playhead through them, so the logo says "video editing" before anyone knows the name. */
+.mark-word { display: grid; gap: 5px; }
+.mark-track { position: relative; display: flex; gap: 2px; height: 5px; }
+.mark-track i { display: block; height: 100%; border-radius: 1px; }
+.mark-track i:nth-child(1) { flex: 22; background: #7A6A58; }
+.mark-track i:nth-child(2) { flex: 13; background: #B2A28C; }
+.mark-track i:nth-child(3) { flex: 33; background: #4A3D31; }
+.mark-track i:nth-child(4) { flex: 30; background: var(--cut); }
+.mark-track::after { content: ""; position: absolute; left: 30%; top: -3px; bottom: -3px; width: 2px; background: var(--fg); }
 .mark-name { font: 400 22px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; }
 .mark-name, header.top .btn { white-space: nowrap; }
 /* Phones: Bungee is wide, so the wordmark shrinks to keep it and the button on one line */
@@ -160,12 +170,7 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   background-color: transparent; border-bottom: 1px solid transparent; transition: background-color .2s var(--ease), border-color .2s var(--ease); }
 header.top.scrolled { background-color: var(--bar); border-bottom-color: var(--line); }
 header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 71px; }
-/* The logo is bigger at the top of the page and shrinks back toward its own top-left corner once the page
-   scrolls. Only the logo scales (a transform, so it takes no extra room): the links and button never move. */
-header.top .mark { transform-origin: 0 0; transition: transform .3s var(--ease); }
-header.top:not(.scrolled) .mark { transform: scale(1.45); }
-@media (max-width: 760px) { header.top:not(.scrolled) .mark { transform: scale(1.08); } }
-@media (max-width: 420px) { header.top:not(.scrolled) .mark { transform: none; } }   /* narrow phones: no room beside the button */
+
 nav.links { display: flex; align-items: center; gap: var(--s-6); }
 nav.links a:not(.btn) { text-decoration: none; font: 500 15px/1 var(--body); color: var(--fg); text-underline-offset: 6px; }
 nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color: var(--cut); }

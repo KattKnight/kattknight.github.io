@@ -1038,7 +1038,7 @@ addEventListener("scroll", setTopBar, { passive: true }); setTopBar();
   }
   gapSize(); addEventListener("resize", gapSize);
   function gapWave(pull) {
-    const size = Math.abs(pull);
+    const size = pull < 0 ? -pull : 0;                                   // bottom overscroll only; the top stays plain
     if (size < 1) { if (gapOn) { gg.clearRect(0, 0, gapW, gapH); gapOn = false; } return; }
     gapOn = true;
     // Where the gap is on screen right now
