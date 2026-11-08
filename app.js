@@ -459,6 +459,7 @@ function render(dir) {
 function fitStage() {
   const probe = document.createElement("div");
   probe.setAttribute("aria-hidden", "true");
+  probe.className = "of-stage";                                // same layout rules as the real card
   probe.style.cssText = `position:absolute;left:-9999px;top:0;visibility:hidden;width:${ofStage.clientWidth}px`;
   ofStage.parentNode.appendChild(probe);
   const saved = state.need;
@@ -699,46 +700,47 @@ function cleanUrl() {
 window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
 /* ---------- Rubber-band overscroll (mouse wheel and trackpads on Windows, Linux, ChromeOS) ----------
-   Each scroll step past the top or bottom eases the page out to its pull (growing resistance, never
-   more than MAX) in 90 ms, then straight back in the same 90 ms. A new step re-aims from wherever the
-   page is, so holding the scroll keeps it out and letting go brings it back at once. No physics, no
-   waiting: one predictable motion. Apple devices bounce natively and touch screens have their own
-   effect, so this only runs for wheel input elsewhere. The header stays still. */
+   Modelled on Android's OverScrollDecor (the "iOS-like overscroll" Ayan picked): past the top or
+   bottom the page follows the scroll at a third of its distance, up to about 15% of the screen
+   height, then 70 ms after the last scroll step it comes straight back with a decelerate curve
+   (fast first, soft landing): 200 ms for small pulls, up to ~400 ms for big ones. No overshoot.
+   A wheel notch is smoothed over ~30 ms so it doesn't teleport. Apple devices bounce natively and
+   touch screens have their own effect, so this only runs for wheel input elsewhere. Header stays. */
 (function rubberBand() {
   const apple = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
   if (apple || reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
   const layers = [document.querySelector("main"), document.querySelector("footer")];
-  const MAX = 70;        // furthest the page can be pulled, px
-  const GAIN = 0.3;      // share of each scroll step that becomes pull (one wheel notch ≈ 30 px)
-  const OUT = 90, BACK = 90;                                     // ms out, ms back: same speed both ways
-  const easeOut = t => 1 - Math.pow(1 - t, 3);
-  const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  let x = 0, phase = null, from = 0, peak = 0, start = 0, raf = 0, timer = 0;
+  const RATIO = 3;            // page moves 1/3 of the scroll distance (OverScrollDecor's drag ratio)
+  const REACH = 0.15;         // furthest pull: 15% of the window height
+  const SMOOTH = 30;          // ms: how quickly the page catches up with the scroll
+  const RELEASE = 70;         // ms without scrolling before it comes back
+  const MIN_BACK = 200, MAX_BACK = 800;                          // bounce-back time scales with the pull
+  const decelerate = t => 1 - (1 - t) * (1 - t);
+  let x = 0, target = 0, back = null, raf = 0, timer = 0, release = 0, last = 0, running = false;
 
+  const limit = () => innerHeight * REACH;
   const draw = () => {
     const t = Math.abs(x) < 0.05 ? "" : `translate3d(0, ${x.toFixed(2)}px, 0)`;
     for (const el of layers) el.style.transform = t;
   };
-  // Frames from requestAnimationFrame with a timer as backup, so it always finishes
   function schedule() {
     raf = requestAnimationFrame(tick);
-    timer = setTimeout(() => { cancelAnimationFrame(raf); tick(); }, 40);
+    timer = setTimeout(() => { cancelAnimationFrame(raf); tick(); }, 40);   // backup if frames stall
   }
   function tick() {
     clearTimeout(timer);
-    const now = performance.now();
-    if (phase === "out") {
-      const k = Math.min(1, (now - start) / OUT);
-      x = from + (peak - from) * easeOut(k);
-      if (k >= 1) { phase = "back"; from = x; start = now; }
-    } else if (phase === "back") {
-      const k = Math.min(1, (now - start) / BACK);
-      x = from * (1 - easeInOut(k));
-      if (k >= 1) { x = 0; phase = null; }
+    const now = performance.now(), dt = Math.min(48, Math.max(1, now - last)); last = now;
+    if (back) {
+      const k = Math.min(1, (now - back.start) / back.ms);
+      x = back.from * (1 - decelerate(k));
+      if (k >= 1) { x = 0; target = 0; back = null; draw(); running = false; return; }
+    } else {
+      x += (target - x) * (1 - Math.exp(-dt / SMOOTH));            // follow the scroll, smoothed
     }
     draw();
-    if (phase) schedule();
+    schedule();
   }
+  function start() { if (!running) { running = true; last = performance.now(); schedule(); } }
 
   addEventListener("wheel", e => {
     if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || (e.target.closest && e.target.closest("dialog, textarea, .tabs"))) return;
@@ -746,12 +748,16 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const max = document.documentElement.scrollHeight - innerHeight;
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
     if (!atTop && !atBottom) return;
-    const base = phase === "out" ? peak : x;                         // keep building while held
-    const room = 1 - Math.min(1, Math.abs(base) / MAX);              // resistance grows near MAX
-    peak = Math.max(-MAX, Math.min(MAX, base - dy * GAIN * room * room));
-    from = x; start = performance.now(); phase = "out";
-    cancelAnimationFrame(raf); clearTimeout(timer);
-    tick();                                                          // respond on this event
+    if (back) { target = x; back = null; }                           // caught mid-return: carry on from here
+    const L = limit();
+    const room = 1 - Math.min(1, Math.abs(target) / L);              // soft stop as it nears the limit
+    target = Math.max(-L, Math.min(L, target - (dy / RATIO) * room));
+    clearTimeout(release);
+    release = setTimeout(() => {
+      back = { from: x, start: performance.now(), ms: Math.min(MAX_BACK, Math.max(MIN_BACK, Math.abs(x) / innerHeight * MAX_BACK * 2)) };
+      start();
+    }, RELEASE);
+    start();
   }, { passive: true });
 })();
 

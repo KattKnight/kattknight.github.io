@@ -259,6 +259,13 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .of-progress i { display: block; height: 100%; width: 0; background: var(--cut); transition: width .3s var(--ease); }
 .of-count { font: var(--t-meta); color: var(--mute); min-width: 4ch; text-align: right; }
 .of-step { display: grid; gap: var(--s-4); }
+/* The card has one fixed height (the tallest question). Answer tiles stretch to fill it, so a
+   question with fewer answers gets taller tiles instead of empty space under them. */
+.of-stage { display: flex; flex-direction: column; }
+.of-stage > .of-step { flex: 1; grid-template-rows: auto auto 1fr; align-content: stretch; }
+.of-stage > .of-step:not(:has(.of-hint)) { grid-template-rows: auto 1fr; }
+.of-stage .of-options { grid-auto-rows: 1fr; align-content: stretch; }
+.of-stage > .of-step:not(:has(.of-options)) { grid-template-rows: none; align-content: start; }
 .of-step.in-fwd { animation: in-fwd .18s var(--ease); }
 .of-step.in-back { animation: in-back .18s var(--ease); }
 @keyframes in-fwd { from { opacity: 0; transform: translateX(12px); } }
