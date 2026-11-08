@@ -299,7 +299,8 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .seg-pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: 0; border-radius: var(--r-pill); background: var(--fg);
   transition: transform .24s cubic-bezier(.3, .9, .3, 1), width .24s cubic-bezier(.3, .9, .3, 1); pointer-events: none; }
 .seg-btn { position: relative; z-index: 1; min-height: 40px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--mute); font: 600 14px/1 var(--body); cursor: pointer; transition: color .18s; }
-.seg-btn.lit { color: var(--ink); }
+.seg-btn:hover { color: var(--fg); }
+.seg-btn.lit, .seg-btn.lit:hover { color: var(--ink); }
 .of-err { font: var(--t-small); color: var(--bad); min-height: 0; }
 .of-err:empty { display: none; }
 .of-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-2); }

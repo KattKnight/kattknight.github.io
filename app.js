@@ -406,8 +406,7 @@ function updateProgress() {
 // Escapes text for HTML. A function declaration (hoisted) so the work cards, built earlier in this file, can use it too.
 function esc(t) { return String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
-function render(dir) {
-  const s = STEPS[current];
+function stepMarkup(s, dir) {
   const title = typeof s.title === "function" ? s.title() : s.title;
   const text = s.text && s.text();
   let body = "";
@@ -440,9 +439,12 @@ function render(dir) {
       <div class="of-actions"><button class="btn btn-primary" type="submit" id="of-send">Send request</button></div>
       <p class="of-note">Your answers go to my inbox and nowhere else. <a href="privacy.html">Privacy policy</a></p>`;
   }
-  const before = ofStage.offsetHeight;
-  ofStage.innerHTML = `<div class="of-step ${dir ? "in-" + dir : ""}"><h3 id="of-q" tabindex="-1">${esc(title)}</h3>${(text ? text.hint : s.hint) ? `<p class="of-hint">${esc(text ? text.hint : s.hint)}</p>` : ""}${body}</div>`;
-  growTo(before);
+  return `<div class="of-step ${dir ? "in-" + dir : ""}"><h3 id="of-q" tabindex="-1">${esc(title)}</h3>${(text ? text.hint : s.hint) ? `<p class="of-hint">${esc(text ? text.hint : s.hint)}</p>` : ""}${body}</div>`;
+}
+
+function render(dir) {
+  const s = STEPS[current];
+  ofStage.innerHTML = stepMarkup(s, dir);
   advancing = false;
   updateProgress();
   if (s.contact) syncVia(true);
@@ -451,24 +453,38 @@ function render(dir) {
   if (dir && focusEl) (window.matchMedia("(pointer: coarse)").matches ? ofStage.querySelector("#of-q") : focusEl).focus({ preventScroll: true });
 }
 
-// The card animates from its old height to the new one instead of jumping, so nothing below it jolts
-function growTo(before) {
-  if (reduceMotion || !before) return;
-  const after = ofStage.scrollHeight;
-  if (Math.abs(after - before) < 2) return;
-  ofStage.style.height = before + "px";
-  ofStage.style.overflow = "hidden";
-  void ofStage.offsetHeight;                                   // start from the old height
-  ofStage.style.transition = "height .22s cubic-bezier(.2, .7, .2, 1)";
-  ofStage.style.height = after + "px";
-  const done = () => { ofStage.style.height = ""; ofStage.style.overflow = ""; ofStage.style.transition = ""; };
-  ofStage.addEventListener("transitionend", done, { once: true });
-  setTimeout(done, 320);
+// One fixed height for every question: each one is laid out in a hidden copy of the card at the
+// current width (every answer list, with an error line showing), and the card takes the tallest.
+// Nothing below the form moves while someone answers. Re-measured when the width changes.
+function fitStage() {
+  const probe = document.createElement("div");
+  probe.setAttribute("aria-hidden", "true");
+  probe.style.cssText = `position:absolute;left:-9999px;top:0;visibility:hidden;width:${ofStage.clientWidth}px`;
+  ofStage.parentNode.appendChild(probe);
+  const saved = state.need;
+  let tallest = 0;
+  for (const need of [undefined, ...NEEDS.map(n => n.v)]) {
+    state.need = need;
+    for (const st of STEPS) {
+      if (st.id === "amount" && !need) continue;
+      probe.innerHTML = stepMarkup(st);
+      probe.querySelectorAll(".of-err").forEach(e => { e.textContent = "Enter an email address, like you@example.com."; });
+      tallest = Math.max(tallest, probe.offsetHeight);
+    }
+  }
+  state.need = saved;
+  probe.remove();
+  if (tallest) ofStage.style.minHeight = tallest + "px";
 }
+let fitWidth = 0;
+const refit = () => { if (ofStage.clientWidth !== fitWidth) { fitWidth = ofStage.clientWidth; fitStage(); } };
+refit();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitWidth = 0; refit(); });
+addEventListener("resize", () => { clearTimeout(refit.t); refit.t = setTimeout(refit, 150); });
 let advancing = false;
 
-// Reply-by switch: one pill slides between Email, Instagram and X. It follows the mouse while you
-// hover the options and slides back to the chosen one when the mouse leaves.
+// Reply-by switch: one pill sits on the chosen option and slides only when another one is chosen.
+// Hovering just brightens the label, so the pill always matches what the box below asks for.
 function movePill(btn, instant) {
   const seg = btn && btn.closest(".seg"); if (!seg) return;
   const pill = seg.querySelector(".seg-pill");
@@ -479,13 +495,6 @@ function movePill(btn, instant) {
   if (instant) { void pill.offsetWidth; pill.style.transition = ""; }
 }
 const chosenSeg = () => ofStage.querySelector('.seg-btn[aria-checked="true"]');
-ofStage.addEventListener("pointerover", e => { const b = e.target.closest(".seg-btn"); if (b) movePill(b); });
-ofStage.addEventListener("pointerout", e => {
-  const seg = e.target.closest(".seg");
-  if (seg && !seg.contains(e.relatedTarget)) movePill(chosenSeg());
-});
-ofStage.addEventListener("focusin", e => { const b = e.target.closest(".seg-btn"); if (b) movePill(b); });
-ofStage.addEventListener("focusout", e => { if (e.target.closest(".seg-btn") && !(e.relatedTarget && e.relatedTarget.closest(".seg"))) movePill(chosenSeg()); });
 
 function syncVia(first) {
   const via = state.via || "email", reach = document.getElementById("of-reach");
@@ -632,12 +641,10 @@ ofForm.addEventListener("submit", async e => {
 
 function showSent(d) {
   document.getElementById("ofTop").hidden = true;
-  const before = ofStage.offsetHeight;
   ofStage.innerHTML = `<div class="of-step of-done"><span class="done-mark" aria-hidden="true">${playIcon}</span><h3 tabindex="-1">Request sent</h3><p></p></div>`;
   ofStage.querySelector("p").textContent = d.reply_via === "Email"
     ? `Thanks, ${d.name}. I'll reply to ${d.reply_to} within a day.`
     : `Thanks, ${d.name}. I'll message ${d.reply_to} on ${d.reply_via} within a day.`;
-  growTo(before);
   ofStage.querySelector("h3").focus();
 }
 function showFallback(d) {
@@ -692,42 +699,45 @@ function cleanUrl() {
 window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
 /* ---------- Rubber-band overscroll (mouse wheel and trackpads on Windows, Linux, ChromeOS) ----------
-   Scrolling past the top or bottom moves the page right away, against growing resistance. About 50 ms
-   after the last scroll step it eases back to rest along an S-curve (slow start, fast middle, soft
-   landing) in about 0.18 s. Scrolling again mid-return carries on from where it is, so nothing jumps.
-   Apple devices bounce natively and touch screens have their own effect, so this only runs for wheel
-   input elsewhere. Only the content moves, not the header. */
+   Each scroll step past the top or bottom eases the page out to its pull (growing resistance, never
+   more than MAX) in 90 ms, then straight back in the same 90 ms. A new step re-aims from wherever the
+   page is, so holding the scroll keeps it out and letting go brings it back at once. No physics, no
+   waiting: one predictable motion. Apple devices bounce natively and touch screens have their own
+   effect, so this only runs for wheel input elsewhere. The header stays still. */
 (function rubberBand() {
   const apple = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
   if (apple || reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
   const layers = [document.querySelector("main"), document.querySelector("footer")];
-  const MAX = 80;        // furthest the page can be pushed, px
-  const GAIN = 0.32;     // share of each scroll step that becomes pull (one wheel notch ≈ 30 px)
-  const HOLD = 50;       // ms without scrolling before it returns
-  const BASE = 150, PER_PX = 1;     // return time: 150 ms + 1 ms per px pulled (≈ 0.18–0.23 s)
-  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // ease-in-out cubic (S-curve)
-  let x = 0, hold = 0, raf = 0, backup = 0, tween = null;
+  const MAX = 70;        // furthest the page can be pulled, px
+  const GAIN = 0.3;      // share of each scroll step that becomes pull (one wheel notch ≈ 30 px)
+  const OUT = 90, BACK = 90;                                     // ms out, ms back: same speed both ways
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  let x = 0, phase = null, from = 0, peak = 0, start = 0, raf = 0, timer = 0;
 
   const draw = () => {
     const t = Math.abs(x) < 0.05 ? "" : `translate3d(0, ${x.toFixed(2)}px, 0)`;
     for (const el of layers) el.style.transform = t;
   };
-  const stop = () => { cancelAnimationFrame(raf); clearTimeout(backup); tween = null; };
-  // Frames from requestAnimationFrame, with a timer as backup so it always finishes, even if frames stall
-  function frame() {
-    clearTimeout(backup);
-    if (!tween) return;
-    const k = Math.min(1, (performance.now() - tween.start) / tween.ms);
-    x = tween.from * (1 - ease(k));
-    draw();
-    if (k >= 1) { x = 0; draw(); tween = null; return; }
-    raf = requestAnimationFrame(frame);
-    backup = setTimeout(() => { cancelAnimationFrame(raf); frame(); }, 40);
+  // Frames from requestAnimationFrame with a timer as backup, so it always finishes
+  function schedule() {
+    raf = requestAnimationFrame(tick);
+    timer = setTimeout(() => { cancelAnimationFrame(raf); tick(); }, 40);
   }
-  function release() {
-    if (!x) return;
-    tween = { from: x, start: performance.now(), ms: BASE + Math.abs(x) * PER_PX };
-    frame();
+  function tick() {
+    clearTimeout(timer);
+    const now = performance.now();
+    if (phase === "out") {
+      const k = Math.min(1, (now - start) / OUT);
+      x = from + (peak - from) * easeOut(k);
+      if (k >= 1) { phase = "back"; from = x; start = now; }
+    } else if (phase === "back") {
+      const k = Math.min(1, (now - start) / BACK);
+      x = from * (1 - easeInOut(k));
+      if (k >= 1) { x = 0; phase = null; }
+    }
+    draw();
+    if (phase) schedule();
   }
 
   addEventListener("wheel", e => {
@@ -736,12 +746,12 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const max = document.documentElement.scrollHeight - innerHeight;
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
     if (!atTop && !atBottom) return;
-    stop();                                                           // grab it from wherever it is
-    const room = 1 - Math.min(1, Math.abs(x) / MAX);                  // resistance grows near MAX
-    x = Math.max(-MAX, Math.min(MAX, x - dy * GAIN * room * room));
-    draw();                                                           // respond on this event, not next frame
-    clearTimeout(hold);
-    hold = setTimeout(release, HOLD);
+    const base = phase === "out" ? peak : x;                         // keep building while held
+    const room = 1 - Math.min(1, Math.abs(base) / MAX);              // resistance grows near MAX
+    peak = Math.max(-MAX, Math.min(MAX, base - dy * GAIN * room * room));
+    from = x; start = performance.now(); phase = "out";
+    cancelAnimationFrame(raf); clearTimeout(timer);
+    tick();                                                          // respond on this event
   }, { passive: true });
 })();
 
