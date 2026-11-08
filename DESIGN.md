@@ -37,7 +37,8 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 ## Spacing and shape
 
 - 4-based spacing, `--s-1` (4) to `--s-9` (96). Sections clamp(56px, 7vw, 88px) apart. 16px phone gutter.
-- Every section spans the same width so dividers line up. FAQ and Order: heading left, content right (`.split`), right columns aligned.
+- Every section spans the same width with its heading on top. No empty columns: FAQ answers all open, 4 across (2 tablet, 1 phone); order answers 2 across on desktop.
+- Work cards: rows of equal height that fill the width (flex grows by aspect ratio `--ar`), so a 9:16 piece never sits alone beside empty space.
 - Inner radius = outer minus padding: form panel 16, options 8, option keys and video tags 4. Cards 12. Buttons are pills.
 - No shadows. Motion: 0.15s hovers, 0.28s form slides, all off with reduced motion.
 
@@ -54,4 +55,4 @@ Header → hero and showreel → Work (tabs, one type at a time) → Pricing →
 
 ## Components
 
-Button (primary, secondary, quiet) · Tabs · WorkCard and empty slot · PriceBox and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.
+Button (primary, secondary, quiet) · Tabs · FAQ grid · WorkCard and empty slot · PriceBox and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.
