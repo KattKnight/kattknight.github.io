@@ -478,15 +478,17 @@ function fitStage() {
   probe.remove();
   if (tallest) ofStage.style.minHeight = tallest + "px";
 }
-// Answer text is sized by eye to its tile: about a fifth of the tile height, 16 to 24 px. Bigger tiles
-// (fewer answers) get bigger text. If a label would overflow its tile, it steps down until it fits,
-// so the card never grows.
+// Answer text is sized by eye to its tile: about a fifth of the tile height, 16 to 20 px, and never more
+// than 55% of the question's size, so the question always reads as the heading. If a label would
+// overflow its tile, it steps down until it fits, so the card never grows.
 function sizeTiles() {
   const tiles = [...ofStage.querySelectorAll(".option")];
   ofStage.style.setProperty("--fs", "16px");
   if (!tiles.length) return;
   const limit = parseFloat(ofStage.style.minHeight) || ofStage.offsetHeight;
-  let fs = Math.round(Math.min(24, Math.max(16, tiles[0].getBoundingClientRect().height * 0.2)));
+  const q = ofStage.querySelector("#of-q");
+  const cap = Math.min(20, q ? parseFloat(getComputedStyle(q).fontSize) * 0.55 : 20);
+  let fs = Math.round(Math.max(16, Math.min(cap, tiles[0].getBoundingClientRect().height * 0.2)));
   const fits = () => ofStage.offsetHeight <= limit + 1 && tiles.every(t => t.scrollHeight <= t.clientHeight + 1);
   ofStage.style.setProperty("--fs", fs + "px");
   while (fs > 16 && !fits()) { fs--; ofStage.style.setProperty("--fs", fs + "px"); }
@@ -735,7 +737,10 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   // Trackpads keep sending a "momentum" tail of shrinking scroll steps after the fingers lift.
   // Once the steps shrink twice in a row (or one gesture has held for 450 ms), the gesture counts as
   // over: the page comes back straight away and the rest of the tail is ignored.
-  let gestureStart = 0, lastWheel = 0, prevStep = 0, shrinking = 0, spent = false;
+  // The hold timer and momentum check start when a gesture REACHES the edge (most swipes start further
+  // down the page). If the page arrives at the edge already coasting on momentum, it gets a short
+  // impact bounce sized to its speed, like iOS, instead of nothing.
+  let edgeStart = 0, lastWheel = 0, prevStep = 0, shrinking = 0, spent = false, wasAtEdge = false;
   const GAP = 150, MAX_HOLD = 450;
 
   const limit = () => innerHeight * REACH;
@@ -772,16 +777,29 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || (e.target.closest && e.target.closest("dialog, textarea, .tabs"))) return;
     const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;        // lines → px for some mice
     const now = performance.now();
-    if (now - lastWheel > GAP) { gestureStart = now; prevStep = 0; shrinking = 0; spent = false; }   // a new gesture
+    const newGesture = now - lastWheel > GAP;
     lastWheel = now;
     const step = Math.abs(dy);
-    shrinking = step < prevStep ? shrinking + 1 : 0;
+    shrinking = newGesture ? 0 : (step < prevStep ? shrinking + 1 : 0);
     prevStep = step;
     const max = document.documentElement.scrollHeight - innerHeight;
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
-    if (!atTop && !atBottom) return;
-    if (spent) return;                                               // momentum tail: ignore
-    if (shrinking >= 2 || now - gestureStart > MAX_HOLD) { spent = true; comeBack(); return; }
+    if (!atTop && !atBottom) { wasAtEdge = false; return; }
+    if (newGesture || !wasAtEdge) {                                  // this gesture just reached the edge
+      wasAtEdge = true; edgeStart = now; spent = false;
+      if (shrinking >= 1 && !newGesture) {                           // arrived coasting: impact bounce
+        spent = true;
+        if (back) back = null;
+        const L = limit();
+        target = Math.max(-L, Math.min(L, Math.sign(-dy) * Math.min(L, step * 1.2)));
+        clearTimeout(release); release = setTimeout(comeBack, 90);
+        start();
+        return;
+      }
+      shrinking = 0;
+    }
+    if (spent) return;                                               // rest of a momentum tail: ignore
+    if (shrinking >= 2 || now - edgeStart > MAX_HOLD) { spent = true; comeBack(); return; }
     if (back) { target = x; back = null; }                           // caught mid-return: carry on from here
     const L = limit();
     const room = 1 - Math.min(1, Math.abs(target) / L);              // soft stop as it nears the limit

@@ -30,7 +30,7 @@ One yellow button per screen height. Dark only.
 
 Anton for headlines, prices and form questions, always uppercase. Inter for everything people read, 400 and 600. IBM Plex Mono for numbers only: timecodes, video tags, the step count.
 
-Scale: hero clamp(48–88px), h2 clamp(36–56px), h3 clamp(26–32px), prices 48, lead 20, title 20, body 16, small 14, meta 12 mono. Headings stay within about 3.5× body size.
+Scale: hero clamp(48–88px), h2 clamp(36–56px), h3 clamp(30–40px) (form questions; answer text 16–20px, at most 55% of the question), prices 48, lead 20, title 20, body 16, small 14, meta 12 mono. Headings stay within about 3.5× body size.
 
 Two text levels: `--fg` for everything people read, `--mute` for notes. Never mixed inside one sentence.
 
