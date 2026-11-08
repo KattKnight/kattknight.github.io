@@ -159,6 +159,12 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   background-color: transparent; border-bottom: 1px solid transparent; transition: background-color .2s var(--ease), border-color .2s var(--ease); }
 header.top.scrolled { background-color: var(--ink); border-bottom-color: var(--line); }
 header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 71px; }
+/* The logo is bigger at the top of the page and shrinks back toward its own top-left corner once the page
+   scrolls. Only the logo scales (a transform, so it takes no extra room): the links and button never move. */
+header.top .mark { transform-origin: 0 0; transition: transform .3s var(--ease); }
+header.top:not(.scrolled) .mark { transform: scale(1.45); }
+@media (max-width: 760px) { header.top:not(.scrolled) .mark { transform: scale(1.08); } }
+@media (max-width: 420px) { header.top:not(.scrolled) .mark { transform: none; } }   /* narrow phones: no room beside the button */
 nav.links { display: flex; align-items: center; gap: var(--s-6); }
 nav.links a:not(.btn) { text-decoration: none; font: 500 15px/1 var(--body); color: var(--fg); text-underline-offset: 6px; }
 nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color: var(--cut); }

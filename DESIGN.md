@@ -71,4 +71,4 @@ Work and Packages tabs keep one height: every panel of a set sits in the same gr
 
 ## Header
 
-At the top of the page the header has no bar and no line: logo, links and button sit on the page and the hero runs right up under them. Once the page scrolls it becomes a plain solid bar in `--ink` with one `--line` hairline under it, fading in over 0.2s. Solid on purpose: no blur, no translucency, no floating capsule. 72px tall in both states so nothing below moves.
+At the top of the page the header has no bar and no line: logo, links and button sit on the page and the hero runs right up under them. Once the page scrolls it becomes a plain solid bar in `--ink` with one `--line` hairline under it, fading in over 0.2s. Solid on purpose: no blur, no translucency, no floating capsule. 72px tall in both states so nothing below moves. The logo is 1.45x bigger at the top of the page (1.08x on tablets, normal on phones under 420px) and shrinks back toward its own top-left corner as the bar appears (0.3s); the links and button never move.
