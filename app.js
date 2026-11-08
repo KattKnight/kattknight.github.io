@@ -1014,7 +1014,8 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   };
 
   /* The gap an overscroll opens (under the header at the top, above the footer at the bottom) shows the same
-     audio track as the hero. A small pull shows a calm waveform; the further it's pulled, the more it freaks
+     audio track as the hero, growing out of the border line itself: bars hang down from the header's bottom
+     border, or rise up from the footer's top border, as if the line were the track. A small pull shows a calm waveform; the further it's pulled, the more it freaks
      out: bars jitter harder and taller, and near the limit they hit the top of the gap and "clip" in Cut
      Yellow, like an audio meter peaking. It lives in a fixed canvas that only paints inside the gap. */
   const gapCv = document.createElement("canvas"), gg = gapCv.getContext("2d");
@@ -1039,7 +1040,8 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     let top;
     if (pull > 0) top = header ? header.getBoundingClientRect().bottom : 0;
     else top = (footer ? footer.getBoundingClientRect().top : gapH) - size;
-    const h = size, mid = top + h / 2, freak = Math.min(1, size / limit()), f2 = freak * freak;
+    const h = size, freak = Math.min(1, size / limit()), f2 = freak * freak;
+    const fromTop = pull > 0, base = fromTop ? top : top + h;            // the border the bars grow out of
     const now = performance.now();
     gg.clearRect(0, 0, gapW, gapH);
     gg.save(); gg.beginPath(); gg.rect(0, top, gapW, h); gg.clip();
@@ -1049,13 +1051,15 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
       const calm = .55 + .2 * Math.sin(now / 260 + i * .45);
       const wild = Math.random();
       const v = Math.min(1, gapAmp[i] * (calm * (1 - f2) + wild * f2 * 1.25) * (.55 + .45 * freak));
-      const bh = Math.max(2, v * (h - 6));
+      const bh = Math.max(2, v * (h - 3));
       const tear = f2 > .3 && Math.random() < f2 * .25 ? (Math.random() - .5) * 14 * f2 : 0;
       const clip = v > .92 && freak > .55;
       gg.fillStyle = clip ? `rgba(${G.cut},${.55 + .4 * freak})` : `rgba(${freak > .5 ? G.fg : G.bar},${.22 + .3 * freak})`;
-      gg.fillRect(Math.round(x0 - 1.5 + tear), Math.round(mid - bh / 2), 3, Math.round(bh));
+      gg.fillRect(Math.round(x0 - 1.5 + tear), Math.round(fromTop ? base : base - bh), 3, Math.round(bh));
     }
     gg.restore();
+    // The border lights up a little as it gives off the track
+    gg.fillStyle = `rgba(${G.fg},${.12 + .3 * freak})`; gg.fillRect(0, Math.round(fromTop ? base : base - 1), gapW, 1);   // just inside the gap, beside the real border
   }
   function schedule() {
     raf = requestAnimationFrame(tick);
