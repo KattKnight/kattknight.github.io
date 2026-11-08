@@ -75,4 +75,4 @@ At the top of the page the header has no bar and no line: logo, links and button
 
 ## Logo
 
-The cat-head play mark beside KATT EDITING in Bungee, with the name sitting on an editing track: four clips (#7A6A58, #B2A28C, #4A3D31, Cut Yellow) and a cream playhead at 30%. It says "video editing" to people who don't know the name yet. The logo is the same size at the top of the page and in the scrolled bar.
+The player-cat mark (`logo/katt-editing-mark.svg`: a cat whose face is a video player, play and pause for eyes, whiskers, a scrub bar for a chin) beside KATT EDITING in Bungee, with the name sitting on an editing track: four clips (#7A6A58, #B2A28C, #4A3D31, Cut Yellow) and a cream playhead at 30%. It says "video editing" to people who don't know the name yet. The logo is the same size at the top of the page and in the scrolled bar. The favicon is a simplified version (no whiskers, mouth or scrub bar) so it still reads at 16px.

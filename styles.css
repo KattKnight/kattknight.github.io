@@ -143,7 +143,7 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
 
 /* Logo: cat-head play mark + wordmark */
 .mark { display: flex; align-items: center; gap: var(--s-3); text-decoration: none; color: var(--fg); }
-.mark svg { width: 30px; height: auto; display: block; }
+.mark svg { width: 42px; height: auto; display: block; overflow: visible; }   /* the player-cat mark (logo/katt-editing-mark.svg) */
 /* Logo: the name sits on an editing track. Four clips in the brand's own neutrals plus one Cut Yellow clip,
    and a cream playhead through them, so the logo says "video editing" before anyone knows the name. */
 .mark-word { display: grid; gap: 5px; }
@@ -157,7 +157,7 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
 .mark-name { font: 400 22px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; }
 .mark-name, header.top .btn { white-space: nowrap; }
 /* Phones: Bungee is wide, so the wordmark shrinks to keep it and the button on one line */
-@media (max-width: 420px) { .mark-name { font-size: 17px; letter-spacing: .02em; } .mark { gap: var(--s-2); } .mark svg { width: 22px; } header.top .btn-sm { padding-inline: var(--s-3); } }
+@media (max-width: 420px) { .mark-name { font-size: 17px; letter-spacing: .02em; } .mark { gap: var(--s-2); } .mark svg { width: 34px; } header.top .btn-sm { padding-inline: var(--s-3); } }
 /* Very narrow phones: the hero's own button and the bottom bar carry the call to action */
 @media (max-width: 360px) { header.top .btn-sm { display: none; } }
 
