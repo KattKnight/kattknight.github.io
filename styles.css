@@ -64,7 +64,7 @@
 }
 
 /* ========== Base ========== */
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }   /* no blue tap box on Android; our own press states below */
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
 body { margin: 0; background: var(--ink); color: var(--fg); font: var(--t-body); -webkit-font-smoothing: antialiased; }
@@ -105,6 +105,12 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
   transition: background var(--fast), border-color var(--fast), color var(--fast);
 }
 .btn:hover { border-color: var(--fg); }
+/* Press feedback that replaces the browser's tap box: a quick squeeze, on every button, tab and arrow */
+.btn, .tab, .seg-btn, .of-back, .row-chev, .ba-seg button, .thumb, .faq dt { transition-property: color, background-color, border-color, transform, opacity; }
+.btn:active, .seg-btn:active, .of-back:active, .ba-seg button:active { transform: scale(.97); }
+.tab:active, .faq dt:active { opacity: .7; }
+.row-chev:active { transform: scale(.9); }
+.thumb:active { transform: scale(.99); }
 .btn-primary { background: var(--cut); border-color: var(--cut); color: var(--cut-ink); }
 .btn-primary:hover { background: var(--fg); border-color: var(--fg); }
 .btn-quiet { border-color: transparent; padding-inline: var(--s-3); color: var(--mute); text-decoration: underline; text-underline-offset: 4px; }
