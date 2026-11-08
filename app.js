@@ -910,6 +910,11 @@ function cleanUrl() {
 }
 window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
+// Header: part of the page at the top, a floating capsule once the page scrolls (styles.css)
+const topBar = document.querySelector("header.top");
+const setTopBar = () => topBar.classList.toggle("scrolled", scrollY > 8);
+addEventListener("scroll", setTopBar, { passive: true }); setTopBar();
+
 /* ---------- Hero waveform ----------
    An audio waveform runs behind the hero like the showreel's sound track. The cursor is the playhead: bars
    near it swell and brighten a little (never yellow: yellow is for the headline word and buttons), and the part to its left (already "played") sits a shade brighter. With no

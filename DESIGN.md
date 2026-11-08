@@ -68,3 +68,7 @@ Shorter page, same content: work cards and package boxes sit in swipeable rows (
 ## Tabs
 
 Work and Packages tabs keep one height: every panel of a set sits in the same grid cell (`.panel-stack`), the hidden ones invisible and inert, so switching never moves the page. Switching morphs the cards: each frame stays in place and reshapes into the matching card of the new tab (extras grow out of, or shrink into, the last frame), while only the pictures and text inside slide: out on the side away from the new tab, in from the other side (0.15s out, 0.26s in, frames 0.34s). Previews in hidden tabs are paused. Reduced motion switches instantly.
+
+## Header
+
+At the top of the page the header has no bar, line or blur: logo, links and button sit on the page itself. Once the page scrolls, the row tightens into a floating capsule (max 1040px, 12px from the edges on phones): frosted ink-2 at 78%, a hairline edge, pill corners. It keeps the same 72px height in both states so nothing below moves; the change eases over 0.45s.
