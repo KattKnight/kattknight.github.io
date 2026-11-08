@@ -946,7 +946,9 @@ addEventListener("scroll", setTopBar, { passive: true }); setTopBar();
     const want = m.on ? m.x : W * (.1 + .8 * prog);
     head = head == null || (!m.on && Math.abs(want - head) > W * .3) ? want : head + (want - head) * (1 - Math.exp(-dt / 70));
     g.clearRect(0, 0, W, H);
-    const mid = H * .5;                            // centred in the hero
+    // Centred on the whole first screen: the header is see-through at the top of the page, so the space it
+    // takes above the hero counts too (the hero starts that far below the top of the screen)
+    const above = topBar ? topBar.offsetHeight : 0, mid = (H - above) / 2;
     for (let i = 0; i < amp.length; i++) {
       const x = i * STEP + STEP / 2, k = Math.max(0, 1 - Math.abs(x - head) / 120), e = k * k * (3 - 2 * k);
       const h = amp[i] * H * .46 * (1 + e * .3) + 3;   // tall enough to read as a waveform at a glance
