@@ -28,9 +28,9 @@ One yellow button per screen height. Dark only.
 
 ## Type
 
-Bungee for big text: headlines, prices, form questions and the wordmark (it only has capitals). Recursive for everything people read, 400 to 700, fixed at a slightly casual style. Katt Pixel (the Minecraft-style pixel font by Craftron Gaming) for fine print and numbers: notes, hints, per-clip maths, the footer, timecodes, video tags, the step count. The pixel font is only sharp at 16px steps (16, 32, 48), has one weight, and has no middle dot or curly quotes, which fall back to Recursive. Errors stay in Recursive so they read easily.
+Bungee for big text: headlines, prices, form questions and the wordmark (it only has capitals). Recursive for everything people read, 400 to 700, fixed at a slightly casual style. Katt Pixel (the Minecraft-style pixel font by Craftron Gaming) for the hero sentence, fine print and numbers: notes, hints, per-clip maths, the footer, timecodes, video tags, the step count. The pixel font is only sharp at 16px steps (16, 32, 48), has one weight, and has no middle dot or curly quotes, which fall back to Recursive. Errors stay in Recursive so they read easily. Words joined by a hyphen or a number and its unit (long-form, 48 hours) never split across lines: wrap them in .nw.
 
-Scale: hero clamp(40–66px), h2 clamp(34–50px), h3 clamp(28–38px) (form questions; small answer tiles 16–20px, every question sets its answers as short two-line headlines (letter in the corner), up to 85% of the question; rows on short phone tiles), prices 48, lead 20, title 20, body 16, small 14 (errors), fine print 16 pixel, meta 16 pixel. Headings stay within about 3.5× body size.
+Scale: hero clamp(40–66px), h2 clamp(34–50px), h3 clamp(28–38px) (form questions; small answer tiles 16–20px, every question sets its answers as short two-line headlines (letter in the corner), up to 85% of the question; rows on short phone tiles), prices 48, lead 16 pixel, title 20, body 16, small 14 (errors), fine print 16 pixel, meta 16 pixel. Headings stay within about 3.5× body size.
 
 Two text levels: `--fg` for everything people read, `--mute` for notes. Never mixed inside one sentence.
 
