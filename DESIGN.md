@@ -1,0 +1,54 @@
+# Katt Editing design system
+
+The full system (tokens, component previews, logo files) lives in the Claude app: https://claude.ai/artifact/5wvaVe7WqL9YqzFS8KQD9d. This file is the short version for the site. `styles.css` uses the same token names under `:root`; change a value there and in the app together.
+
+## Direction
+
+The page looks like the dark interface of an editing app. The work is the brightest thing on screen, and Cut Yellow marks the one thing to do next.
+
+Not used: gradients, glass blur, drop shadows, emoji, stock photos, centred sections, invented numbers or testimonials.
+
+## Colour
+
+| Token | Value | Use |
+|---|---|---|
+| `--ink` | #0B0B0D | Page |
+| `--ink-2` | #141417 | Panels: order form, recommended price box |
+| `--ink-3` | #1C1C21 | Hover inside panels |
+| `--line` | #26262C | Hairlines only |
+| `--line-strong` | #66646C | Borders on anything clickable (3.4:1) |
+| `--fg` | #F3F0E7 | Text (17:1) |
+| `--mute` | #9C988D | Secondary text (6.8:1) |
+| `--faint` | #85827A | Placeholders (5.1:1) |
+| `--cut` | #FFC21A | Primary button, selected tab and answer, progress, focus, one headline word |
+| `--cut-ink` | #1A1400 | Text on yellow |
+| `--bad` / `--ok` | #FF7A66 / #5BD08A | Errors / sent |
+
+One yellow button per screen height. Dark only.
+
+## Type
+
+Anton for headlines, prices and form questions, always uppercase. Inter for everything people read, 400 and 600. IBM Plex Mono for numbers only: timecodes, video tags, the step count.
+
+Scale: hero clamp(52–116px), h2 clamp(40–72px), h3 clamp(28–40px), title 20, lead 18, body 16, small 14, meta 12 mono.
+
+## Spacing and shape
+
+- 4-based spacing, `--s-1` (4) to `--s-9` (96). Sections clamp(64px, 9vw, 112px) apart. 16px phone gutter.
+- Inner radius = outer minus padding: form panel 16, options 8, option keys and video tags 4. Cards 12. Buttons are pills.
+- No shadows. Motion: 0.15s hovers, 0.28s form slides, all off with reduced motion.
+
+## Copy
+
+- Headings are one or two words: Work, Pricing, FAQ, Order.
+- No description under a heading unless it adds a fact.
+- Card titles name the piece in a few words. No paragraph under them.
+- First person, short sentences, plain words.
+
+## Page order
+
+Header → hero and showreel → Work (tabs, one type at a time) → Pricing → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
+
+## Components
+
+Button (primary, secondary, quiet) · Tabs · WorkCard and empty slot · PriceBox and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.

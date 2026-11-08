@@ -5,13 +5,13 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self'; media-src 'self'; connect-src https://api.web3forms.com; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Katt Editing: short-form clips, podcast cuts and motion design by Ayan. 3 clips for $25, delivered in 48 hours.">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<meta name="description" content="Katt Editing: long-form YouTube edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
+<meta name="theme-color" content="#0B0B0D">
 <title>Katt Editing</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="video.other">
-<meta property="og:title" content="Katt Editing: short-form edits and motion design">
-<meta property="og:description" content="Podcast clips, promos and motion graphics by Ayan. 3 clips for $25, delivered in 48 hours.">
+<meta property="og:title" content="Katt Editing: video editing and motion design">
+<meta property="og:description" content="Long-form YouTube edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
 <meta property="og:url" content="https://kattknight.github.io/">
 <meta property="og:image" content="https://kattknight.github.io/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -24,8 +24,9 @@
 <meta property="og:video:height" content="720">
 <link rel="canonical" href="https://kattknight.github.io/">
 <meta name="twitter:card" content="player">
-<meta name="twitter:title" content="Katt Editing: short-form edits and motion design">
-<meta name="twitter:description" content="Podcast clips, promos and motion graphics by Ayan. 3 clips for $25, delivered in 48 hours.">
+<meta name="twitter:site" content="@KattEditingOnX">
+<meta name="twitter:title" content="Katt Editing: video editing and motion design">
+<meta name="twitter:description" content="Long-form YouTube edits, podcast clips, motion design and ads by Ayan. Free sample edit before you pay.">
 <meta name="twitter:image" content="https://kattknight.github.io/og.jpg">
 <meta name="twitter:player" content="https://kattknight.github.io/embed.html">
 <meta name="twitter:player:width" content="1280">
@@ -34,314 +35,22 @@
 <meta name="twitter:player:stream:content_type" content="video/mp4">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
-<style>
-/* Layout: an editor's viewer. The reel plays first, full width, with a live timecode;
-   work below is grouped by delivery format (vertical / horizontal), then prices, process, contact. */
-:root {
-  --ink: #0B0B0D;        /* page */
-  --panel: #141417;      /* raised surfaces */
-  --line: #26262C;       /* hairlines */
-  --fg: #F3F0E7;         /* warm white text */
-  --mute: #9C988D;       /* secondary text */
-  --cut: #FFC21A;        /* Cut Yellow, the one accent */
-  --cut-ink: #1A1400;    /* text on yellow */
-  --faint: #6E6B63;      /* placeholders */
-  --bad: #FF7A66;        /* form errors */
-  --display: "Anton", "Impact", "Arial Narrow", sans-serif;
-  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-  --wrap: 1360px;
-  --wrap-wide: 1760px;
-  --r: 10px;
-  color-scheme: dark;
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body {
-  background: var(--ink); color: var(--fg);
-  font: 400 16px/1.6 var(--body);
-  -webkit-font-smoothing: antialiased;
-}
-body::before {
-  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
-  z-index: 10; background: var(--ink);
-}
-a { color: inherit; }
-:focus-visible { outline: 2px solid var(--cut); outline-offset: 3px; border-radius: 4px; }
-.wrap {
-  max-width: var(--wrap); margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-.wrap.wide {
-  max-width: var(--wrap-wide);
-  padding-left: max(16px, 2.5vw, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, 2.5vw, env(safe-area-inset-right, 0px));
-}
-.nw { white-space: nowrap; }
-.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.eyebrow {
-  font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute);
-  display: flex; align-items: center; gap: 10px;
-}
-.eyebrow::before { content: ""; width: 18px; height: 2px; background: var(--cut); }
-h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
-h2 { font: 400 clamp(36px, 5vw, 56px)/1 var(--display); letter-spacing: .01em; text-transform: uppercase; }
-p { margin: 0; }
-
-/* Buttons */
-.btn {
-  display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 20px;
-  border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg);
-  font: 600 15px/1 var(--body); text-decoration: none; cursor: pointer;
-  transition: background .15s, border-color .15s, color .15s;
-}
-.btn:hover { border-color: var(--fg); }
-.btn.primary { background: var(--cut); border-color: var(--cut); color: var(--cut-ink); }
-.btn.primary:hover { background: var(--fg); border-color: var(--fg); }
-.btn svg { width: 14px; height: 14px; flex: none; }
-
-/* Header */
-header.top {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-  background: color-mix(in srgb, var(--ink) 88%, transparent);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
-}
-header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
-.mark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.mark-glyph { width: 30px; height: 30px; border-radius: 7px; background: var(--cut); display: grid; place-items: center; }
-.mark-glyph svg { width: 12px; height: 12px; margin-left: 2px; }
-.mark-name { font: 400 22px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; }
-nav.links { display: flex; align-items: center; gap: 28px; }
-nav.links a { text-decoration: none; font-size: 14px; color: var(--mute); }
-nav.links a:hover { color: var(--fg); }
-nav.links .btn { min-height: 38px; font-size: 14px; padding: 0 16px; color: var(--cut-ink); }
-@media (max-width: 760px) { nav.links a:not(.btn) { display: none; } }
-
-/* Hero */
-.hero { padding-block: clamp(40px, 7vw, 88px) 0; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px 56px; align-items: end; }
-.hero h1 {
-  font: 400 clamp(52px, 9vw, 116px)/.92 var(--display); text-transform: uppercase; letter-spacing: .005em;
-}
-.hero h1 em { font-style: normal; color: var(--cut); }
-.hero-side { display: grid; gap: 22px; padding-bottom: 8px; }
-.hero-side p { font-size: 18px; color: var(--mute); max-width: 44ch; }
-.hero-side p strong { color: var(--fg); font-weight: 600; }
-.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
-@media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } }
-
-/* Reel viewer */
-.viewer { margin-top: clamp(32px, 5vw, 56px); }
-.viewer-frame {
-  position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: var(--r); overflow: hidden;
-  background: var(--panel); border: 1px solid var(--line);
-}
-.viewer-frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.viewer-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  padding: 12px 2px 0; font: 400 13px/1.2 var(--mono); color: var(--mute); font-variant-numeric: tabular-nums;
-}
-.viewer-bar .tc { color: var(--fg); }
-.viewer-bar .tc b { color: var(--cut); font-weight: 500; }
-.scrub { flex: 1 1 200px; height: 3px; background: var(--line); border-radius: 2px; position: relative; overflow: hidden; }
-.scrub i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--cut); }
-.sound {
-  position: absolute; right: max(14px, 2%); bottom: max(14px, 3%);
-  min-height: 40px; background: rgba(11,11,13,.72); border-color: rgba(243,240,231,.25);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); font-size: 14px;
-}
-@media (max-width: 560px) {
-  .sound { min-height: 34px; padding: 0 12px; gap: 8px; font-size: 13px; right: 10px; bottom: 10px; }
-}
-
-/* Facts strip */
-.facts {
-  margin-top: clamp(40px, 6vw, 72px); border-block: 1px solid var(--line);
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-.fact { padding: 22px 20px 22px 0; display: grid; gap: 6px; }
-.fact + .fact { padding-left: 20px; border-left: 1px solid var(--line); }
-.fact b { font: 400 30px/1 var(--display); letter-spacing: .02em; }
-.fact span { font-size: 14px; color: var(--mute); }
-@media (max-width: 760px) {
-  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .fact:nth-child(3) { padding-left: 0; border-left: 0; }
-  .fact:nth-child(n+3) { border-top: 1px solid var(--line); }
-}
-
-/* Sections */
-section.block { padding-block: clamp(64px, 9vw, 112px) 0; }
-.block-head { display: flex; justify-content: space-between; align-items: end; gap: 16px 40px; flex-wrap: wrap; margin-bottom: 36px; }
-.block-head > div { display: grid; gap: 16px; }
-.block-head p { color: var(--mute); max-width: 46ch; }
-.format-label {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-  font: 400 14px/1.3 var(--body); color: var(--mute);
-  padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 20px;
-}
-.format-label b { color: var(--fg); font-weight: 600; font-size: 16px; }
-.format-group + .format-group { margin-top: 48px; }
-
-/* Work cards */
-.grid { display: grid; gap: 28px 20px; }
-.grid.vertical { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.grid.horizontal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-@media (max-width: 980px) { .grid.vertical { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px) { .grid.horizontal { grid-template-columns: 1fr; } }
-.card { display: grid; gap: 14px; align-content: start; min-width: 0; }
-.thumb {
-  position: relative; display: block; width: 100%; max-width: 100%; padding: 0; border: 1px solid var(--line);
-  border-radius: var(--r); overflow: hidden; background: var(--panel); cursor: pointer; color: var(--fg);
-}
-.vertical .thumb { aspect-ratio: 9 / 16; }
-.horizontal .thumb { aspect-ratio: 16 / 9; }
-.thumb video, .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.thumb::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  box-shadow: inset 0 0 0 0 var(--cut); transition: box-shadow .15s;
-}
-.thumb:hover::after, .thumb:focus-visible::after { box-shadow: inset 0 0 0 2px var(--cut); }
-.tag {
-  position: absolute; left: 10px; top: 10px; padding: 5px 8px; border-radius: 5px;
-  background: rgba(11,11,13,.78); font: 500 11px/1 var(--mono); letter-spacing: .04em; color: var(--fg);
-  font-variant-numeric: tabular-nums;
-}
-.play {
-  position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; border-radius: 50%;
-  background: var(--cut); display: grid; place-items: center; transition: transform .15s;
-}
-.play svg { width: 13px; height: 13px; margin-left: 3px; }
-.thumb:hover .play { transform: scale(1.08); }
-.card h3 { font: 600 17px/1.3 var(--body); }
-.card .kind { font: 600 13px/1.2 var(--body); color: var(--cut); }
-.card p { font-size: 14px; color: var(--mute); line-height: 1.55; }
-.card-text { display: grid; gap: 8px; }
-
-/* Pricing */
-.prices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-@media (max-width: 900px) { .prices { grid-template-columns: 1fr; } }
-.price {
-  display: flex; flex-direction: column; gap: 18px; padding: 28px; border-radius: var(--r);
-  border: 1px solid var(--line); min-width: 0;
-}
-.price.lead { background: var(--panel); border-color: var(--cut); }
-.price .name { font: 600 16px/1.2 var(--body); color: var(--fg); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.price.lead .name em { font: 600 12px/1 var(--body); font-style: normal; color: var(--cut-ink); background: var(--cut); padding: 6px 9px; border-radius: 999px; }
-.price .btn { margin-top: auto; align-self: flex-start; }
-.price .amt { font: 400 52px/1 var(--display); letter-spacing: .01em; }
-.price .amt small { font: 500 15px/1 var(--body); color: var(--mute); margin-left: 6px; letter-spacing: 0; }
-.price .what { font-size: 15px; }
-.price .per { margin-top: -8px; font-size: 14px; color: var(--mute); }
-.price.lead .per { color: var(--cut); }
-.price ul { list-style: none; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--line); display: grid; gap: 10px; font-size: 14px; color: var(--mute); }
-.price li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 10px; }
-.price li::before { content: ""; width: 8px; height: 8px; margin-top: 7px; background: var(--cut); border-radius: 2px; }
-
-.price-note { margin-top: 20px; font-size: 14px; color: var(--mute); }
-.price-note a { color: var(--fg); }
-main section[id] { scroll-margin-top: 72px; }
-footer .legal { display: flex; gap: 16px; }
-
-/* Process */
-.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
-@media (max-width: 900px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
-.step { padding: 24px 24px 8px 0; display: grid; gap: 10px; align-content: start; min-width: 0; }
-.step .n { font: 500 13px/1 var(--mono); color: var(--cut); font-variant-numeric: tabular-nums; }
-.step h3 { font: 600 18px/1.3 var(--body); }
-.step p { font-size: 14px; color: var(--mute); }
-
-/* About + contact */
-.about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px 64px; align-items: start; }
-@media (max-width: 860px) { .about { grid-template-columns: 1fr; } }
-.about-copy { display: grid; gap: 18px; font-size: 17px; max-width: 58ch; }
-.about-copy p + p { color: var(--mute); }
-.tools { display: flex; flex-wrap: wrap; gap: 8px; }
-.tools span { font: 500 12px/1 var(--mono); padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--mute); }
-.clock { display: grid; gap: 14px; padding: 24px; border: 1px solid var(--line); border-radius: var(--r); min-width: 0; }
-.clock-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; color: var(--mute); }
-.clock-row b { font: 500 22px/1 var(--mono); color: var(--fg); font-variant-numeric: tabular-nums; }
-.clock-row + .clock-row { padding-top: 14px; border-top: 1px solid var(--line); }
-.clock p { font-size: 14px; color: var(--mute); }
-
-.contact { padding-block: clamp(72px, 10vw, 128px); }
-.contact-box {
-  border-top: 1px solid var(--line); padding-top: clamp(40px, 6vw, 64px);
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 40px 64px; align-items: start;
-}
-@media (max-width: 900px) { .contact-box { grid-template-columns: 1fr; } }
-.contact-copy { display: grid; gap: 24px; min-width: 0; }
-.contact h2 { font-size: clamp(44px, 6vw, 88px); line-height: .94; }
-.contact-copy > p { color: var(--mute); max-width: 46ch; }
-.alt { display: grid; gap: 10px; padding-top: 24px; border-top: 1px solid var(--line); }
-.alt > span { font-size: 14px; color: var(--mute); }
-.email-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
-.email { font: 500 clamp(17px, 2.4vw, 22px)/1.2 var(--mono); user-select: all; overflow-wrap: anywhere; }
-.copied { font-size: 14px; color: var(--cut); }
-
-/* Contact form */
-.cform {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; min-width: 0;
-  padding: 28px; border: 1px solid var(--line); border-radius: var(--r); background: var(--panel);
-}
-@media (max-width: 560px) { .cform { grid-template-columns: 1fr; padding: 20px; } }
-.field { display: grid; gap: 8px; min-width: 0; align-content: start; }
-.field.full, .form-foot, .form-note, .cform .sent { grid-column: 1 / -1; }
-.field label { font-size: 14px; font-weight: 600; }
-.field label span { color: var(--mute); font-weight: 400; }
-.field input, .field select, .field textarea {
-  width: 100%; min-height: 48px; padding: 12px 14px; border-radius: 8px;
-  border: 1px solid var(--line); background: var(--ink); color: var(--fg); font: 400 16px/1.4 var(--body);
-}
-.field textarea { min-height: 112px; resize: vertical; }
-.field input::placeholder, .field textarea::placeholder { color: var(--faint); }
-.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--cut); outline-offset: 1px; border-color: transparent; }
-.field[data-invalid] input { border-color: var(--bad); }
-.field .err { font-size: 13px; color: var(--bad); }
-.field .count { font-size: 12px; color: var(--mute); justify-self: end; font-variant-numeric: tabular-nums; }
-.field[data-invalid] textarea { border-color: var(--bad); }
-.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
-.form-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
-.form-foot .btn[disabled] { opacity: .6; cursor: progress; }
-.form-status { font-size: 14px; color: var(--mute); }
-.form-note { font-size: 13px; color: var(--mute); }
-.form-note a { color: var(--fg); }
-.fallback { display: flex; flex-wrap: wrap; gap: 10px; }
-.sent { display: grid; gap: 12px; padding-block: 12px; }
-.sent h3 { font: 400 34px/1 var(--display); text-transform: uppercase; }
-.sent p { color: var(--mute); }
-footer { border-top: 1px solid var(--line); }
-footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 22px; font: 400 12px/1.4 var(--mono); color: var(--mute); }
-
-/* Player dialog */
-dialog.player {
-  border: 0; padding: 0; background: transparent; color: var(--fg);
-  max-width: min(92vw, 1100px); max-height: 92vh; width: 100%;
-}
-dialog.player::backdrop { background: rgba(5,5,6,.9); }
-.player-inner { display: grid; gap: 12px; justify-items: center; }
-.player video { display: block; max-width: 100%; max-height: 80vh; border-radius: var(--r); background: #000; }
-.player-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.player-bar span { font: 500 13px/1.3 var(--mono); color: var(--mute); }
-.player-bar .btn { min-height: 38px; }
-</style>
+<link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
+<!-- Page order (see DESIGN.md): header → hero + reel → work tabs → pricing → FAQ → order form → footer -->
 <header class="top">
   <div class="wrap">
     <a class="mark" href="#top" aria-label="Katt Editing, back to top">
-      <span class="mark-glyph"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z" fill="#1A1400"/></svg></span>
+      <svg viewBox="0 0 396 445" aria-hidden="true"><path fill="#FFC21A" fill-rule="evenodd" d="M0 0L125 93H271L396 0V385Q396 445 336 445H60Q0 445 0 385ZM156 187L291 264L156 342Z"/></svg>
       <span class="mark-name">Katt Editing</span>
     </a>
     <nav class="links" aria-label="Sections">
       <a href="#work">Work</a>
       <a href="#pricing">Pricing</a>
-      <a href="#process">Process</a>
-      <a class="btn primary" href="#contact" data-plan="A free sample clip">Get a sample clip</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn btn-primary btn-sm" href="#order">Get a free sample</a>
     </nav>
   </div>
 </header>
@@ -350,13 +59,14 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
   <section class="hero">
     <div class="wrap">
       <div class="hero-grid">
-        <h1><span class="nw">Short-form</span> edits and <em>motion design</em></h1>
+        <h1>Video edits and <em>motion graphics</em> for creators</h1>
         <div class="hero-side">
-          <p><strong>I'm Ayan.</strong> I cut vertical clips from podcasts and talking-head videos, and animate trailers, lesson graphics and logos in After Effects.</p>
+          <p><strong>I'm Ayan, a video editor in India.</strong> I edit YouTube videos, Shorts and Reels, trailers and logo animations.</p>
           <div class="cta-row">
-            <a class="btn primary" href="#contact" data-plan="A free sample clip">Get a sample clip</a>
+            <a class="btn btn-primary" href="#order">Get a free sample</a>
             <a class="btn" href="#work">See the work</a>
           </div>
+          <p class="hero-note">Free sample before you pay · Clips in 48 hours</p>
         </div>
       </div>
     </div>
@@ -371,18 +81,10 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
           </button>
         </div>
         <div class="viewer-bar">
-          <span>Showreel, motion design and editing</span>
+          <span>Showreel</span>
           <div class="scrub" aria-hidden="true"><i id="scrub"></i></div>
           <span class="tc" id="tc"><b>00:00:00:00</b> / 00:00:39:12</span>
         </div>
-      </div>
-    </div>
-    <div class="wrap">
-      <div class="facts">
-        <div class="fact"><b>48 h</b><span>turnaround on every batch</span></div>
-        <div class="fact"><b>9:16 · 16:9</b><span>Shorts, Reels, TikTok and YouTube</span></div>
-        <div class="fact"><b>−14 LUFS</b><span>audio mixed to platform loudness</span></div>
-        <div class="fact"><b>$25</b><span>to start: 3 clips from one episode</span></div>
       </div>
     </div>
   </section>
@@ -390,18 +92,10 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
   <section class="block" id="work">
     <div class="wrap">
       <div class="block-head">
-        <h2>Selected work</h2>
-        <p>Six pieces in two formats. Tap one to watch the full edit with sound.</p>
+        <h2>Work</h2>
       </div>
-
-      <div class="format-group">
-        <div class="format-label"><b>Vertical 9:16</b><span>For Shorts, Reels and TikTok</span></div>
-        <div class="grid vertical" id="gridV"></div>
-      </div>
-      <div class="format-group">
-        <div class="format-label"><b>Horizontal 16:9</b><span>For YouTube, courses and brands</span></div>
-        <div class="grid horizontal" id="gridH"></div>
-      </div>
+      <div class="tabs" id="workTabs" role="tablist" aria-label="Type of work"></div>
+      <div id="workPanels"></div>
     </div>
   </section>
 
@@ -409,144 +103,96 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
     <div class="wrap">
       <div class="block-head">
         <h2>Pricing</h2>
-        <p>Prices in US dollars. Start with one episode, then move to a monthly plan if the clips work for you.</p>
+        <p>US dollars.</p>
       </div>
       <div class="prices">
         <article class="price">
-          <div class="name"><span>Starter</span></div>
+          <div class="name"><span>Starter clips</span></div>
           <div class="amt">$25<small>3 clips</small></div>
           <p class="per">$8.33 a clip</p>
-          <p class="what">3 vertical clips cut from one episode or stream. A good way to try me out.</p>
           <ul>
-            <li>I pick the moments, or you send timestamps</li>
-            <li>Hook title, word-by-word captions, b-roll where it helps</li>
-            <li>Delivered in 48 hours as 1080×1920 MP4</li>
+            <li>3 clips from one episode</li>
+            <li>Captions, hook title, b-roll</li>
+            <li>Delivered in 48 hours</li>
           </ul>
-          <a class="btn" href="#contact" data-plan="Starter: 3 clips for $25">Choose Starter</a>
+          <a class="btn" href="#order" data-need="clips" data-amount="Starter: 3 clips for $25">Choose Starter</a>
         </article>
         <article class="price lead">
-          <div class="name"><span>Monthly</span><em>Best value</em></div>
+          <div class="name"><span>Monthly clips</span><span class="badge">Best value</span></div>
           <div class="amt">$79<small>/ month</small></div>
-          <p class="per">$6.58 a clip. The same 12 clips as Starter orders would cost $100.</p>
-          <p class="what">12 clips a month from your weekly episodes.</p>
+          <p class="per">12 clips, $6.58 each</p>
           <ul>
-            <li>Same caption style and branding on every clip</li>
-            <li>Captions and post descriptions written for you</li>
+            <li>Same style on every clip</li>
+            <li>Post captions written for you</li>
             <li>Cancel any month</li>
           </ul>
-          <a class="btn primary" href="#contact" data-plan="Monthly: 12 clips for $79">Choose Monthly</a>
+          <a class="btn btn-primary" href="#order" data-need="clips" data-amount="Monthly: 12 clips for $79">Choose Monthly</a>
         </article>
         <article class="price">
           <div class="name"><span>For agencies</span></div>
           <div class="amt">$8<small>per clip</small></div>
-          <p class="what">White-label editing for your clients, under your brand.</p>
+          <p class="per">White-label</p>
           <ul>
-            <li>Your templates, your client relationship</li>
-            <li>48-hour turnaround on overflow batches</li>
-            <li>Paid 10-clip trial batch to start</li>
+            <li>Your templates and brand</li>
+            <li>48-hour turnaround</li>
+            <li>Paid 10-clip trial first</li>
           </ul>
-          <a class="btn" href="#contact" data-plan="Agency work, from $8 per clip">Ask about agency work</a>
+          <a class="btn" href="#order" data-need="clips" data-amount="Agency: batches at $8 per clip">Ask about agency work</a>
         </article>
       </div>
-      <p class="price-note">Trailers, motion graphics and long-form YouTube edits are quoted per project. <a href="#contact" data-plan="Motion design or a long-form edit">Ask for a quote</a>.</p>
+      <ul class="quote-list" aria-label="Quoted per project">
+        <li><span>Long-form edits</span><a class="btn btn-quiet" href="#order" data-need="longform">Get a quote</a></li>
+        <li><span>Motion graphics</span><a class="btn btn-quiet" href="#order" data-need="motion">Get a quote</a></li>
+        <li><span>Trailers and ads</span><a class="btn btn-quiet" href="#order" data-need="ads">Get a quote</a></li>
+        <li><span>Photo editing</span><a class="btn btn-quiet" href="#order" data-need="photo">Get a quote</a></li>
+      </ul>
     </div>
   </section>
 
-  <section class="block" id="process">
+  <section class="block" id="faq">
     <div class="wrap">
       <div class="block-head">
-        <h2>Process</h2>
+        <h2>FAQ</h2>
       </div>
-      <div class="steps">
-        <div class="step"><span class="n">01</span><h3>Send a link</h3><p>A YouTube URL, a Drive or Dropbox folder, or a raw recording. No briefing call needed.</p></div>
-        <div class="step"><span class="n">02</span><h3>I pick the moments</h3><p>I watch the full episode and pick moments that make sense on their own and run under 60 seconds.</p></div>
-        <div class="step"><span class="n">03</span><h3>Clips in 48 hours</h3><p>Edited, captioned and mixed, with a title and post caption for each one.</p></div>
-        <div class="step"><span class="n">04</span><h3>You post or send notes</h3><p>One round of changes per clip is included, sent back within 24 hours.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="block" id="about">
-    <div class="wrap">
-      <div class="about">
-        <div class="about-copy">
-          <h2>About</h2>
-          <p>I'm based in India and take on work from the US, UK and Europe.</p>
-          <p>India is 9½ to 10½ hours ahead of New York and 4½ to 5½ ahead of London, so footage you send at the end of your day can be edited before your next one starts.</p>
-          <div class="tools"><span>DaVinci Resolve</span><span>After Effects</span></div>
-        </div>
-        <div class="clock" aria-label="Time zones">
-          <div class="clock-row"><span>New York</span><b id="tNY">--:--</b></div>
-          <div class="clock-row"><span>London</span><b id="tLDN">--:--</b></div>
-          <div class="clock-row"><span>India</span><b id="tIN">--:--</b></div>
-        </div>
+      <div class="faq">
+        <details><summary>Is the sample really free?</summary><p>Yes. I edit a short part of your footage. You pay only if you want the full job.</p></details>
+        <details><summary>How do I pay?</summary><p>PayPal or Wise, in US dollars, before I start. Monthly plans pay at the start of each month. See the <a href="terms.html">terms</a>.</p></details>
+        <details><summary>How many changes do I get?</summary><p>One round, back within 24 hours.</p></details>
+        <details><summary>Who owns the finished video?</summary><p>You do, once it's paid.</p></details>
       </div>
     </div>
   </section>
 
-  <section class="contact" id="contact">
+  <section class="order" id="order">
     <div class="wrap">
-      <div class="contact-box">
-        <div class="contact-copy">
-          <h2>Send me one episode. I'll cut a sample.</h2>
-          <p>Paste a link to any episode or stream. You get one finished clip back before you pay anything, and a reply by email within a day.</p>
-          <div class="alt">
-            <span>Prefer email?</span>
-            <div class="email-row">
-              <span class="email" id="email">katt.editing@gmail.com</span>
-              <button class="btn" id="copyBtn" type="button">Copy email</button>
+      <div class="order-grid">
+        <div class="order-copy">
+          <h2>Order</h2>
+          <ol class="how">
+            <li>Tap a few answers</li>
+            <li>Get a free sample</li>
+            <li>Pay and get the edit</li>
+          </ol>
+          <div class="order-alt">
+            <span>Or message me</span>
+            <div class="row">
+              <a class="btn btn-sm" href="https://www.instagram.com/katt.editing/" rel="noopener" target="_blank">Instagram</a>
+              <a class="btn btn-sm" href="https://x.com/KattEditingOnX" rel="noopener" target="_blank">X</a>
+              <button class="btn btn-sm" id="copyBtn" type="button">Copy email</button>
               <span class="copied" id="copied" role="status" aria-live="polite"></span>
             </div>
+            <span class="email" id="email">katt.editing@gmail.com</span>
           </div>
         </div>
 
-        <form class="cform" id="cform" novalidate>
-          <div class="field">
-            <label for="f-name">Your name</label>
-            <input id="f-name" name="name" autocomplete="name" maxlength="100" required aria-describedby="e-name">
-            <span class="err" id="e-name"></span>
+        <form class="of" id="orderForm" novalidate aria-label="Order form">
+          <div class="of-top" id="ofTop">
+            <button class="of-back" id="ofBack" type="button" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
+            <div class="of-progress" aria-hidden="true"><i id="ofBar"></i></div>
+            <span class="of-count" id="ofCount" aria-live="polite">1 / 6</span>
           </div>
-          <div class="field">
-            <label for="f-email">Your email</label>
-            <input id="f-email" name="email" type="email" autocomplete="email" maxlength="254" required aria-describedby="e-email">
-            <span class="err" id="e-email"></span>
-          </div>
-          <div class="field full">
-            <label for="f-link">Link to an episode or stream <span>(optional)</span></label>
-            <input id="f-link" name="link" type="url" inputmode="url" maxlength="500" placeholder="https://youtube.com/watch?v=..." aria-describedby="e-link">
-            <span class="err" id="e-link"></span>
-          </div>
-          <div class="field full">
-            <label for="f-plan">What you need</label>
-            <select id="f-plan" name="plan">
-              <option>A free sample clip</option>
-              <option>Starter: 3 clips for $25</option>
-              <option>Monthly: 12 clips for $79</option>
-              <option>Agency work, from $8 per clip</option>
-              <option>Motion design or a long-form edit</option>
-              <option value="custom">Something else (describe it)</option>
-            </select>
-          </div>
-          <div class="field full" id="customField" hidden>
-            <label for="f-custom">Describe what you need</label>
-            <textarea id="f-custom" name="custom" rows="3" maxlength="1000" aria-describedby="e-custom c-custom" placeholder="For example: a 60-second trailer for my course launch, needed by 20 November"></textarea>
-            <span class="count" id="c-custom">0 / 1000</span>
-            <span class="err" id="e-custom"></span>
-          </div>
-          <div class="field full">
-            <label for="f-msg">Anything I should know? <span>(optional)</span></label>
-            <textarea id="f-msg" name="message" rows="4" maxlength="2000" placeholder="Who watches it, how often you post, a moment you'd like clipped"></textarea>
-          </div>
-          <input class="hp" type="checkbox" name="botcheck" id="f-bot" tabindex="-1" autocomplete="off" aria-hidden="true">
-          <div class="form-foot">
-            <button class="btn primary" type="submit" id="f-send">Send request</button>
-            <p class="form-status" id="f-status" role="status" aria-live="polite"></p>
-          </div>
-          <div class="fallback form-note" id="f-fallback" hidden>
-            <a class="btn" id="f-mailto" href="mailto:katt.editing@gmail.com">Open in my email app</a>
-            <button class="btn" type="button" id="f-copymsg">Copy my message</button>
-          </div>
-          <p class="form-note">Your details go to my inbox and nowhere else. <a href="privacy.html">Privacy policy</a></p>
+          <div id="ofStage" aria-live="polite"></div>
+          <noscript><p class="of-note">This form needs JavaScript. Email katt.editing@gmail.com instead.</p></noscript>
         </form>
       </div>
     </div>
@@ -555,11 +201,17 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
 
 <footer>
   <div class="wrap">
-    <span>Katt Editing, run by Ayan in India</span>
-    <span>All clips shown are my own edits. Footage belongs to its creators.</span>
+    <span>Katt Editing · India</span>
+    <nav aria-label="Social"><a href="https://www.instagram.com/katt.editing/" rel="noopener" target="_blank">Instagram</a><a href="https://x.com/KattEditingOnX" rel="noopener" target="_blank">X</a><a href="mailto:katt.editing@gmail.com">Email</a></nav>
+    <span>Footage belongs to its creators.</span>
     <nav class="legal" aria-label="Legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
   </div>
 </footer>
+
+<div class="mbar" id="mbar" aria-hidden="true">
+  <span>Free sample before you pay</span>
+  <a class="btn btn-primary" href="#order" tabindex="-1">Get a free sample</a>
+</div>
 
 <dialog class="player" id="player" aria-label="Video player">
   <div class="player-inner">
@@ -571,7 +223,7 @@ dialog.player::backdrop { background: rgba(5,5,6,.9); }
   </div>
 </dialog>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=5"></script>
 
 </body>
 </html>
