@@ -55,7 +55,7 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 
 ## Page order
 
-Header → first screen (headline, text and buttons left, reel right; stacked below 1000px; everything visible without scrolling) → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Packages (tabs: Clips | Long-form, three boxes each, both panels one height so switching never moves the page; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
+Header → first screen (headline, text and buttons left, reel right; stacked below 1000px; everything visible without scrolling) → Work (tabs: Motion, Short-form, Ads & demos, Long-form; one at a time) → Packages (tabs: Short-form | Long-form, three boxes each, both panels one height so switching never moves the page; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
 
 ## Components
 
@@ -64,3 +64,7 @@ Button (primary, secondary, quiet) · Tabs · FAQ grid · BeforeAfter (Long-form
 ## Phones (below 760px)
 
 Shorter page, same content: work cards and package boxes sit in swipeable rows (Recommended first, the next box peeking in), FAQ answers open on tap, the hero note and the three-step list are dropped (the bottom bar and the form say the same), and the order form comes before the other ways to get in touch.
+
+## Tabs
+
+Work and Packages tabs keep one height: every panel of a set sits in the same grid cell (`.panel-stack`), the hidden ones invisible and inert, so switching never moves the page. Switching swipes the cards: the old ones slide out on the side away from the new tab, the new ones slide in from the other side, slightly staggered (0.2s out, 0.3s in). Previews in hidden tabs are paused. Reduced motion switches instantly.

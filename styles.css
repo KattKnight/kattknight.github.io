@@ -227,10 +227,18 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .price-note { margin-top: var(--s-5); font: var(--t-fine); color: var(--mute); }
 .prices .price-note { grid-column: 1 / -1; margin-top: 0; }
 .ptabs { margin-bottom: var(--s-5); }
-/* Both package panels share one grid cell: the section is as tall as the taller panel in either tab */
-.price-panels { display: grid; }
-.price-panels > .prices { grid-area: 1 / 1; }
-.price-panels > .prices.off { visibility: hidden; }
+/* Tab panels (Work, Packages) share one grid cell: the section is as tall as its tallest panel in every tab */
+.panel-stack { display: grid; }
+.panel-stack > * { grid-area: 1 / 1; min-width: 0; }
+.panel-stack > .off { visibility: hidden; }
+/* Switching tabs swipes the cards: out on the side away from the new tab, in from the other (--dir is 1 or -1) */
+.swipe-out :is(.card, .ba, .price, .price-note) { animation: swipe-out .2s cubic-bezier(.4, 0, 1, 1) forwards; }
+.swipe-in :is(.card, .ba, .price, .price-note) { animation: swipe-in .3s var(--ease) backwards; }
+.swipe-in :is(.card, .ba, .price):nth-child(2) { animation-delay: 45ms; }
+.swipe-in :is(.card, .ba, .price):nth-child(3) { animation-delay: 90ms; }
+.swipe-in :is(.card, .ba, .price, .price-note):nth-child(n+4) { animation-delay: 120ms; }
+@keyframes swipe-out { to { opacity: 0; transform: translateX(calc(var(--dir, 1) * -48px)); } }
+@keyframes swipe-in { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 48px)); } }
 /* Phones and tablets: most expensive first, then the recommended plan, then the cheap one */
 @media (max-width: 900px) { .prices .price.top { order: -2; } .prices .price.lead { order: -1; } }
 /* Phones: tighter boxes so the three plans take less scrolling */
@@ -358,9 +366,9 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .hero { position: relative; isolation: isolate; overflow: clip; }
 .hero > .wrap { position: relative; z-index: 1; }
 .hero-wave { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; display: none; pointer-events: none;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 80%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
   -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 14%, #000 80%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
   mask-composite: intersect; }
 @media (min-width: 1000px) and (pointer: fine) { .hero-wave { display: block; } }
 .hero-grid { display: grid; grid-template-columns: 1fr; gap: var(--s-6); }
@@ -419,6 +427,15 @@ footer a { text-underline-offset: 3px; }
   .work-grid .card { flex: none; max-width: none; scroll-snap-align: start; }
   .work-grid .card.is-v { width: 169px; }
   .work-grid .card.is-h { width: min(82vw, 340px); }
+  .ba-grid, .ba-grid.all-empty { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: min(82vw, 340px);
+    overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: var(--s-3);
+    margin-inline: calc(var(--gutter) * -1); padding: 0 var(--gutter) var(--s-2); scroll-padding-inline: var(--gutter); }
+  .ba-grid::-webkit-scrollbar { display: none; }
+  .ba-grid > .ba { scroll-snap-align: start; }
+  .ba-grid > .ba:first-child:nth-last-child(odd) { grid-column: auto; }
+  /* Four work tabs fit one phone row */
+  .tabs { gap: var(--s-3); }
+  .tab { font-size: 15px; }
   /* Packages: the three boxes sit side by side and swipe; the recommended one comes first, the next peeks in */
   .prices { display: grid; grid-template-columns: repeat(3, min(82vw, 320px));
     overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: var(--s-3);

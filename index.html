@@ -35,7 +35,7 @@
 <meta name="twitter:player:stream:content_type" content="video/mp4">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css?v=2">
-<link rel="stylesheet" href="styles.css?v=39">
+<link rel="stylesheet" href="styles.css?v=42">
 </head>
 <body>
 
@@ -96,7 +96,7 @@
         <h2>Work</h2>
       </div>
       <div class="tabs" id="workTabs" role="tablist" aria-label="Type of work"></div>
-      <div id="workPanels"></div>
+      <div class="panel-stack" id="workPanels"></div>
     </div>
   </section>
 
@@ -107,11 +107,11 @@
         <p>US dollars.</p>
       </div>
       <div class="tabs ptabs" id="priceTabs" role="tablist" aria-label="Type of package">
-        <button type="button" class="tab" role="tab" id="ptab-clips" data-cat="clips" aria-controls="prices-clips" aria-selected="true">Clips</button>
+        <button type="button" class="tab" role="tab" id="ptab-clips" data-cat="clips" aria-controls="prices-clips" aria-selected="true">Short-form</button>
         <button type="button" class="tab" role="tab" id="ptab-longform" data-cat="longform" aria-controls="prices-longform" aria-selected="false" tabindex="-1">Long-form</button>
       </div>
 
-      <div class="price-panels">
+      <div class="panel-stack">
       <div class="prices" id="prices-clips" role="tabpanel" aria-labelledby="ptab-clips">
         <article class="price">
           <div class="name"><span>Try</span></div>
@@ -273,7 +273,7 @@
   </div>
 </dialog>
 
-<script src="app.js?v=50"></script>
+<script src="app.js?v=53"></script>
 
 </body>
 </html>

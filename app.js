@@ -5,7 +5,7 @@
 // Every piece here exists in the Drive "Portfolio Pieces" folder.
 const CATS = [
   { id: "motion", short: "Motion" },
-  { id: "clips", short: "Clips" },
+  { id: "clips", short: "Short-form" },
   { id: "ads", short: "Ads & demos" },
   { id: "longform", short: "Long-form" }
 ];
@@ -105,7 +105,7 @@ CATS.forEach((c, i) => {
   const panel = document.createElement("div");
   panel.className = "work-panel"; panel.id = `panel-${c.id}`; panel.dataset.cat = c.id;
   panel.setAttribute("role", "tabpanel"); panel.setAttribute("aria-labelledby", `tab-${c.id}`);
-  panel.hidden = i !== 0;
+  if (i !== 0) { panel.classList.add("off"); panel.inert = true; }
   if (c.id === "longform") {
     panel.innerHTML = `<div class="ba-grid"></div>`;
     BEFORE_AFTER.forEach((b, n) => panel.firstChild.appendChild(baCard(b, n + 1)));
@@ -124,13 +124,38 @@ CATS.forEach((c, i) => {
   t.setAttribute("aria-selected", String(i === 0)); t.tabIndex = i === 0 ? 0 : -1;
   tabList.appendChild(t);
 });
-function showTab(t, focus) {
-  tabList.querySelectorAll(".tab").forEach(x => {
-    const on = x === t;
-    x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1;
-    document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
-  });
+/* Tab panels (Work and Packages). Every panel of a set sits in one grid cell (.panel-stack), so the section is
+   as tall as its tallest panel and switching tabs never moves the page below. Switching swipes: the old
+   panel's cards slide out on the side away from the new tab while the new cards slide in from the other
+   side, slightly staggered. Moving right through the tabs, everything travels left, and the reverse. */
+const SWIPE_MS = 400;                              // longest card animation, stagger included
+function settlePanel(p, on) {
+  clearTimeout(p._swipe);
+  p.classList.remove("swipe-in", "swipe-out");
+  p.classList.toggle("off", !on); p.inert = !on;
+  if (!on) p.querySelectorAll("video").forEach(v => v.pause());   // a hidden tab never keeps playing
+}
+function switchPanel(listEl, t, focus) {
+  const tabs = [...listEl.querySelectorAll(".tab")];
+  const from = tabs.find(x => x.getAttribute("aria-selected") === "true");
   if (focus) t.focus();
+  if (from === t) return;
+  const dir = tabs.indexOf(t) > tabs.indexOf(from) ? 1 : -1;
+  tabs.forEach(x => { const on = x === t; x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; });
+  const panelOf = x => document.getElementById(x.getAttribute("aria-controls"));
+  const oldP = from && panelOf(from), newP = panelOf(t);
+  tabs.forEach(x => { const p = panelOf(x); if (p !== oldP && p !== newP) settlePanel(p, false); });   // from earlier quick clicks
+  settlePanel(newP, true);
+  if (!oldP || reduceMotion) { if (oldP) settlePanel(oldP, false); syncVideos(); return; }
+  oldP.inert = true;
+  [oldP, newP].forEach(p => { p.style.setProperty("--dir", dir); void p.offsetWidth; });           // restart the animations
+  oldP.classList.add("swipe-out"); newP.classList.add("swipe-in");
+  oldP._swipe = setTimeout(() => settlePanel(oldP, false), SWIPE_MS);
+  newP._swipe = setTimeout(() => newP.classList.remove("swipe-in"), SWIPE_MS);
+  syncVideos();
+}
+function showTab(t, focus) {
+  switchPanel(tabList, t, focus);
   t.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 tabList.addEventListener("click", e => { const t = e.target.closest(".tab"); if (t) showTab(t); });
@@ -142,26 +167,24 @@ tabList.addEventListener("keydown", e => {
   e.preventDefault(); showTab(tabs[(to + tabs.length) % tabs.length], true);
 });
 
-// Preview loops play only while on screen
+// Preview loops play only while on screen and in the tab that's showing (hidden tabs still take up space)
+let loopIO = null;
 if (!reduceMotion && "IntersectionObserver" in window) {
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { const v = e.target; if (e.isIntersecting) v.play().catch(() => {}); else v.pause(); });
+  loopIO = new IntersectionObserver(entries => {
+    entries.forEach(e => { const v = e.target; if (e.isIntersecting && !v.closest(".off, .swipe-out")) v.play().catch(() => {}); else v.pause(); });
   }, { threshold: 0.35 });
-  document.querySelectorAll(".thumb video").forEach(v => io.observe(v));
+  document.querySelectorAll(".thumb video").forEach(v => loopIO.observe(v));
+}
+function syncVideos() {
+  document.querySelectorAll(".thumb video").forEach(v => {
+    if (v.closest(".off") || v.closest(".swipe-out")) v.pause();
+    else if (loopIO) { loopIO.unobserve(v); loopIO.observe(v); }          // re-check: plays if on screen
+  });
 }
 
-// Package tabs: Clips | Long-form. Both panels sit in the same grid cell, so the section is always as tall as
-// the taller one and switching tabs never moves the page below.
+// Package tabs: Short-form | Long-form (same stacked, swiping panels as Work)
 const priceTabs = document.getElementById("priceTabs");
-function showPriceTab(t, focus) {
-  priceTabs.querySelectorAll(".tab").forEach(x => {
-    const on = x === t;
-    x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1;
-    const p = document.getElementById(x.getAttribute("aria-controls"));
-    p.classList.toggle("off", !on); p.inert = !on;               // stays in layout, keeping the section's height
-  });
-  if (focus) t.focus();
-}
+function showPriceTab(t, focus) { switchPanel(priceTabs, t, focus); }
 priceTabs.addEventListener("click", e => { const t = e.target.closest(".tab"); if (t) showPriceTab(t); });
 priceTabs.addEventListener("keydown", e => {
   const tabs = [...priceTabs.querySelectorAll(".tab")], i = tabs.indexOf(document.activeElement);
@@ -808,14 +831,14 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const want = m.on ? m.x : W * (.1 + .8 * prog);
     head = head == null || (!m.on && Math.abs(want - head) > W * .3) ? want : head + (want - head) * (1 - Math.exp(-dt / 70));
     g.clearRect(0, 0, W, H);
-    const mid = H * .56;
+    const mid = H * .5;                            // centred in the hero
     for (let i = 0; i < amp.length; i++) {
       const x = i * STEP + STEP / 2, k = Math.max(0, 1 - Math.abs(x - head) / 120), e = k * k * (3 - 2 * k);
-      const h = amp[i] * H * .2 * (1 + e * .45) + 2;
+      const h = amp[i] * H * .46 * (1 + e * .3) + 3;   // tall enough to read as a waveform at a glance
       g.fillStyle = e > .03 ? `rgba(${FG},${.08 + .16 * e})` : `rgba(${BAR},${x < head ? .2 : .1})`;
       g.fillRect(Math.round(x - 1.5), Math.round(mid - h / 2), 3, Math.round(h));
     }
-    g.fillStyle = `rgba(${FG},.28)`; g.fillRect(Math.round(head), Math.round(mid - H * .18), 1, Math.round(H * .36));
+    g.fillStyle = `rgba(${FG},.28)`; g.fillRect(Math.round(head), Math.round(mid - H * .36), 1, Math.round(H * .72));
   }
   function loop(now) { draw(now); raf = visible && !document.hidden ? requestAnimationFrame(loop) : 0; }
   function wake() { if (!raf && !reduceMotion && visible && !document.hidden) { last = 0; raf = requestAnimationFrame(loop); } }
