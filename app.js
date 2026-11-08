@@ -566,15 +566,26 @@ document.addEventListener("click", e => {
   current = to; render();
 });
 
-// Every link to #order lands on the form itself, not the heading above it
-// (on phones the heading and email block would push the form below the fold).
+// In-page links (#work, #pricing, #faq, #order, #top) scroll without writing the #part into the
+// address bar, so the URL stays kattknight.github.io/. Links to #order land on the form itself,
+// not the heading above it (on phones the heading would push the form below the fold).
 document.addEventListener("click", e => {
-  const a = e.target.closest('a[href="#order"]'); if (!a) return;
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute("href").slice(1);
+  const target = id === "order" ? ofForm : id === "top" || !id ? document.body : document.getElementById(id);
+  if (!target) return;
   e.preventDefault();
-  const y = ofForm.getBoundingClientRect().top + window.scrollY - 80;
+  const y = target === document.body ? 0 : target.getBoundingClientRect().top + window.scrollY - 80;
   window.scrollTo({ top: y, behavior: reduceMotion ? "auto" : "smooth" });
-  if (location.hash !== "#order") history_replace("#order");
+  cleanUrl();
 });
-function history_replace(h) { try { window.history.replaceState(null, "", h); } catch (err) {} }
+// Old links like /index.html#pricing still scroll to their section, then the URL is tidied to /
+function cleanUrl() {
+  const clean = location.pathname.replace(/index\.html$/, "") + location.search;
+  if (clean !== location.pathname + location.search + location.hash) {
+    try { window.history.replaceState(null, "", clean); } catch (err) {}
+  }
+}
+window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
 render();
