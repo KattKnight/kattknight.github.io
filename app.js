@@ -197,6 +197,13 @@ function tick() {
 requestAnimationFrame(tick);
 if (!reduceMotion) reel.play().catch(() => {});
 
+// Quiet load: the poster sits behind the video (CSS), and the video fades in once frames are playing.
+// Headline, text and reel ease in once, a tenth of a second apart. One motion, nothing that asks for attention.
+const showReel = () => reel.classList.add("ready");
+if (reduceMotion) showReel(); else reel.addEventListener("playing", showReel, { once: true });
+setTimeout(showReel, 4000); // never leave the frame on the poster forever (slow network, autoplay blocked)
+document.querySelectorAll(".hero .q-in").forEach((el, i) => setTimeout(() => el.classList.add("on"), reduceMotion ? 0 : 80 + i * 100));
+
 // Sound fades in instead of starting at full level. Web Audio gain is used where possible
 // because iPhones ignore video.volume; otherwise the element volume is ramped.
 let audioCtx = null;
@@ -243,11 +250,13 @@ const FADE_MS = 1500;
 function setSound(on) {
   if (on) fadeIn(reel, REEL_VOLUME, FADE_MS);
   reel.muted = !on;
-  soundLabel.textContent = on ? "Sound on" : "Muted";
+  // The button names what it does: "Play with sound" restarts the reel with sound, "Mute" turns it off
+  soundLabel.textContent = on ? "Mute" : "Play with sound";
   iconMuted.hidden = on; iconSound.hidden = !on;
   soundBtn.setAttribute("aria-pressed", String(on));
-  soundBtn.setAttribute("aria-label", on ? "Showreel sound is on. Mute it" : "Showreel is muted. Turn sound on");
 }
+// Clicking the reel itself does the same as the button
+document.querySelector(".hero .viewer-frame").addEventListener("click", e => { if (!e.target.closest("button")) soundBtn.click(); });
 soundBtn.addEventListener("click", () => {
   if (reel.muted) { setSound(true); reel.currentTime = 0; reel.play().catch(() => {}); }
   else setSound(false);

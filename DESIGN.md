@@ -41,6 +41,8 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 - Work cards: rows of equal height that fill the width (flex grows by aspect ratio `--ar`), so a 9:16 piece never sits alone beside empty space.
 - Inner radius = outer minus padding: form panel 16, options 8, option keys and video tags 4. Cards 12. Buttons are pills.
 - No shadows. Motion: 0.15s hovers, 0.28s form slides, all off with reduced motion.
+- **One motion on load, nothing that asks for attention.** The reel's poster shows instantly and the video fades in over it (0.6s); headline, text and reel ease up 10px once, 0.1s apart. No loaders, word pops, flashing or big overlay buttons. Sound only on request: the corner button says "Play with sound" / "Mute", and clicking the reel does the same.
+- **Bands, not lines:** Work and FAQ sit on `--ink-2`, the rest on `--ink`, so sections read as blocks without dividers.
 
 ## Copy
 
@@ -51,7 +53,7 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 
 ## Page order
 
-Header → hero and showreel → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Pricing (tabs: Clips | Long-form, three boxes each; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
+Header → first screen (headline, text and buttons left, reel right; stacked below 1000px; everything visible without scrolling) → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Pricing (tabs: Clips | Long-form, three boxes each; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
 
 ## Components
 

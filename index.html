@@ -35,7 +35,7 @@
 <meta name="twitter:player:stream:content_type" content="video/mp4">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
-<link rel="stylesheet" href="styles.css?v=16">
+<link rel="stylesheet" href="styles.css?v=17">
 </head>
 <body>
 
@@ -59,8 +59,8 @@
   <section class="hero">
     <div class="wrap">
       <div class="hero-grid">
-        <h1>Video edits and <em>motion graphics</em> for creators</h1>
-        <div class="hero-side">
+        <h1 class="q-in">Video edits and <em>motion graphics</em> for creators</h1>
+        <div class="hero-side q-in">
           <p>I'm Ayan, a video editor in India. I edit long-form videos, Shorts and Reels, trailers and logo animations.</p>
           <div class="cta-row">
             <a class="btn btn-primary" href="#order">Get a free sample</a>
@@ -68,30 +68,28 @@
           </div>
           <p class="hero-note">Free sample before you pay · Clips in 48 hours</p>
         </div>
-      </div>
-    </div>
-    <div class="wrap wide">
-      <div class="viewer">
-        <div class="viewer-frame">
-          <!-- Showreel slot. To swap in a new reel, replace media/showreel.mp4 (1280px wide), media/showreel-sm.mp4
-               (640px, for phones) and media/reel.jpg (poster frame), keeping these names. The timecode reads the length itself. -->
-          <video id="reel" poster="media/reel.jpg" muted loop playsinline preload="auto" aria-label="Showreel"></video>
-          <button class="btn sound" id="soundBtn" type="button" aria-pressed="false" aria-label="Showreel is muted. Turn sound on">
-            <svg id="iconMuted" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11 6l4 4M15 6l-4 4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
-            <svg id="iconSound" viewBox="0 0 16 16" aria-hidden="true" hidden><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 010 5M13.5 3.5a6 6 0 010 9" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
-            <span id="soundLabel">Muted</span>
-          </button>
-        </div>
-        <div class="viewer-bar">
-          <span>Showreel</span>
-          <div class="scrub" aria-hidden="true"><i id="scrub"></i></div>
-          <span class="tc" id="tc"><b>00:00:00:00</b></span>
+        <div class="viewer q-in">
+          <div class="viewer-frame">
+            <!-- Showreel slot. To swap in a new reel, replace media/showreel.mp4 (1280px wide), media/showreel-sm.mp4
+                 (640px, for phones) and media/reel.jpg (poster frame), keeping these names. The timecode reads the length itself. -->
+            <video id="reel" poster="media/reel.jpg" muted loop playsinline preload="auto" aria-label="Showreel"></video>
+            <button class="btn sound" id="soundBtn" type="button" aria-pressed="false">
+              <svg id="iconMuted" viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z" fill="currentColor"/></svg>
+              <svg id="iconSound" viewBox="0 0 16 16" aria-hidden="true" hidden><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11 6l4 4M15 6l-4 4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+              <span id="soundLabel">Play with sound</span>
+            </button>
+          </div>
+          <div class="viewer-bar">
+            <span>Showreel</span>
+            <div class="scrub" aria-hidden="true"><i id="scrub"></i></div>
+            <span class="tc" id="tc"><b>00:00:00:00</b></span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="block" id="work">
+  <section class="block band" id="work">
     <div class="wrap">
       <div class="block-head">
         <h2>Work</h2>
@@ -198,7 +196,7 @@
     </div>
   </section>
 
-  <section class="block" id="faq">
+  <section class="block band" id="faq">
     <div class="wrap">
       <div class="block-head">
         <h2>FAQ</h2>
@@ -272,7 +270,7 @@
   </div>
 </dialog>
 
-<script src="app.js?v=13"></script>
+<script src="app.js?v=14"></script>
 
 </body>
 </html>
