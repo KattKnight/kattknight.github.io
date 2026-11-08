@@ -71,4 +71,4 @@ Work and Packages tabs keep one height: every panel of a set sits in the same gr
 
 ## Header
 
-At the top of the page the header has no bar, line or blur: logo, links and button sit on the page itself. Once the page scrolls, the row tightens into a floating capsule (max 1040px, 12px from the edges on phones): frosted ink-2 at 78%, a hairline edge, pill corners. It keeps the same 72px height in both states so nothing below moves; the change eases over 0.45s.
+At the top of the page the header has no bar and no line: logo, links and button sit on the page and the hero runs right up under them. Once the page scrolls it becomes a plain solid bar in `--ink` with one `--line` hairline under it, fading in over 0.2s. Solid on purpose: no blur, no translucency, no floating capsule. 72px tall in both states so nothing below moves.

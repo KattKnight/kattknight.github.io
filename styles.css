@@ -151,18 +151,14 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
 @media (max-width: 360px) { header.top .btn-sm { display: none; } }
 
 /* Header */
-/* At the top of the page the header is part of the page: no bar, no line, nothing behind it. Once the page
-   scrolls (app.js adds .scrolled) the row tightens into a floating capsule: frosted panel, hairline edge, pill
-   corners, narrower than the page, so it reads as a control that hovers over the content. Same height in both
-   states, so nothing below it moves. */
-header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; padding-block: 8px; pointer-events: none; }
-header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 56px;
-  pointer-events: auto; border: 1px solid transparent; border-radius: var(--r-pill); background-color: transparent;
-  transition: max-width .45s var(--ease), padding .45s var(--ease), background-color .3s, border-color .3s, -webkit-backdrop-filter .3s, backdrop-filter .3s; }
-header.top.scrolled .wrap { max-width: min(1040px, calc(100% - 24px)); padding-inline: 20px 8px;
-  background-color: color-mix(in srgb, var(--ink-2) 78%, transparent); border-color: rgba(244, 235, 221, .12);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2); }
-@media (max-width: 420px) { header.top.scrolled .wrap { padding-inline: 14px 6px; } }
+/* At the top of the page the header is part of the page: no bar and no line, the hero runs right up under it.
+   Once the page scrolls (app.js adds .scrolled) it becomes a plain solid bar in the page colour with one hairline
+   under it, fading in over 0.2s. Solid, not see-through: no blur, no glass, nothing floating. Same 72px height
+   either way, so nothing below it moves. */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background-color: transparent; border-bottom: 1px solid transparent; transition: background-color .2s var(--ease), border-color .2s var(--ease); }
+header.top.scrolled { background-color: var(--ink); border-bottom-color: var(--line); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 71px; }
 nav.links { display: flex; align-items: center; gap: var(--s-6); }
 nav.links a:not(.btn) { text-decoration: none; font: 500 15px/1 var(--body); color: var(--fg); text-underline-offset: 6px; }
 nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color: var(--cut); }
