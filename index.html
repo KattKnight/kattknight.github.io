@@ -35,7 +35,7 @@
 <meta name="twitter:player:stream:content_type" content="video/mp4">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="fonts.css">
-<link rel="stylesheet" href="styles.css?v=12">
+<link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
 
@@ -73,7 +73,9 @@
     <div class="wrap wide">
       <div class="viewer">
         <div class="viewer-frame">
-          <video id="reel" poster="media/reel.jpg" muted loop playsinline preload="auto" aria-label="Showreel, 39 seconds"></video>
+          <!-- Showreel slot. To swap in a new reel, replace media/showreel.mp4 (1280px wide), media/showreel-sm.mp4
+               (640px, for phones) and media/reel.jpg (poster frame), keeping these names. The timecode reads the length itself. -->
+          <video id="reel" poster="media/reel.jpg" muted loop playsinline preload="auto" aria-label="Showreel"></video>
           <button class="btn sound" id="soundBtn" type="button" aria-pressed="false" aria-label="Showreel is muted. Turn sound on">
             <svg id="iconMuted" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11 6l4 4M15 6l-4 4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
             <svg id="iconSound" viewBox="0 0 16 16" aria-hidden="true" hidden><path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 010 5M13.5 3.5a6 6 0 010 9" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
@@ -83,7 +85,7 @@
         <div class="viewer-bar">
           <span>Showreel</span>
           <div class="scrub" aria-hidden="true"><i id="scrub"></i></div>
-          <span class="tc" id="tc"><b>00:00:00:00</b> / 00:00:39:12</span>
+          <span class="tc" id="tc"><b>00:00:00:00</b></span>
         </div>
       </div>
     </div>
@@ -144,7 +146,6 @@
         <li><span>Long-form edits</span><a class="btn btn-quiet" href="#order" data-need="longform">Get a quote</a></li>
         <li><span>Motion graphics</span><a class="btn btn-quiet" href="#order" data-need="motion">Get a quote</a></li>
         <li><span>Trailers and ads</span><a class="btn btn-quiet" href="#order" data-need="ads">Get a quote</a></li>
-        <li><span>Photo editing</span><a class="btn btn-quiet" href="#order" data-need="photo">Get a quote</a></li>
       </ul>
     </div>
   </section>
@@ -223,7 +224,7 @@
   </div>
 </dialog>
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=7"></script>
 
 </body>
 </html>

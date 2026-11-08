@@ -51,8 +51,8 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 
 ## Page order
 
-Header → hero and showreel → Work (tabs, one type at a time) → Pricing → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
+Header → hero and showreel → Work (tabs: Motion, Clips, Ads & demos, Long-form; one at a time) → Pricing → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
 
 ## Components
 
-Button (primary, secondary, quiet) · Tabs · FAQ grid · WorkCard and empty slot · PriceBox and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.
+Button (primary, secondary, quiet) · Tabs · FAQ grid · BeforeAfter (Long-form: one player, Before | After switch, same timestamp; empty slots in one short row) · WorkCard and empty slot · PriceBox and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.

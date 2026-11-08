@@ -8,8 +8,7 @@ const CATS = [
   { id: "motion", short: "Motion", name: "Motion design & animation", note: "Lesson graphics, transitions, logo stings" },
   { id: "clips", short: "Clips", name: "Podcast & creator clips", note: "Vertical clips for Shorts, Reels and TikTok" },
   { id: "ads", short: "Ads & demos", name: "Trailers, demos & ads", note: "Short promos for a course, product or app" },
-  { id: "longform", short: "Long-form", name: "Long-form YouTube & gaming", note: "Full videos, cut for watch time" },
-  { id: "photo", short: "Photo", name: "Photo editing", note: "Retouching and colour for photo sets" }
+  { id: "longform", short: "Long-form", name: "Long-form YouTube & gaming", note: "Full videos, cut for watch time" }
 ];
 const WORK = [
   { id: "podcast", cat: "clips", fmt: "v", kind: "Podcast clip", title: "Two-host podcast",
@@ -25,11 +24,17 @@ const WORK = [
   { id: "logo", cat: "motion", fmt: "h", kind: "Logo animation", title: "FurblowCraft logo sting",
     dur: "00:03", fps: "00:00:02:15" }
 ];
-const EMPTY = {
-  longform: { fmt: "h", text: "Nothing here yet. Send a video and I'll edit part of it free.", need: "longform" },
-  ads: null,
-  photo: { fmt: "h", text: "Nothing here yet. Send a few photos and I'll edit two free.", need: "photo" }
-};
+const EMPTY = {};
+
+// Long-form pieces show as before/after: the same 60-90 second excerpt, raw and edited.
+// To add a piece: put media/<id>-before.mp4 (raw), media/<id>-after.mp4 (the edit) and
+// media/<id>.jpg (a frame from the edit) in media/, fill in kind and title, and set ready: true.
+// One piece shows full width; two sit side by side; three: the first full width, two below.
+const BEFORE_AFTER = [
+  { id: "longform-1", ready: false, kind: "Long-form edit", title: "Long-form piece 1" },
+  { id: "longform-2", ready: false, kind: "Long-form edit", title: "Long-form piece 2" },
+  { id: "longform-3", ready: false, kind: "Long-form edit", title: "Long-form piece 3" }
+];
 
 const playIcon = '<svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z" fill="currentColor"/></svg>';
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -59,6 +64,47 @@ function emptyCard(e) {
   return el;
 }
 
+function baCard(b, n) {
+  const el = document.createElement("article");
+  el.className = "ba" + (b.ready ? "" : " ba-empty");
+  const seg = `<div class="ba-seg" role="radiogroup" aria-label="Show raw footage or the edit">
+      <button type="button" role="radio" aria-checked="false" data-v="before"${b.ready ? "" : " disabled"}>Before</button>
+      <button type="button" role="radio" aria-checked="true" data-v="after"${b.ready ? "" : " disabled"}>After</button>
+    </div>`;
+  if (!b.ready) {
+    el.innerHTML = `
+      <div class="ba-frame ba-slot"><span class="ba-label">Slot ${n}</span>
+        <p>Coming soon: raw footage next to my edit.</p></div>
+      <div class="ba-bar"><div class="card-text"><span class="kind">${b.kind}</span><h4>${b.title}</h4></div>${seg}</div>`;
+    return el;
+  }
+  el.innerHTML = `
+    <div class="ba-frame">
+      <video controls playsinline preload="none" poster="media/${b.id}.jpg" src="media/${b.id}-after.mp4" aria-label="${b.title}, edited version"></video>
+      <span class="ba-label">After · edited</span>
+    </div>
+    <div class="ba-bar"><div class="card-text"><span class="kind">${b.kind}</span><h4>${b.title}</h4></div>${seg}</div>`;
+  const v = el.querySelector("video"), label = el.querySelector(".ba-label");
+  el.querySelector(".ba-seg").addEventListener("click", e => {
+    const btn = e.target.closest("button"); if (!btn || btn.getAttribute("aria-checked") === "true") return;
+    const which = btn.dataset.v, t = v.currentTime, playing = !v.paused;
+    el.querySelectorAll(".ba-seg button").forEach(x => x.setAttribute("aria-checked", String(x === btn)));
+    label.textContent = which === "after" ? "After · edited" : "Before · raw";
+    v.setAttribute("aria-label", `${b.title}, ${which === "after" ? "edited" : "raw"} version`);
+    // Same moment in the other version, so the comparison is like for like
+    v.addEventListener("loadedmetadata", () => {
+      // Play only after the jump lands; calling play() first can cancel the seek
+      if (playing) v.addEventListener("seeked", () => v.play().catch(() => {}), { once: true });
+      v.currentTime = Math.min(t, v.duration || t);
+    }, { once: true });
+    v.preload = "auto"; // preload="none" would stop before metadata, so the jump to the same moment never fires
+    v.src = `media/${b.id}-${which}.mp4`;
+    v.load();
+  });
+  v.addEventListener("play", () => setSound(false));
+  return el;
+}
+
 // Work tabs: one type of work on screen at a time (WAI-ARIA tabs pattern; arrow keys move between tabs)
 const workRoot = document.getElementById("workPanels");
 const tabList = document.getElementById("workTabs");
@@ -69,10 +115,17 @@ CATS.forEach((c, i) => {
   panel.className = "work-panel"; panel.id = `panel-${c.id}`; panel.dataset.cat = c.id;
   panel.setAttribute("role", "tabpanel"); panel.setAttribute("aria-labelledby", `tab-${c.id}`);
   panel.hidden = i !== 0;
-  panel.innerHTML = `<div class="work-grid"></div>`;
-  const grid = panel.querySelector(".work-grid");
-  items.forEach(w => grid.appendChild(card(w)));
-  if (!items.length && EMPTY[c.id]) grid.appendChild(emptyCard(EMPTY[c.id]));
+  if (c.id === "longform") {
+    panel.innerHTML = `<div class="ba-grid"></div>`;
+    BEFORE_AFTER.forEach((b, n) => panel.firstChild.appendChild(baCard(b, n + 1)));
+    // Until a piece is ready, the slots sit in one short row instead of big empty 16:9 frames
+    panel.firstChild.classList.toggle("all-empty", !BEFORE_AFTER.some(b => b.ready));
+  } else {
+    panel.innerHTML = `<div class="work-grid"></div>`;
+    const grid = panel.querySelector(".work-grid");
+    items.forEach(w => grid.appendChild(card(w)));
+    if (!items.length && EMPTY[c.id]) grid.appendChild(emptyCard(EMPTY[c.id]));
+  }
   workRoot.appendChild(panel);
 
   const t = document.createElement("button");
@@ -239,7 +292,6 @@ const NEEDS = [
   { v: "clips", label: "Short clips from my podcast or stream", sub: "Shorts, Reels, TikTok" },
   { v: "motion", label: "Motion graphics or animation", sub: "Trailer, lesson graphics, logo" },
   { v: "ads", label: "A product demo or ad", sub: "App, course or brand promo" },
-  { v: "photo", label: "Photo editing", sub: "Retouching, colour" },
   { v: "other", label: "Something else", sub: "Describe it on the next screen" }
 ];
 const AMOUNTS = {
@@ -263,10 +315,6 @@ const AMOUNTS = {
   ads: { title: "How long is the video?", opts: [
     { v: "Under 30 seconds", label: "Under 30 seconds" }, { v: "30 to 60 seconds", label: "30 to 60 seconds" },
     { v: "1 to 3 minutes", label: "1 to 3 minutes" }, { v: "Not sure yet", label: "Not sure yet" }
-  ] },
-  photo: { title: "How many photos?", opts: [
-    { v: "1 to 10 photos", label: "1 to 10" }, { v: "10 to 50 photos", label: "10 to 50" },
-    { v: "50 or more photos", label: "50 or more" }, { v: "Not sure yet", label: "Not sure yet" }
   ] }
 };
 const STEPS = [
