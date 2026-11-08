@@ -367,8 +367,8 @@ const STEPS = [
     { v: "No thanks", label: "No thanks" }
   ] },
   { id: "deadline", title: "When do you need it?", opts: () => [
-    { v: "Within 48 hours", label: "Within 48 hours" }, { v: "This week", label: "This week" },
-    { v: "Within 2 weeks", label: "Within 2 weeks" }, { v: "No fixed date", label: "No fixed date" }
+    { v: "Within 48 hours", label: "Within 48 hours", lines: ["Within", "48 hours"] }, { v: "This week", label: "This week", lines: ["This", "week"] },
+    { v: "Within 2 weeks", label: "Within 2 weeks", lines: ["Within", "2 weeks"] }, { v: "No fixed date", label: "No fixed date", lines: ["No fixed", "date"] }
   ] },
   { id: "budget", title: "What's your budget?", hint: "US dollars. Rough is fine.", opts: () => [
     { v: "Under $40", label: "Under $40" }, { v: "$40 to $100", label: "$40 to $100" }, { v: "$100 to $350", label: "$100 to $350" },
@@ -418,7 +418,7 @@ function stepMarkup(s, dir) {
     body = `<div class="of-options" role="radiogroup" aria-labelledby="of-q">${s.opts().map((o, i) => `
       <button type="button" class="option" role="radio" aria-checked="${state[s.id] === o.v}" data-v="${esc(o.v)}" data-i="${i}">
         <span class="option-key mono" aria-hidden="true">${String.fromCharCode(65 + i)}</span>
-        <span class="option-text"><b>${esc(o.label)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</span>
+        <span class="option-text"><b${o.lines ? ` aria-label="${esc(o.label)}"` : ""}>${o.lines ? o.lines.map(esc).join("<br>") : esc(o.label)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</span>
       </button>`).join("")}</div>`;
   } else if (s.link) {
     body = `<div class="of-field"><input id="of-link" type="url" inputmode="url" maxlength="500" autocomplete="url" placeholder="https://" value="${esc(state.link || "")}" aria-describedby="of-err">
@@ -476,20 +476,39 @@ function fitStage() {
   }
   state.need = saved;
   probe.remove();
-  if (tallest) ofStage.style.minHeight = tallest + "px";
+  if (tallest) ofStage.style.height = Math.ceil(tallest) + 2 + "px";   // a hard height: rounding can't nudge the page
 }
 // Answer text is sized by eye to its tile: about a fifth of the tile height, 16 to 20 px, and never more
 // than 55% of the question's size, so the question always reads as the heading. If a label would
 // overflow its tile, it steps down until it fits, so the card never grows.
 function sizeTiles() {
   const tiles = [...ofStage.querySelectorAll(".option")];
+  const grid = ofStage.querySelector(".of-options");
   ofStage.style.setProperty("--fs", "16px");
   if (!tiles.length) return;
-  const limit = parseFloat(ofStage.style.minHeight) || ofStage.offsetHeight;
+  grid.classList.remove("poster");
+  const limit = parseFloat(ofStage.style.height) || ofStage.offsetHeight;
   const q = ofStage.querySelector("#of-q");
-  const cap = Math.min(20, q ? parseFloat(getComputedStyle(q).fontSize) * 0.55 : 20);
-  let fs = Math.round(Math.max(16, Math.min(cap, tiles[0].getBoundingClientRect().height * 0.2)));
-  const fits = () => ofStage.offsetHeight <= limit + 1 && tiles.every(t => t.scrollHeight <= t.clientHeight + 1);
+  const qSize = q ? parseFloat(getComputedStyle(q).fontSize) : 34;
+  const h = tiles[0].getBoundingClientRect().height;
+  const fits = () => ofStage.scrollHeight <= limit + 1 &&
+    tiles.every(t => t.scrollHeight <= t.clientHeight + 1 && [...t.querySelectorAll("b")].every(b => b.scrollWidth <= b.clientWidth + 1));
+  if (STEPS[current].id === "deadline") {
+    // The deadline question only: key in the corner, each answer set large on two lines
+    // ("Within / 48 hours"), as big as fits every tile (one size for all), below 85% of the question.
+    grid.classList.add("poster");
+    let lo = 18, hi = Math.floor(Math.min(48, qSize * 0.85, h * 0.34)), best = 18;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      ofStage.style.setProperty("--ps", mid + "px");
+      if (fits()) { best = mid; lo = mid + 1; } else hi = mid - 1;
+    }
+    ofStage.style.setProperty("--ps", best + "px");
+    if (fits()) return;
+    grid.classList.remove("poster");                               // nothing fits: fall back to rows
+  }
+  const cap = Math.min(20, qSize * 0.55);
+  let fs = Math.round(Math.max(16, Math.min(cap, h * 0.2)));
   ofStage.style.setProperty("--fs", fs + "px");
   while (fs > 16 && !fits()) { fs--; ofStage.style.setProperty("--fs", fs + "px"); }
 }
@@ -740,7 +759,9 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   // The hold timer and momentum check start when a gesture REACHES the edge (most swipes start further
   // down the page). If the page arrives at the edge already coasting on momentum, it gets a short
   // impact bounce sized to its speed, like iOS, instead of nothing.
-  let edgeStart = 0, lastWheel = 0, prevStep = 0, shrinking = 0, spent = false, wasAtEdge = false;
+  // Momentum is judged on a smoothed speed (finger scrolling wobbles step to step; a momentum tail
+  // decays smoothly): six falls in a row of the smoothed step means the fingers have lifted.
+  let edgeStart = 0, lastWheel = 0, ema = 0, shrinking = 0, spent = false, wasAtEdge = false;
   const GAP = 150, MAX_HOLD = 450;
 
   const limit = () => innerHeight * REACH;
@@ -780,14 +801,15 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const newGesture = now - lastWheel > GAP;
     lastWheel = now;
     const step = Math.abs(dy);
-    shrinking = newGesture ? 0 : (step < prevStep ? shrinking + 1 : 0);
-    prevStep = step;
+    const prevEma = ema;
+    ema = newGesture ? step : ema * 0.6 + step * 0.4;
+    shrinking = newGesture ? 0 : (ema < prevEma * 0.985 ? shrinking + 1 : 0);
     const max = document.documentElement.scrollHeight - innerHeight;
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
     if (!atTop && !atBottom) { wasAtEdge = false; return; }
     if (newGesture || !wasAtEdge) {                                  // this gesture just reached the edge
       wasAtEdge = true; edgeStart = now; spent = false;
-      if (shrinking >= 1 && !newGesture) {                           // arrived coasting: impact bounce
+      if (shrinking >= 3 && !newGesture) {                           // arrived coasting: impact bounce
         spent = true;
         if (back) back = null;
         const L = limit();
@@ -799,7 +821,7 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
       shrinking = 0;
     }
     if (spent) return;                                               // rest of a momentum tail: ignore
-    if (shrinking >= 2 || now - edgeStart > MAX_HOLD) { spent = true; comeBack(); return; }
+    if (shrinking >= 6 || now - edgeStart > MAX_HOLD) { spent = true; comeBack(); return; }
     if (back) { target = x; back = null; }                           // caught mid-return: carry on from here
     const L = limit();
     const room = 1 - Math.min(1, Math.abs(target) / L);              // soft stop as it nears the limit
