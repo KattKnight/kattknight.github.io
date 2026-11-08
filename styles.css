@@ -94,6 +94,7 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
   min-height: 48px; padding: 0 var(--s-5); border-radius: var(--r-pill);
   border: 1px solid var(--line-strong); background: transparent; color: var(--fg);
   font: 600 15px/1 var(--body); text-decoration: none; cursor: pointer;
+  white-space: nowrap; text-align: center; /* a button label never breaks onto two lines */
   transition: background var(--fast), border-color var(--fast), color var(--fast);
 }
 .btn:hover { border-color: var(--fg); }
