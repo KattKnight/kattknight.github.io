@@ -67,4 +67,4 @@ Shorter page, same content: work cards and package boxes sit in swipeable rows (
 
 ## Tabs
 
-Work and Packages tabs keep one height: every panel of a set sits in the same grid cell (`.panel-stack`), the hidden ones invisible and inert, so switching never moves the page. Switching swipes the cards: the old ones slide out on the side away from the new tab, the new ones slide in from the other side, slightly staggered (0.2s out, 0.3s in). Previews in hidden tabs are paused. Reduced motion switches instantly.
+Work and Packages tabs keep one height: every panel of a set sits in the same grid cell (`.panel-stack`), the hidden ones invisible and inert, so switching never moves the page. Switching morphs the cards: each frame stays in place and reshapes into the matching card of the new tab (extras grow out of, or shrink into, the last frame), while only the pictures and text inside slide: out on the side away from the new tab, in from the other side (0.15s out, 0.26s in, frames 0.34s). Previews in hidden tabs are paused. Reduced motion switches instantly.

@@ -231,14 +231,14 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .panel-stack { display: grid; }
 .panel-stack > * { grid-area: 1 / 1; min-width: 0; }
 .panel-stack > .off { visibility: hidden; }
-/* Switching tabs swipes the cards: out on the side away from the new tab, in from the other (--dir is 1 or -1) */
-.swipe-out :is(.card, .ba, .price, .price-note) { animation: swipe-out .2s cubic-bezier(.4, 0, 1, 1) forwards; }
-.swipe-in :is(.card, .ba, .price, .price-note) { animation: swipe-in .3s var(--ease) backwards; }
-.swipe-in :is(.card, .ba, .price):nth-child(2) { animation-delay: 45ms; }
-.swipe-in :is(.card, .ba, .price):nth-child(3) { animation-delay: 90ms; }
-.swipe-in :is(.card, .ba, .price, .price-note):nth-child(n+4) { animation-delay: 120ms; }
-@keyframes swipe-out { to { opacity: 0; transform: translateX(calc(var(--dir, 1) * -48px)); } }
-@keyframes swipe-in { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 48px)); } }
+/* Switching tabs morphs (app.js): shells in .morph-layer reshape each frame from the old card to the new one,
+   while the cards' own frames are see-through and only their content slides */
+.panel-stack { position: relative; }
+.panel-stack > :not(.morph-layer) { position: relative; z-index: 1; }
+.morph-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: clip; overflow-clip-margin: var(--gutter); }
+.morph-shell { position: absolute; box-sizing: border-box; border-style: solid; }
+:is(.morph-in, .morph-out) :is(.thumb, .price, .ba-frame) { background-color: transparent !important; border-color: transparent !important; }
+:is(.morph-in, .morph-out) .thumb::after { box-shadow: none !important; }
 /* Phones and tablets: most expensive first, then the recommended plan, then the cheap one */
 @media (max-width: 900px) { .prices .price.top { order: -2; } .prices .price.lead { order: -1; } }
 /* Phones: tighter boxes so the three plans take less scrolling */

@@ -125,34 +125,82 @@ CATS.forEach((c, i) => {
   tabList.appendChild(t);
 });
 /* Tab panels (Work and Packages). Every panel of a set sits in one grid cell (.panel-stack), so the section is
-   as tall as its tallest panel and switching tabs never moves the page below. Switching swipes: the old
-   panel's cards slide out on the side away from the new tab while the new cards slide in from the other
-   side, slightly staggered. Moving right through the tabs, everything travels left, and the reverse. */
-const SWIPE_MS = 400;                              // longest card animation, stagger included
+   as tall as its tallest panel and switching tabs never moves the page below.
+   Switching morphs: each card's frame stays where it is and reshapes into the matching card of the new tab
+   (first into first, second into second); a tab with more cards grows the extras out of the last frame, one
+   with fewer shrinks the leftovers into it. Only what's inside a frame moves sideways: the old pictures and
+   text slide out on the side away from the new tab, the new ones slide in from the other side. Moving right
+   through the tabs, content travels left, and the reverse.
+   How: the frames are drawn by temporary "shell" boxes behind the panels that animate their real size and
+   position (no scaling, so corners and borders stay crisp); the cards' own frames are see-through meanwhile. */
+const MORPH_MS = 340, OUT_MS = 150, IN_DELAY = 110, IN_MS = 260;
+// A card's frame and the things inside it that swipe
+function unitsOf(panel) {
+  return [...panel.querySelectorAll(".card, .ba, .price, .price-note")].map(el => {
+    if (el.classList.contains("card")) { const f = el.querySelector(".thumb"); return { frame: f, content: [...f.children, el.querySelector(".card-text")] }; }
+    if (el.classList.contains("ba")) { const f = el.querySelector(".ba-frame"); return { frame: f, content: [...f.children, el.querySelector(".ba-bar")] }; }
+    if (el.classList.contains("price")) return { frame: el, content: [...el.children] };
+    return { frame: null, content: [el] };                                           // a note: text only
+  });
+}
 function settlePanel(p, on) {
-  clearTimeout(p._swipe);
-  p.classList.remove("swipe-in", "swipe-out");
+  p.classList.remove("morph-out", "morph-in");
   p.classList.toggle("off", !on); p.inert = !on;
   if (!on) p.querySelectorAll("video").forEach(v => v.pause());   // a hidden tab never keeps playing
 }
+let morphEnd = null;                                               // finishes a running morph at once
 function switchPanel(listEl, t, focus) {
   const tabs = [...listEl.querySelectorAll(".tab")];
   const from = tabs.find(x => x.getAttribute("aria-selected") === "true");
   if (focus) t.focus();
   if (from === t) return;
+  if (morphEnd) morphEnd();
   const dir = tabs.indexOf(t) > tabs.indexOf(from) ? 1 : -1;
   tabs.forEach(x => { const on = x === t; x.setAttribute("aria-selected", String(on)); x.tabIndex = on ? 0 : -1; });
   const panelOf = x => document.getElementById(x.getAttribute("aria-controls"));
   const oldP = from && panelOf(from), newP = panelOf(t);
-  tabs.forEach(x => { const p = panelOf(x); if (p !== oldP && p !== newP) settlePanel(p, false); });   // from earlier quick clicks
-  settlePanel(newP, true);
-  if (!oldP || reduceMotion) { if (oldP) settlePanel(oldP, false); syncVideos(); return; }
-  oldP.inert = true;
-  [oldP, newP].forEach(p => { p.style.setProperty("--dir", dir); void p.offsetWidth; });           // restart the animations
-  oldP.classList.add("swipe-out"); newP.classList.add("swipe-in");
-  oldP._swipe = setTimeout(() => settlePanel(oldP, false), SWIPE_MS);
-  newP._swipe = setTimeout(() => newP.classList.remove("swipe-in"), SWIPE_MS);
+  tabs.forEach(x => { const p = panelOf(x); if (p !== oldP && p !== newP) settlePanel(p, false); });
+  if (!oldP || reduceMotion || !newP.parentElement.animate) { if (oldP) settlePanel(oldP, false); settlePanel(newP, true); syncVideos(); return; }
+
+  // Measure both panels where they sit (the hidden one is laid out too, just invisible)
+  const stack = newP.parentElement, box = stack.getBoundingClientRect();
+  const rel = el => { const r = el.getBoundingClientRect(); return { left: r.left - box.left, top: r.top - box.top, width: r.width, height: r.height }; };
+  const olds = unitsOf(oldP), news = unitsOf(newP);
+  const oFrames = olds.filter(u => u.frame), nFrames = news.filter(u => u.frame);
+  const look = el => { const cs = getComputedStyle(el); return { borderColor: cs.borderTopColor, backgroundColor: cs.backgroundColor, borderRadius: cs.borderTopLeftRadius, borderWidth: cs.borderTopWidth }; };
+  const n = Math.max(oFrames.length, nFrames.length), pairs = [];
+  for (let i = 0; i < n; i++) {
+    const a = oFrames[Math.min(i, oFrames.length - 1)], b = nFrames[Math.min(i, nFrames.length - 1)];
+    if (!a || !b) continue;
+    pairs.push({ from: rel(a.frame), to: rel(b.frame), fl: look(a.frame), tl: look(b.frame), fade: i >= oFrames.length ? "in" : i >= nFrames.length ? "out" : "" });
+  }
+  settlePanel(newP, true); oldP.classList.remove("off"); oldP.inert = true;
+  oldP.classList.add("morph-out"); newP.classList.add("morph-in");
+
+  // Shells: one per frame pair; extras grow out of / shrink into the last frame on the other side
+  const layer = document.createElement("div"); layer.className = "morph-layer"; layer.setAttribute("aria-hidden", "true");
+  stack.appendChild(layer);
+  const anims = pairs.map(p => {
+    const s = document.createElement("div"); s.className = "morph-shell";
+    s.style.borderWidth = p.tl.borderWidth; s.style.borderRadius = p.tl.borderRadius;
+    layer.appendChild(s);
+    const k = (r, l, o) => ({ left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px", borderColor: l.borderColor, backgroundColor: l.backgroundColor, opacity: o });
+    return s.animate([k(p.from, p.fl, p.fade === "in" ? 0 : 1), k(p.to, p.tl, p.fade === "out" ? 0 : 1)],
+      { duration: MORPH_MS, easing: "cubic-bezier(.2, .7, .2, 1)", fill: "forwards" });
+  });
+  // Content: out on the side away from the new tab, in from the other side
+  const slide = (els, kf, opt) => els.filter(Boolean).map(el => el.animate(kf, opt));
+  const outs = slide(olds.flatMap(u => u.content), [{ opacity: 1, transform: "translateX(0)" }, { opacity: 0, transform: `translateX(${-dir * 36}px)` }], { duration: OUT_MS, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+  const ins = slide(news.flatMap(u => u.content), [{ opacity: 0, transform: `translateX(${dir * 36}px)` }, { opacity: 1, transform: "translateX(0)" }], { duration: IN_MS, delay: IN_DELAY, easing: "cubic-bezier(.2, .7, .2, 1)", fill: "backwards" });
   syncVideos();
+  let done = false;
+  const finish = () => {
+    if (done) return; done = true; if (morphEnd === finish) morphEnd = null;
+    [...anims, ...outs, ...ins].forEach(a => a.cancel());
+    layer.remove(); settlePanel(oldP, false); newP.classList.remove("morph-in");
+  };
+  morphEnd = finish;
+  setTimeout(finish, Math.max(MORPH_MS, IN_DELAY + IN_MS) + 20);
 }
 function showTab(t, focus) {
   switchPanel(tabList, t, focus);
@@ -171,13 +219,13 @@ tabList.addEventListener("keydown", e => {
 let loopIO = null;
 if (!reduceMotion && "IntersectionObserver" in window) {
   loopIO = new IntersectionObserver(entries => {
-    entries.forEach(e => { const v = e.target; if (e.isIntersecting && !v.closest(".off, .swipe-out")) v.play().catch(() => {}); else v.pause(); });
+    entries.forEach(e => { const v = e.target; if (e.isIntersecting && !v.closest(".off, .morph-out")) v.play().catch(() => {}); else v.pause(); });
   }, { threshold: 0.35 });
   document.querySelectorAll(".thumb video").forEach(v => loopIO.observe(v));
 }
 function syncVideos() {
   document.querySelectorAll(".thumb video").forEach(v => {
-    if (v.closest(".off") || v.closest(".swipe-out")) v.pause();
+    if (v.closest(".off") || v.closest(".morph-out")) v.pause();
     else if (loopIO) { loopIO.unobserve(v); loopIO.observe(v); }          // re-check: plays if on screen
   });
 }
