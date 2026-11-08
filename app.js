@@ -641,4 +641,53 @@ function cleanUrl() {
 }
 window.addEventListener("load", () => setTimeout(cleanUrl, 300));
 
+/* ---------- Rubber-band overscroll (mouse wheel and trackpads on Windows, Linux, ChromeOS) ----------
+   Scrolling past the top or bottom pulls the page a little against growing resistance, then it springs
+   back, the way iOS does. Apple devices already do this natively and touch screens have their own
+   effect, so it only runs for wheel input elsewhere. Only the content moves; the sticky header stays. */
+(function rubberBand() {
+  const apple = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+  if (apple || reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
+  const layers = [document.querySelector("main"), document.querySelector("footer")];
+  const MAX = 90;      // furthest the page can be pulled, in px
+  const GIVE = 260;    // how much scrolling it takes to get most of the way there (higher = stiffer)
+  let pull = 0;        // accumulated scroll past the edge (signed)
+  let offset = 0;      // what is drawn: pull after resistance
+  let idle = null, raf = null;
+
+  const draw = () => layers.forEach(el => { el.style.transform = offset ? `translate3d(0, ${offset.toFixed(2)}px, 0)` : ""; });
+  // Resistance: each extra pixel of scrolling moves the page less, and it never passes MAX
+  const resist = p => Math.sign(p) * MAX * (1 - Math.exp(-Math.abs(p) / GIVE));
+
+  function springBack() {
+    cancelAnimationFrame(raf);
+    let last = performance.now();
+    const step = now => {
+      const dt = now - last; last = now;
+      offset *= Math.exp(-dt / 90);            // eases out like a damped spring, about 0.4 s to settle
+      pull = Math.sign(offset) * -GIVE * Math.log(1 - Math.min(.999, Math.abs(offset) / MAX));
+      if (Math.abs(offset) < .3) { offset = 0; pull = 0; draw(); return; }
+      draw(); raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+
+  addEventListener("wheel", e => {
+    if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || (e.target.closest && e.target.closest("dialog, textarea, .tabs"))) return;
+    const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;   // lines → px for some mice
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const atTop = scrollY <= 0 && dy < 0, atBottom = scrollY >= max - 1 && dy > 0;
+    if (!atTop && !atBottom && !offset) return;
+    // Scrolling back toward the content while pulled: release the pull first
+    if (offset && Math.sign(-dy) !== Math.sign(offset) && !atTop && !atBottom) { pull = 0; offset = 0; draw(); return; }
+    if (!atTop && !atBottom) return;
+    cancelAnimationFrame(raf);
+    pull += -dy;
+    offset = resist(pull);
+    draw();
+    clearTimeout(idle);
+    idle = setTimeout(springBack, 120);                         // let go: spring back
+  }, { passive: true });
+})();
+
 render();
