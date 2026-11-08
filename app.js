@@ -239,11 +239,17 @@ function showPriceTab(t, focus) { switchPanel(priceTabs, t, focus); }
    the pixel font on each side that still has more to see. Tapping it scrolls the row all the way to that end.
    The arrows sit in the row's container (not the row, so they don't scroll away) and only show below 760px. */
 const rowPhone = matchMedia("(max-width: 760px)");
+// A tall pixel-art arrow: 13 "pixels" high, a two-pixel stroke stepping out one pixel per row to a sharp tip
+const PIXEL_CHEV = (() => {
+  let r = "";
+  for (let y = 0; y < 13; y++) r += `<rect x="${Math.min(y, 12 - y)}" y="${y}" width="2" height="1"/>`;
+  return `<svg viewBox="0 0 8 13" aria-hidden="true" shape-rendering="crispEdges">${r}</svg>`;
+})();
 const chevRows = [...document.querySelectorAll(".work-grid, .ba-grid, .prices")].map(row => {
   const host = row.parentElement;
   const mk = side => {
     const b = document.createElement("button");
-    b.type = "button"; b.className = `row-chev row-chev-${side}`; b.textContent = side === "l" ? "<" : ">";
+    b.type = "button"; b.className = `row-chev row-chev-${side}`; b.innerHTML = PIXEL_CHEV;
     b.setAttribute("aria-label", side === "l" ? "Scroll to the start" : "Scroll to the end"); b.tabIndex = -1;
     b.addEventListener("click", () => {
       const left = side === "l" ? 0 : row.scrollWidth, start = row.scrollLeft;
@@ -259,7 +265,9 @@ const chevRows = [...document.querySelectorAll(".work-grid, .ba-grid, .prices")]
 function updateChev(c) {
   const { row } = c, shown = rowPhone.matches && !row.closest(".off");
   const more = row.scrollWidth - row.clientWidth;
-  const mid = row.offsetTop + Math.min(row.offsetHeight, 380) / 2;           // centred on the cards, not their captions
+  // Centred on the picture or box, not on the captions under it
+  const f = row.querySelector(".thumb, .ba-frame, .price") || row;
+  const mid = row.offsetTop + (f === row ? 0 : f.offsetTop) + f.offsetHeight / 2;
   [c.l, c.r].forEach(b => { b.style.top = mid + "px"; });
   c.l.classList.toggle("on", shown && row.scrollLeft > 8);
   c.r.classList.toggle("on", shown && row.scrollLeft < more - 8);
