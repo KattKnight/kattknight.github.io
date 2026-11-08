@@ -251,17 +251,35 @@ const chevRows = [...document.querySelectorAll(".work-grid, .ba-grid, .prices")]
     const b = document.createElement("button");
     b.type = "button"; b.className = `row-chev row-chev-${side}`; b.innerHTML = PIXEL_CHEV;
     b.setAttribute("aria-label", side === "l" ? "Scroll to the start" : "Scroll to the end"); b.tabIndex = -1;
-    b.addEventListener("click", () => {
-      const left = side === "l" ? 0 : row.scrollWidth, start = row.scrollLeft;
-      row.scrollTo({ left, behavior: reduceMotion ? "auto" : "smooth" });
-      setTimeout(() => { if (row.scrollLeft === start) row.scrollTo({ left }); updateChev(chevRows.find(c => c.row === row)); }, 500);   // smooth scroll unsupported or stalled
-    });
+    b.addEventListener("click", () => glideRow(row, side === "l" ? 0 : row.scrollWidth - row.clientWidth));
     host.appendChild(b); return b;
   };
   const r = { row, l: mk("l"), r: mk("r") };
   row.addEventListener("scroll", () => updateChev(r), { passive: true });
   return r;
 });
+/* The arrow's scroll: speeds up (ease-in), then slows to a stop (ease-out), the slowing part 20% shorter than
+   the speeding-up part. Both halves are quadratic and meet at the same speed, so there's no jolt in between:
+   that makes the distances split in the same 1 : 0.8 ratio as the times. Snapping is off while it glides. */
+function glideRow(row, to) {
+  const from = row.scrollLeft, dist = to - from, c = chevRows.find(x => x.row === row);
+  if (row._glide) row._glide.stop();
+  if (!dist) return;
+  if (reduceMotion) { row.scrollLeft = to; updateChev(c); return; }
+  const total = Math.min(900, Math.max(420, Math.abs(dist) * .9));          // ms, longer rows take longer
+  const tIn = total / 1.8, tOut = tIn * .8, dIn = dist / 1.8;               // 1 : 0.8 in time and distance
+  const snap = row.style.scrollSnapType; row.style.scrollSnapType = "none";
+  const t0 = performance.now(); let raf = 0, done = false;
+  const at = t => {
+    if (t <= tIn) { const k = t / tIn; return from + dIn * k * k; }                         // ease-in
+    const k = Math.min(1, (t - tIn) / tOut); return from + dIn + (dist - dIn) * (1 - (1 - k) * (1 - k));   // ease-out
+  };
+  const stop = () => { if (done) return; done = true; cancelAnimationFrame(raf); clearTimeout(backup); row.scrollLeft = to; row.style.scrollSnapType = snap; row._glide = null; updateChev(c); };
+  const step = now => { const t = now - t0; row.scrollLeft = at(t); if (t >= total) stop(); else raf = requestAnimationFrame(step); };
+  const backup = setTimeout(stop, total + 150);                              // if frames stall, still end in place
+  row._glide = { stop };
+  raf = requestAnimationFrame(step);
+}
 function updateChev(c) {
   const { row } = c, shown = rowPhone.matches && !row.closest(".off");
   const more = row.scrollWidth - row.clientWidth;
