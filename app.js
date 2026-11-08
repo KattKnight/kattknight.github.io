@@ -763,11 +763,11 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
    A wheel notch is smoothed over ~30 ms so it doesn't teleport. Apple devices bounce natively and
    touch screens have their own effect, so this only runs for wheel input elsewhere. The header and
    footer stay put; only the content between them moves.
-   Trackpads (and free-spinning mice) send a stream of small steps instead of 100px notches, so they get
-   their own model with no gesture rules to trip over: every step at the edge pulls the page out, and
-   the pull always drains back towards zero, slowly while steps keep coming (the page follows the
-   fingers) and fast once they stop or turn into a momentum tail. A second swipe, a slow drag or a
-   swipe that arrives coasting all behave the same way, every time. */
+   Trackpads work the same way as the wheel. A recording of Ayan's trackpad (2026-11-09) showed each
+   swipe as ~0.1 s of growing finger steps, then one step of exactly 0 when the fingers lift, then
+   0.5-1.5 s of shrinking momentum steps. So: the page follows the finger steps, springs back on the
+   0 step, and ignores the momentum (pushing on it made the page bounce twice). A new swipe during
+   the momentum is spotted by a pause in the steps or by steps clearly growing again. */
 (function rubberBand() {
   const apple = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
   if (apple || reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
@@ -789,14 +789,10 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   // decays smoothly): six falls in a row of the smoothed step means the fingers have lifted.
   let edgeStart = 0, lastWheel = 0, ema = 0, shrinking = 0, spent = false, wasAtEdge = false;
   const GAP = 150, MAX_HOLD = 450;
-  // Trackpad model
-  const PAD_HOLD = 130;       // ms: how slowly the pull drains while the fingers are moving
-  const PAD_BACK = 22;        // ms: how fast it drains once they stop or lift (back in about 0.12 s)
-  const PAD_IDLE = 25;        // ms without a step = the fingers have stopped
-  const PAD_RATIO = 2.2;      // trackpad pull per px scrolled (stronger than the wheel's 1/3, since it drains faster)
-  const PAD_COAST = 3;        // momentum: the recent step size has stayed well under the gesture's usual size this many steps
-  const PAD_IMPACT = 70;      // ms of a momentum tail that may still push, when it is what reaches the edge
-  let pad = false, padGesture = false, lastPad = 0, padAtEdge = false, padArrived = 0, fastE = 0, slowE = 0, falling = 0;
+  // Trackpad state: "drag" while fingers move, "coast" from the lift (0 step) through the momentum tail
+  let padGesture = false, padPhase = "drag", padAtEdge = false, lastPad = 0, liftAt = 0, momEma = 0, rising = 0, fastE = 0, slowE = 0, falling = 0;
+  const PAD_RELEASE = 60;     // ms without a step while dragging: the fingers stopped, come back
+  const PAD_NEW = 120;        // ms pause inside a momentum tail long enough to count as a new swipe on its own
 
   const limit = () => innerHeight * REACH;
   const draw = () => {
@@ -810,15 +806,7 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
   function tick() {
     clearTimeout(timer);
     const now = performance.now(), dt = Math.min(48, Math.max(1, now - last)); last = now;
-    if (pad) {
-      const idle = now - lastPad > PAD_IDLE, coasting = falling >= PAD_COAST && now - padArrived > PAD_IMPACT;
-      // The surer it is that the fingers have lifted, the faster it drains: one dip in the step size
-      // (a wobbly finger) barely matters, a run of them (momentum) brings the page straight back.
-      const tau = idle || falling >= 5 ? PAD_BACK : falling >= PAD_COAST ? PAD_BACK * 2 : falling ? PAD_HOLD * 0.7 : PAD_HOLD;
-      target *= Math.exp(-dt / tau);
-      x += (target - x) * (1 - Math.exp(-dt / (idle || coasting ? SMOOTH * 0.6 : SMOOTH)));
-      if (idle && Math.abs(target) < 0.3 && Math.abs(x) < 0.3) { x = 0; target = 0; pad = false; draw(); running = false; return; }
-    } else if (back) {
+    if (back) {
       const k = Math.min(1, (now - back.start) / back.ms);
       x = back.from * (1 - decelerate(k));
       if (k >= 1) { x = 0; target = 0; back = null; draw(); running = false; return; }
@@ -846,29 +834,44 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     const prevEma = ema;
     ema = newGesture ? step : ema * 0.6 + step * 0.4;
     shrinking = newGesture ? 0 : (ema < prevEma * 0.985 ? shrinking + 1 : 0);
-    // Momentum: after the fingers lift the steps keep shrinking, so a quick average of the step size
-    // drops well below a slow one and stays there. Finger steps jump around both averages, and uneven
-    // momentum steps (rounding, frame timing) still pull the quick average down.
+    // Fallback momentum check for trackpads that never send the 0 step: a quick average of the step
+    // size dropping well below a slow one, many steps in a row
     if (newGesture) { fastE = slowE = step; falling = 0; }
     else { fastE = fastE * 0.4 + step * 0.6; slowE = slowE * 0.88 + step * 0.12; falling = fastE < slowE * 0.8 ? falling + 1 : 0; }
     // A gesture made of small steps is a trackpad; one made only of big notches is a mouse wheel
-    if (newGesture) padGesture = false;
+    if (newGesture) { padGesture = false; padPhase = "drag"; }
     if (step < 50) padGesture = true;
     const max = document.documentElement.scrollHeight - innerHeight;
     const atTop = scrollY <= 1 && dy < 0, atBottom = scrollY >= max - 2 && dy > 0;
     if (padGesture) {
-      lastPad = now;
-      const atEdge = atTop || atBottom, coasting = falling >= PAD_COAST;
-      if (atEdge && !padAtEdge) padArrived = now;
+      const gap = now - lastPad; lastPad = now;
+      if (dy === 0) { padPhase = "coast"; liftAt = now; momEma = 0; rising = 0; comeBack(); return; }   // fingers lifted
+      if (padPhase === "drag" && falling >= 6) { padPhase = "coast"; liftAt = now; momEma = step; rising = 0; comeBack(); }
+      else if (padPhase === "coast" && step > 2) {
+        // New swipe? Fingers back on the pad make the steps grow again (two steps in a row at over twice
+        // the momentum's size). A short pause alone isn't enough: a busy page can delay momentum steps.
+        // The momentum's first 40 ms can jump around, so only judge after that.
+        rising = now - liftAt > 40 && step > Math.max(8, momEma * 2) ? rising + 1 : 0;
+        momEma = momEma ? momEma * 0.7 + step * 0.3 : step;
+        if (gap > PAD_NEW || rising >= 2) padPhase = "drag";
+      }
+      const atEdge = atTop || atBottom, arrived = atEdge && !padAtEdge;
       padAtEdge = atEdge;
       if (!atEdge) return;
-      // A momentum tail only pushes for a moment when it is what carries the page into the edge (the
-      // impact bounce); after that it's ignored, so the page comes straight back once the fingers lift.
-      if (coasting && now - padArrived > PAD_IMPACT) return;
-      clearTimeout(release); back = null; pad = true;
-      const L = limit(), room = 1 - Math.min(1, Math.abs(target) / L);
-      const kick = coasting ? 1.8 : 1;                              // arriving on momentum: a firmer bounce
-      target = Math.max(-L, Math.min(L, target - (dy / PAD_RATIO) * room * kick));
+      const L = limit();
+      if (padPhase === "coast") {
+        // Momentum carried the page into the edge: one short impact bounce, like the wheel's
+        if (arrived && !back && Math.abs(target) < 1) {
+          target = Math.sign(-dy) * Math.min(L, step * 1.2);
+          clearTimeout(release); release = setTimeout(comeBack, 90);
+          start();
+        }
+        return;
+      }
+      if (back) { target = x; back = null; }                         // caught mid-return: carry on from here
+      const room = 1 - Math.min(1, Math.abs(target) / L);
+      target = Math.max(-L, Math.min(L, target - (dy / RATIO) * room));
+      clearTimeout(release); release = setTimeout(comeBack, PAD_RELEASE);
       start();
       return;
     }
@@ -889,7 +892,6 @@ window.addEventListener("load", () => setTimeout(cleanUrl, 300));
     if (spent) return;                                               // rest of a momentum tail: ignore
     if (shrinking >= 6 || now - edgeStart > MAX_HOLD) { spent = true; comeBack(); return; }
     if (back) { target = x; back = null; }                           // caught mid-return: carry on from here
-    pad = false;
     const L = limit();
     const room = 1 - Math.min(1, Math.abs(target) / L);              // soft stop as it nears the limit
     target = Math.max(-L, Math.min(L, target - (dy / RATIO) * room));
