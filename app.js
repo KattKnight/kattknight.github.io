@@ -321,10 +321,10 @@ const AMOUNTS = {
     { v: "Not sure yet", label: "Not sure yet" }
   ] },
   longform: { title: "How many videos?", opts: [
-    { v: "1 free sample edit", label: "A free sample first", sub: "I edit a short part of one video", skip: ["budget", "length"] },
+    { v: "1 free sample edit", label: "A free sample first", sub: "I edit a short part of one video", skip: ["budget", "length", "thumbs"] },
     { v: "Single: 1 video for $99", label: "1 video", sub: "Single · $99", skip: ["budget"] },
     { v: "Long-form Monthly: 4 videos + 8 clips a month for $349", label: "4 videos + 8 clips a month", sub: "Monthly · $349", skip: ["budget"] },
-    { v: "Channel: 8 videos + 16 clips a month for $649", label: "8 videos + 16 clips a month", sub: "Channel · $649", skip: ["budget"] },
+    { v: "Channel: 8 videos + 16 clips + 8 thumbnails a month for $699", label: "8 videos + 16 clips a month", sub: "Channel · $699, thumbnails included", skip: ["budget", "thumbs"] },
     { v: "Not sure yet", label: "Not sure yet" }
   ] },
   motion: { title: "How long is the piece?", opts: [
@@ -348,6 +348,11 @@ const STEPS = [
     { v: "Over 30 minutes", label: "Over 30 minutes", sub: "Quoted" },
     { v: "Not sure yet", label: "Not sure yet" }
   ] },
+  { id: "thumbs", title: "Want thumbnails too?", hint: "Each comes with an A/B variant for YouTube's Test & Compare.", opts: () => [
+    { v: "Yes, one per video", label: "Yes, one per video", sub: "$19 each, or $59 for 4" },
+    { v: "Yes, with a second concept", label: "Yes, with a second concept", sub: "+$10 per video" },
+    { v: "No thanks", label: "No thanks" }
+  ] },
   { id: "deadline", title: "When do you need it?", opts: () => [
     { v: "Within 48 hours", label: "Within 48 hours" }, { v: "This week", label: "This week" },
     { v: "Within 2 weeks", label: "Within 2 weeks" }, { v: "No fixed date", label: "No fixed date" }
@@ -362,8 +367,8 @@ const STEPS = [
 
 const state = {};
 // The length question only applies to long-form orders (it sets the price band)
-function baseSkips() { return new Set(state.need === "longform" ? [] : ["length"]); }
-let skipped = new Set(["length"]);
+function baseSkips() { return new Set(state.need === "longform" ? [] : ["length", "thumbs"]); }
+let skipped = new Set(["length", "thumbs"]);
 let history = [];
 let current = 0;
 
@@ -513,7 +518,7 @@ const needLabel = v => (NEEDS.find(n => n.v === v) || {}).label || v;
 function summary(d) {
   return [
     `Name: ${d.name}`, `Reply by: ${d.reply_via} ${d.reply_to}`, `Needs: ${d.need}`, `Amount: ${d.amount}`,
-    `Length: ${d.length || "(n/a)"}`, `Deadline: ${d.deadline}`, `Budget: ${d.budget}`, `Link: ${d.link || "(none)"}`
+    `Length: ${d.length || "(n/a)"}`, `Thumbnails: ${d.thumbnails || "(n/a)"}`, `Deadline: ${d.deadline}`, `Budget: ${d.budget}`, `Link: ${d.link || "(none)"}`
   ].join("\n");
 }
 function collect() {
@@ -525,6 +530,7 @@ function collect() {
     need: needLabel(state.need),
     amount: state.amount || "",
     length: skipped.has("length") ? "" : (state.length || ""),
+    thumbnails: state.amount && state.amount.startsWith("Channel") ? "Included" : (skipped.has("thumbs") ? "" : (state.thumbs || "")),
     deadline: state.deadline || "",
     budget: skipped.has("budget") ? "Package price" : (state.budget || ""),
     link: state.link || ""
