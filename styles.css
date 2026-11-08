@@ -234,7 +234,7 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 /* Switching tabs morphs (app.js): shells in .morph-layer reshape each frame from the old card to the new one,
    while the cards' own frames are see-through and only their content slides */
 .panel-stack { position: relative; }
-.panel-stack > :not(.morph-layer) { position: relative; z-index: 1; }
+.panel-stack > :not(.morph-layer):not(.row-chev) { position: relative; z-index: 1; }
 .morph-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: clip; overflow-clip-margin: var(--gutter); }
 .morph-shell { position: absolute; box-sizing: border-box; border-style: solid; }
 :is(.morph-in, .morph-out) :is(.thumb, .price, .ba-frame) { background-color: transparent !important; border-color: transparent !important; }
@@ -329,7 +329,13 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .option-text { display: grid; gap: 2px; min-width: 0; }
 .option-text b { font-weight: 600; }
 .option-text small { font: var(--t-fine); color: var(--mute); }
-@media (pointer: coarse) { .option-key { display: none; } }
+/* Touch screens: no keyboard shortcuts, but the letter still names each answer, small in the top-right corner */
+.option { position: relative; }
+@media (pointer: coarse) {
+  .of-stage .of-options .option .option-key, .of-stage .of-options.poster .option-key {
+    position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; font-size: 16px; }
+  .of-stage .of-options .option { padding-right: 44px; }
+}
 .of-field { display: grid; gap: var(--s-2); }
 .of-field label, .of-label { font: 600 14px/1.3 var(--body); }
 .of-field input, .of-field textarea {
@@ -416,6 +422,8 @@ footer a { text-underline-offset: 3px; }
   footer nav a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: 6px; }
 }
 
+.row-chev { display: none; }   /* phone-only arrows on sideways rows; styled in the phone block below */
+
 /* ========== Phones: shorter page ==========
    Rows of cards scroll sideways instead of stacking, FAQ answers open on tap, and notes the bottom bar
    already says are dropped. Below 760px. */
@@ -444,6 +452,14 @@ footer a { text-underline-offset: 3px; }
   .prices .price { scroll-snap-align: start; }
   .prices .price.lead { grid-area: 1 / 1; } .prices .price.top { grid-area: 1 / 2; } .prices .price:not(.lead):not(.top) { grid-area: 1 / 3; }
   .prices .price-note { grid-area: 2 / 1; position: sticky; left: 0; width: calc(100vw - var(--gutter) * 2); }
+  /* Arrows on rows that scroll sideways (app.js): see-through, pixel font, only on the side with more to see */
+  .row-chev { position: absolute; z-index: 3; width: 36px; height: 56px; margin-top: -28px; display: grid; place-items: center; padding: 0 0 2px;
+    border: 1px solid rgba(244, 235, 221, .16); border-radius: var(--r-sm); background: rgba(21, 17, 13, .55);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); color: var(--fg); font: 400 32px/1 var(--pixel); font-synthesis: none;
+    cursor: pointer; opacity: 0; pointer-events: none; transition: opacity var(--fast); }
+  .row-chev.on { opacity: .85; pointer-events: auto; }
+  .row-chev-l { left: calc(var(--gutter) * -1 + 6px); }
+  .row-chev-r { right: calc(var(--gutter) * -1 + 6px); }
   /* FAQ: questions only until tapped */
   .faq { gap: 0; padding-top: 0; }
   .faq > div { border-bottom: 1px solid var(--line); }

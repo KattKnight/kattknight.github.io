@@ -63,7 +63,7 @@ Button (primary, secondary, quiet) · Tabs · FAQ grid · BeforeAfter (Long-form
 
 ## Phones (below 760px)
 
-Shorter page, same content: work cards and package boxes sit in swipeable rows (Recommended first, the next box peeking in), FAQ answers open on tap, the hero note and the three-step list are dropped (the bottom bar and the form say the same), and the order form comes before the other ways to get in touch.
+Shorter page, same content: work cards and package boxes sit in swipeable rows (Recommended first, the next box peeking in), FAQ answers open on tap, the hero note and the three-step list are dropped (the bottom bar and the form say the same), and the order form comes before the other ways to get in touch. Every sideways row shows a see-through arrow in the pixel font (32px) on each side that still has more to see; tapping it scrolls to that end. Answer tiles on touch screens show their letter small in the top-right corner (on desktop it sits top-left and works as a keyboard shortcut).
 
 ## Tabs
 

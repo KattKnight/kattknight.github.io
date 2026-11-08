@@ -160,7 +160,7 @@ function switchPanel(listEl, t, focus) {
   const panelOf = x => document.getElementById(x.getAttribute("aria-controls"));
   const oldP = from && panelOf(from), newP = panelOf(t);
   tabs.forEach(x => { const p = panelOf(x); if (p !== oldP && p !== newP) settlePanel(p, false); });
-  if (!oldP || reduceMotion || !newP.parentElement.animate) { if (oldP) settlePanel(oldP, false); settlePanel(newP, true); syncVideos(); return; }
+  if (!oldP || reduceMotion || !newP.parentElement.animate) { if (oldP) settlePanel(oldP, false); settlePanel(newP, true); syncVideos(); if (typeof updateChevs === "function") updateChevs(); return; }
 
   // Measure both panels where they sit (the hidden one is laid out too, just invisible)
   const stack = newP.parentElement, box = stack.getBoundingClientRect();
@@ -198,6 +198,7 @@ function switchPanel(listEl, t, focus) {
     if (done) return; done = true; if (morphEnd === finish) morphEnd = null;
     [...anims, ...outs, ...ins].forEach(a => a.cancel());
     layer.remove(); settlePanel(oldP, false); newP.classList.remove("morph-in");
+    if (typeof updateChevs === "function") updateChevs();
   };
   morphEnd = finish;
   setTimeout(finish, Math.max(MORPH_MS, IN_DELAY + IN_MS) + 20);
@@ -233,6 +234,41 @@ function syncVideos() {
 // Package tabs: Short-form | Long-form (same stacked, swiping panels as Work)
 const priceTabs = document.getElementById("priceTabs");
 function showPriceTab(t, focus) { switchPanel(priceTabs, t, focus); }
+
+/* Phones: rows that scroll sideways (work cards, before/after slots, package boxes) get a see-through arrow in
+   the pixel font on each side that still has more to see. Tapping it scrolls the row all the way to that end.
+   The arrows sit in the row's container (not the row, so they don't scroll away) and only show below 760px. */
+const rowPhone = matchMedia("(max-width: 760px)");
+const chevRows = [...document.querySelectorAll(".work-grid, .ba-grid, .prices")].map(row => {
+  const host = row.parentElement;
+  const mk = side => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = `row-chev row-chev-${side}`; b.textContent = side === "l" ? "<" : ">";
+    b.setAttribute("aria-label", side === "l" ? "Scroll to the start" : "Scroll to the end"); b.tabIndex = -1;
+    b.addEventListener("click", () => {
+      const left = side === "l" ? 0 : row.scrollWidth, start = row.scrollLeft;
+      row.scrollTo({ left, behavior: reduceMotion ? "auto" : "smooth" });
+      setTimeout(() => { if (row.scrollLeft === start) row.scrollTo({ left }); updateChev(chevRows.find(c => c.row === row)); }, 500);   // smooth scroll unsupported or stalled
+    });
+    host.appendChild(b); return b;
+  };
+  const r = { row, l: mk("l"), r: mk("r") };
+  row.addEventListener("scroll", () => updateChev(r), { passive: true });
+  return r;
+});
+function updateChev(c) {
+  const { row } = c, shown = rowPhone.matches && !row.closest(".off");
+  const more = row.scrollWidth - row.clientWidth;
+  const mid = row.offsetTop + Math.min(row.offsetHeight, 380) / 2;           // centred on the cards, not their captions
+  [c.l, c.r].forEach(b => { b.style.top = mid + "px"; });
+  c.l.classList.toggle("on", shown && row.scrollLeft > 8);
+  c.r.classList.toggle("on", shown && row.scrollLeft < more - 8);
+}
+const updateChevs = () => chevRows.forEach(updateChev);
+rowPhone.addEventListener("change", updateChevs);
+addEventListener("resize", () => { clearTimeout(updateChevs.t); updateChevs.t = setTimeout(updateChevs, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateChevs);
+updateChevs();
 priceTabs.addEventListener("click", e => { const t = e.target.closest(".tab"); if (t) showPriceTab(t); });
 priceTabs.addEventListener("keydown", e => {
   const tabs = [...priceTabs.querySelectorAll(".tab")], i = tabs.indexOf(document.activeElement);
