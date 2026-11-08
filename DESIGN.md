@@ -30,11 +30,14 @@ One yellow button per screen height. Dark only.
 
 Anton for headlines, prices and form questions, always uppercase. Inter for everything people read, 400 and 600. IBM Plex Mono for numbers only: timecodes, video tags, the step count.
 
-Scale: hero clamp(52–116px), h2 clamp(40–72px), h3 clamp(28–40px), title 20, lead 18, body 16, small 14, meta 12 mono.
+Scale: hero clamp(48–88px), h2 clamp(36–56px), h3 clamp(26–32px), prices 48, lead 20, title 20, body 16, small 14, meta 12 mono. Headings stay within about 3.5× body size.
+
+Two text levels: `--fg` for everything people read, `--mute` for notes. Never mixed inside one sentence.
 
 ## Spacing and shape
 
-- 4-based spacing, `--s-1` (4) to `--s-9` (96). Sections clamp(64px, 9vw, 112px) apart. 16px phone gutter.
+- 4-based spacing, `--s-1` (4) to `--s-9` (96). Sections clamp(56px, 7vw, 88px) apart. 16px phone gutter.
+- Every section spans the same width so dividers line up. FAQ and Order: heading left, content right (`.split`), right columns aligned.
 - Inner radius = outer minus padding: form panel 16, options 8, option keys and video tags 4. Cards 12. Buttons are pills.
 - No shadows. Motion: 0.15s hovers, 0.28s form slides, all off with reduced motion.
 
