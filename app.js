@@ -319,11 +319,11 @@ const MY_EMAIL = "katt.editing@gmail.com";
 // Each question: id, title, optional hint, and options. An option can carry a price label,
 // and "skip" lists questions that its answer makes pointless (a fixed-price package needs no budget).
 const NEEDS = [
-  { v: "longform", label: "A long-form video edit", sub: "YouTube, podcast, course, 16:9" },
-  { v: "clips", label: "Short clips from my podcast or stream", sub: "Shorts, Reels, TikTok" },
+  { v: "longform", label: "A long-form video edit", sub: "YouTube, podcast, course" },
+  { v: "clips", label: "Short clips from my podcast or stream", sub: "From a podcast or stream" },
   { v: "motion", label: "Motion graphics or animation", sub: "Trailer, lesson graphics, logo" },
   { v: "ads", label: "A product demo or ad", sub: "App, course or brand promo" },
-  { v: "other", label: "Something else", sub: "Describe it on the next screen" }
+  { v: "other", label: "Something else", sub: "Describe it next" }
 ];
 const AMOUNTS = {
   clips: { title: "How many clips?", opts: [
@@ -350,6 +350,24 @@ const AMOUNTS = {
     { v: "Under 30 seconds", label: "Under 30 seconds" }, { v: "30 to 60 seconds", label: "30 to 60 seconds" },
     { v: "1 to 3 minutes", label: "1 to 3 minutes" }, { v: "Not sure yet", label: "Not sure yet" }
   ] }
+};
+// Every answer shows as a short two-line headline ("Within / 48 hours"); the full label still goes
+// into the request email. Keyed by the answer's value.
+const LINES = {
+  longform: ["Long-form", "video"], clips: ["Short", "clips"], motion: ["Motion", "graphics"], ads: ["Demo", "or ad"], other: ["Something", "else"],
+  "1 free sample clip": ["Free", "sample first"], "Try: 3 clips for $39": ["3", "clips"],
+  "Clips Monthly: 12 clips a month for $99": ["12 clips", "a month"], "Daily: 30 clips a month for $219": ["30 clips", "a month"],
+  "Agency: white-label from $8 a clip or $79 a video": ["White-label", "for clients"],
+  "1 free sample edit": ["Free", "sample first"], "Single: 1 video for $99": ["1", "video"],
+  "Long-form Monthly: 4 videos + 8 clips a month for $349": ["4 videos", "+ 8 clips"],
+  "Channel: 8 videos + 16 clips + 8 thumbnails a month for $699": ["8 videos", "+ 16 clips"],
+  "Under 15 seconds": ["Under", "15 seconds"], "15 to 60 seconds": ["15 to 60", "seconds"], "1 to 3 minutes": ["1 to 3", "minutes"],
+  "A set of graphics": ["A set of", "graphics"], "Under 30 seconds": ["Under", "30 seconds"], "30 to 60 seconds": ["30 to 60", "seconds"],
+  "Up to 20 minutes": ["Up to", "20 minutes"], "21 to 30 minutes": ["21 to 30", "minutes"], "Over 30 minutes": ["Over 30", "minutes"],
+  "Yes, one per video": ["Yes, one", "per video"], "Yes, with a second concept": ["Yes, a second", "concept too"], "No thanks": ["No", "thanks"],
+  "Within 48 hours": ["Within", "48 hours"], "This week": ["This", "week"], "Within 2 weeks": ["Within", "2 weeks"], "No fixed date": ["No fixed", "date"],
+  "Under $40": ["Under", "$40"], "$40 to $100": ["$40 to", "$100"], "$100 to $350": ["$100 to", "$350"], "$350 to $650": ["$350 to", "$650"],
+  "Over $650": ["Over", "$650"], "Not sure yet": ["Not", "sure yet"]
 };
 const STEPS = [
   { id: "need", title: "What do you need done?", opts: () => NEEDS },
@@ -418,7 +436,7 @@ function stepMarkup(s, dir) {
     body = `<div class="of-options" role="radiogroup" aria-labelledby="of-q">${s.opts().map((o, i) => `
       <button type="button" class="option" role="radio" aria-checked="${state[s.id] === o.v}" data-v="${esc(o.v)}" data-i="${i}">
         <span class="option-key mono" aria-hidden="true">${String.fromCharCode(65 + i)}</span>
-        <span class="option-text"><b${o.lines ? ` aria-label="${esc(o.label)}"` : ""}>${o.lines ? o.lines.map(esc).join("<br>") : esc(o.label)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</span>
+        <span class="option-text"><b>${(o.lines || LINES[o.v]) ? (o.lines || LINES[o.v]).map(esc).join("<br>") : esc(o.label)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</span>
       </button>`).join("")}</div>`;
   } else if (s.link) {
     body = `<div class="of-field"><input id="of-link" type="url" inputmode="url" maxlength="500" autocomplete="url" placeholder="https://" value="${esc(state.link || "")}" aria-describedby="of-err">
@@ -493,9 +511,10 @@ function sizeTiles() {
   const h = tiles[0].getBoundingClientRect().height;
   const fits = () => ofStage.scrollHeight <= limit + 1 &&
     tiles.every(t => t.scrollHeight <= t.clientHeight + 1 && [...t.querySelectorAll("b")].every(b => b.scrollWidth <= b.clientWidth + 1));
-  if (STEPS[current].id === "deadline") {
-    // The deadline question only: key in the corner, each answer set large on two lines
-    // ("Within / 48 hours"), as big as fits every tile (one size for all), below 85% of the question.
+  {
+    // Every question: key in the corner, each answer set large on two lines ("Within / 48 hours"),
+    // as big as fits every tile (one size for all), below 85% of the question. If even 18 px doesn't
+    // fit (short tiles on phones), it falls back to rows with the same two-line text beside the key.
     grid.classList.add("poster");
     let lo = 18, hi = Math.floor(Math.min(48, qSize * 0.85, h * 0.34)), best = 18;
     while (lo <= hi) {

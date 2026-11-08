@@ -270,11 +270,11 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .of-stage .option-text small { font-size: max(13px, calc(var(--fs, 16px) * .78)); }
 .of-stage .option-key { width: calc(var(--fs, 16px) * 1.75); height: calc(var(--fs, 16px) * 1.75); font-size: calc(var(--fs, 16px) * .72); }
 /* Poster tiles (big tiles): key small in the corner, label large across up to two balanced lines */
-.of-stage .of-options.poster .option { flex-direction: column; align-items: flex-start; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-5) var(--s-5); }
-.of-stage .of-options.poster .option-key { width: 26px; height: 26px; font-size: 12px; }
-.of-stage .of-options.poster .option-text { gap: 6px; width: 100%; }
-.of-stage .of-options.poster .option-text b { font-size: var(--ps, 24px); line-height: 1.04; letter-spacing: -.015em; text-wrap: balance; }
-.of-stage .of-options.poster .option-text small { font-size: max(14px, calc(var(--ps, 24px) * .4)); }
+.of-stage .of-options.poster .option { flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 6px; padding: 12px 16px 14px; }
+.of-stage .of-options.poster .option-key { width: 22px; height: 22px; font-size: 11px; }
+.of-stage .of-options.poster .option-text { gap: 4px; width: 100%; }
+.of-stage .of-options.poster .option-text b { font-size: var(--ps, 24px); line-height: 1.04; letter-spacing: -.015em; }
+.of-stage .of-options.poster .option-text small { font-size: max(13px, calc(var(--ps, 24px) * .4)); }
 .of-stage > .of-step:not(:has(.of-options)) { grid-template-rows: none; align-content: start; }
 .of-step.in-fwd { animation: in-fwd .18s var(--ease); }
 .of-step.in-back { animation: in-back .18s var(--ease); }
