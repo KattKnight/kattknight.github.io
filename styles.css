@@ -38,8 +38,8 @@
   --t-title: 600 20px/1.3 var(--body);                        /* group and card titles */
   --t-lead: 400 16px/1.75 var(--pixel);                       /* the hero sentence, in the pixel font (sharp at 16px) */
   --t-body: 400 16px/1.6 var(--body);                         /* default text */
-  --t-small: 400 14px/1.55 var(--body);                       /* small text that must read easily: errors */
-  --t-fine: 400 16px/1.5 var(--pixel);                        /* fine print: notes, hints, per-clip maths, footer */
+  --t-small: 400 14px/1.55 var(--body);                       /* small sentences: notes, hints, price maths, tile subtitles, footer, errors */
+  --t-fine: 400 16px/1.5 var(--pixel);                        /* short pixel-font labels only: hero note, 'Prices in US dollars.', phone bar */
   --t-meta: 400 16px/1 var(--pixel);                          /* video tags, timecode, form step count, option keys */
 
   /* Spacing: 4-based */
@@ -168,7 +168,7 @@ h2 { font: var(--t-h2); text-transform: uppercase; letter-spacing: .01em; }
    either way, so nothing below it moves. */
 header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   background-color: transparent; border-bottom: 1px solid transparent; transition: background-color .2s var(--ease), border-color .2s var(--ease); }
-header.top.scrolled { background-color: var(--bar); border-bottom-color: var(--line); }
+header.top.scrolled { background-color: var(--bar); border-bottom-color: var(--line); transition: none; }   /* solid at once, so content never shows through mid-fade; it still fades away at the top */
 header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); min-height: 71px; }
 
 nav.links { display: flex; align-items: center; gap: var(--s-6); }
@@ -206,6 +206,7 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 [data-cat] .kind { color: var(--cat); }
 .card[data-cat] .tag { box-shadow: inset 3px 0 0 var(--cat); padding-left: 11px; }
 .card h4 { font: 600 17px/1.3 var(--body); }
+.card .desc { font: var(--t-small); color: var(--mute); max-width: 46ch; }
 @media (max-width: 560px) { .card h4 { font-size: 15px; } }
 
 /* Before/after (Long-form tab): one 16:9 player, a Before | After switch under it */
@@ -237,14 +238,14 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .price .badge { font: 600 12px/1 var(--body); color: var(--cut-ink); background: var(--cut); padding: 6px 10px; border-radius: var(--r-pill); }
 .price .amt { font: 400 48px/1 var(--display); }
 .price .amt small { font: 400 16px/1 var(--pixel); color: var(--mute); margin-left: var(--s-2); }
-.price .per { margin-top: calc(var(--s-2) * -1); font: var(--t-fine); color: var(--mute); }
+.price .per { margin-top: calc(var(--s-2) * -1); font: var(--t-small); color: var(--mute); }
 .price.lead .per { color: var(--cut); }
 .price .what { font-size: 15px; }
 .price ul { list-style: none; margin: 0; padding: var(--s-4) 0 0; border-top: 1px solid var(--line); display: grid; gap: var(--s-3); font: 400 15px/1.5 var(--body); color: var(--fg); }
 .price li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: var(--s-3); }
 .price li::before { content: ""; width: 8px; height: 8px; margin-top: 7px; background: var(--cut); border-radius: 2px; }
 .price .btn { margin-top: auto; align-self: stretch; }
-.price-note { margin-top: var(--s-5); font: var(--t-fine); color: var(--mute); }
+.price-note { margin-top: var(--s-5); font: var(--t-small); color: var(--mute); }
 .prices .price-note { grid-column: 1 / -1; margin-top: 0; }
 .ptabs { margin-bottom: var(--s-5); }
 /* Tab panels (Work, Packages) share one grid cell: the section is as tall as its tallest panel in every tab */
@@ -292,9 +293,9 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .how { margin: 0; padding: 0; list-style: none; counter-reset: how; display: grid; gap: var(--s-3); max-width: 46ch; }
 .how li { counter-increment: how; position: relative; padding-left: 36px; color: var(--fg); font-size: 17px; }
 .how li::before { content: counter(how); position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line-strong); display: grid; place-items: center; font: 600 12px/1 var(--body); color: var(--fg); margin-top: 1px; }
-.order-alt { display: grid; gap: var(--s-3); padding-top: var(--s-5); border-top: 1px solid var(--line); font: var(--t-fine); color: var(--mute); }
+.order-alt { display: grid; gap: var(--s-3); padding-top: var(--s-5); border-top: 1px solid var(--line); font: var(--t-small); color: var(--mute); }
 .order-alt .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); }
-.email { font: var(--t-fine); color: var(--mute); user-select: all; overflow-wrap: anywhere; }
+.email { font: var(--t-small); color: var(--mute); user-select: all; overflow-wrap: anywhere; }
 .copied { color: var(--cut); }
 
 .of { min-width: 0; padding: var(--s-6); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--ink-2); display: grid; gap: var(--s-5); }
@@ -315,21 +316,21 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .of-stage .of-options { grid-auto-rows: 1fr; align-content: stretch; }
 /* Text scales with the tile (--fs is set per question from the tile height, 16-24 px) */
 .of-stage .option-text b { font-size: var(--fs, 16px); line-height: 1.25; }
-.of-stage .option-text small { font-size: 16px; }
+.of-stage .option-text small { font-size: 14px; }
 .of-stage .option-key { width: calc(var(--fs, 16px) * 1.75); height: calc(var(--fs, 16px) * 1.75); font-size: 16px; }
 /* Poster tiles (big tiles): key small in the corner, label large across up to two balanced lines */
 .of-stage .of-options.poster .option { flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 6px; padding: 12px 16px 14px; }
 .of-stage .of-options.poster .option-key { width: 24px; height: 24px; font-size: 16px; }
 .of-stage .of-options.poster .option-text { gap: 4px; width: 100%; }
 .of-stage .of-options.poster .option-text b { font-size: var(--ps, 24px); line-height: 1.04; letter-spacing: -.015em; }
-.of-stage .of-options.poster .option-text small { font-size: 16px; }
+.of-stage .of-options.poster .option-text small { font-size: 14px; }
 .of-stage > .of-step:not(:has(.of-options)) { grid-template-rows: none; align-content: start; }
 .of-step.in-fwd { animation: in-fwd .18s var(--ease); }
 .of-step.in-back { animation: in-back .18s var(--ease); }
 @keyframes in-fwd { from { opacity: 0; transform: translateX(12px); } }
 @keyframes in-back { from { opacity: 0; transform: translateX(-12px); } }
 .of-step h3 { font: var(--t-h3); text-transform: uppercase; letter-spacing: .01em; outline: none; }
-.of-hint { font: var(--t-fine); color: var(--mute); margin-top: calc(var(--s-2) * -1); }
+.of-hint { font: var(--t-small); color: var(--mute); margin-top: calc(var(--s-2) * -1); }
 .of-hint a { color: var(--fg); }
 .of-options { display: grid; gap: var(--s-2); margin-top: var(--s-2); }
 @media (min-width: 1000px) { .of-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -348,7 +349,7 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .option[aria-checked="true"] .option-key, .option.picked .option-key, .option.pressing .option-key { background: var(--cut); border-color: var(--cut); color: var(--cut-ink); }
 .option-text { display: grid; gap: 2px; min-width: 0; }
 .option-text b { font-weight: 600; }
-.option-text small { font: var(--t-fine); color: var(--mute); }
+.option-text small { font: var(--t-small); color: var(--mute); }
 /* Touch screens: no keyboard shortcuts, but the letter still names each answer, small in the top-right corner */
 .option { position: relative; }
 @media (pointer: coarse) {
@@ -376,7 +377,7 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .of-err:empty { display: none; }
 .of-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin-top: var(--s-2); }
 @media (max-width: 560px) { .of-actions .btn-primary { flex: 1; } }
-.of-note { font: var(--t-fine); color: var(--mute); }
+.of-note { font: var(--t-small); color: var(--mute); }
 .of-note a { color: var(--fg); }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .of-done { justify-items: start; padding-block: var(--s-4); }
@@ -432,7 +433,7 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 
 /* Footer */
 footer { border-top: 1px solid var(--line); }
-footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3) var(--s-5); flex-wrap: wrap; padding-block: var(--s-5); font: var(--t-fine); color: var(--mute); }
+footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3) var(--s-5); flex-wrap: wrap; padding-block: var(--s-5); font: var(--t-small); color: var(--mute); }
 footer nav { display: flex; gap: var(--s-4); }
 footer a { text-underline-offset: 3px; }
 /* Phones: links get a finger-sized hit area without making the footer taller */

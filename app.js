@@ -2,7 +2,8 @@
 // Style tokens and component rules live in styles.css and DESIGN.md.
 
 /* ---------- Work, grouped by type of work ---------- */
-// Every piece here exists in the Drive "Portfolio Pieces" folder.
+// Every piece here exists in the Drive "Portfolio Pieces" folder. `desc` says what the video was and what
+// Ayan did, written from the piece itself: no invented clients or results.
 const CATS = [
   { id: "motion", short: "Motion" },
   { id: "clips", short: "Short-form" },
@@ -11,17 +12,23 @@ const CATS = [
 ];
 const WORK = [
   { id: "podcast", cat: "clips", fmt: "v", kind: "Podcast clip", title: "Two-host podcast",
-    dur: "00:30", fps: "00:00:30:02" },
+    dur: "00:30", fps: "00:00:30:02",
+    desc: "Cut a 30-second vertical clip from a two-host podcast, with a headline and on-screen notes." },
   { id: "sample", cat: "clips", fmt: "v", kind: "Promo", title: "Talking head with cutaways",
-    dur: "00:32", fps: "00:00:31:24" },
+    dur: "00:32", fps: "00:00:31:24",
+    desc: "Edited a talking-head promo with word-by-word captions and cutaways." },
   { id: "trailer", cat: "ads", fmt: "v", kind: "Course trailer", title: "Learn After Effects",
-    dur: "00:33", fps: "00:00:32:21" },
+    dur: "00:33", fps: "00:00:32:21",
+    desc: "Edited a 33-second vertical trailer for an After Effects course, with bold on-screen text." },
   { id: "tutorial", cat: "motion", fmt: "v", kind: "Tutorial graphics", title: "Lesson opener",
-    dur: "00:05", fps: "00:00:05:10" },
+    dur: "00:05", fps: "00:00:05:10",
+    desc: "Animated a 5-second opener for a lesson on the After Effects interface." },
   { id: "transition", cat: "motion", fmt: "h", kind: "Motion design", title: "Lesson recap",
-    dur: "00:13", fps: "00:00:13:00" },
+    dur: "00:13", fps: "00:00:13:00",
+    desc: "Animated a recap card that lists the lesson's key shortcuts as a ticked checklist." },
   { id: "logo", cat: "motion", fmt: "h", kind: "Logo animation", title: "FurblowCraft logo sting",
-    dur: "00:03", fps: "00:00:02:15" }
+    dur: "00:03", fps: "00:00:02:15",
+    desc: "Animated FurblowCraft's logo into a 3-second sting." }
 ];
 
 // Long-form pieces show as before/after: the same 60-90 second excerpt, raw and edited.
@@ -51,6 +58,7 @@ function card(w) {
     <div class="card-text">
       <span class="kind">${esc(w.kind)}</span>
       <h4>${esc(w.title)}</h4>
+      ${w.desc ? `<p class="desc">${esc(w.desc)}</p>` : ""}
     </div>`;
   return el;
 }
@@ -99,7 +107,10 @@ function baCard(b, n) {
 // Work tabs: one type of work on screen at a time (WAI-ARIA tabs pattern; arrow keys move between tabs)
 const workRoot = document.getElementById("workPanels");
 const tabList = document.getElementById("workTabs");
-CATS.forEach((c, i) => {
+// A type of work with nothing to show yet gets no tab: Long-form appears by itself once a BEFORE_AFTER
+// piece has ready: true, and only the ready pieces are shown
+const SHOWN = CATS.filter(c => c.id === "longform" ? BEFORE_AFTER.some(b => b.ready) : WORK.some(w => w.cat === c.id));
+SHOWN.forEach((c, i) => {
   // Horizontal pieces first so 16:9 cards fill whole rows and 9:16 cards sit under them
   const items = WORK.filter(w => w.cat === c.id).sort((a, b) => (a.fmt === "h" ? 0 : 1) - (b.fmt === "h" ? 0 : 1));
   const panel = document.createElement("div");
@@ -108,9 +119,7 @@ CATS.forEach((c, i) => {
   if (i !== 0) { panel.classList.add("off"); panel.inert = true; }
   if (c.id === "longform") {
     panel.innerHTML = `<div class="ba-grid"></div>`;
-    BEFORE_AFTER.forEach((b, n) => panel.firstChild.appendChild(baCard(b, n + 1)));
-    // Until a piece is ready, the slots sit in one short row instead of big empty 16:9 frames
-    panel.firstChild.classList.toggle("all-empty", !BEFORE_AFTER.some(b => b.ready));
+    BEFORE_AFTER.filter(b => b.ready).forEach((b, n) => panel.firstChild.appendChild(baCard(b, n + 1)));
   } else {
     panel.innerHTML = `<div class="work-grid"></div>`;
     const grid = panel.querySelector(".work-grid");
@@ -584,7 +593,7 @@ function stepMarkup(s, dir) {
     body = `<div class="of-options" role="radiogroup" aria-labelledby="of-q">${s.opts().map((o, i) => `
       <button type="button" class="option" role="radio" aria-checked="${state[s.id] === o.v}" data-v="${esc(o.v)}" data-i="${i}">
         <span class="option-key mono" aria-hidden="true">${String.fromCharCode(65 + i)}</span>
-        <span class="option-text"><b>${(o.lines || LINES[o.v]) ? (o.lines || LINES[o.v]).map(esc).join("<br>") : esc(o.label)}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</span>
+        <span class="option-text"><b>${esc((o.lines || LINES[o.v] || [o.label]).join(" "))}</b>${o.sub ? `<small>${esc(o.sub)}</small>` : ""}</span>
       </button>`).join("")}</div>`;
   } else if (s.link) {
     body = `<div class="of-field"><input id="of-link" type="url" inputmode="url" maxlength="500" autocomplete="url" placeholder="https://" value="${esc(state.link || "")}" aria-describedby="of-err">
@@ -669,7 +678,7 @@ function sizeTiles() {
   const fits = () => ofStage.scrollHeight <= limit + 1 &&
     tiles.every(t => t.scrollHeight <= t.clientHeight + 1 && [...t.querySelectorAll("b")].every(b => b.scrollWidth <= b.clientWidth + 1));
   {
-    // Every question: key in the corner, each answer set large on two lines ("Within / 48 hours"),
+    // Every question: key in the corner, each answer set large as a short headline that wraps naturally,
     // as big as fits every tile (one size for all), below 85% of the question. If even 18 px doesn't
     // fit (short tiles on phones), it falls back to rows with the same two-line text beside the key.
     grid.classList.add("poster");

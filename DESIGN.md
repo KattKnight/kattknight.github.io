@@ -30,9 +30,9 @@ One yellow button per screen height. Dark only.
 
 ## Type
 
-Bungee for big text: headlines, prices, form questions and the wordmark (it only has capitals). Recursive for everything people read, 400 to 700, fixed at a slightly casual style. Katt Pixel (the Minecraft-style pixel font by Craftron Gaming) for the hero sentence, fine print and numbers: notes, hints, per-clip maths, the footer, timecodes, video tags, the step count. The pixel font is only sharp at 16px steps (16, 32, 48), has one weight, and has no middle dot or curly quotes, which fall back to Recursive. Errors stay in Recursive so they read easily. Words joined by a hyphen or a number and its unit (long-form, 48 hours) never split across lines: wrap them in .nw.
+Bungee for big text: headlines, prices, form questions and the wordmark (it only has capitals). Recursive for everything people read, 400 to 700, fixed at a slightly casual style. Katt Pixel (the Minecraft-style pixel font by Craftron Gaming) for the hero sentence, timecodes, video tags, the step count, option letters and short labels (the hero note, "Prices in US dollars.", the Showreel label, the phone bar). Small sentences (price maths, notes under packages, order hints and tile subtitles, the email line, the footer) are in Recursive 14px: the pixel font gets hard to read as running text. The pixel font is only sharp at 16px steps (16, 32, 48), has one weight, and has no middle dot or curly quotes, which fall back to Recursive. Errors stay in Recursive so they read easily. Words joined by a hyphen or a number and its unit (long-form, 48 hours) never split across lines: wrap them in .nw.
 
-Scale: hero clamp(40–66px), h2 clamp(34–50px), h3 clamp(28–38px) (form questions; small answer tiles 16–20px, every question sets its answers as short two-line headlines (letter in the corner), up to 85% of the question; rows on short phone tiles), prices 48, lead 16 pixel, title 20, body 16, small 14 (errors), fine print 16 pixel, meta 16 pixel. Headings stay within about 3.5× body size.
+Scale: hero clamp(40–66px), h2 clamp(34–50px), h3 clamp(28–38px) (form questions; small answer tiles 16–20px, every question sets its answers as short headlines that wrap naturally (letter in the corner), up to 85% of the question; rows on short phone tiles), prices 48, lead 16 pixel, title 20, body 16, small 14 (errors), fine print 16 pixel, meta 16 pixel. Headings stay within about 3.5× body size.
 
 Two text levels: `--fg` for everything people read, `--mute` for notes. Never mixed inside one sentence.
 
@@ -71,8 +71,12 @@ Work and Packages tabs keep one height: every panel of a set sits in the same gr
 
 ## Header
 
-At the top of the page the header has no bar and no line: logo, links and button sit on the page and the hero runs right up under them. Once the page scrolls it becomes a plain solid bar in `--bar` (#251E18, a step lighter than the page and the Work/FAQ bands so it never blends in) with one `--line` hairline under it, fading in over 0.2s. Solid on purpose: no blur, no translucency, no floating capsule. 72px tall in both states so nothing below moves.
+At the top of the page the header has no bar and no line: logo, links and button sit on the page and the hero runs right up under them. Once the page scrolls it becomes a plain solid bar in `--bar` (#251E18, a step lighter than the page and the Work/FAQ bands so it never blends in) with one `--line` hairline under it, appearing at once (so content never shows through it) and fading away over 0.2s when you return to the top. Solid on purpose: no blur, no translucency, no floating capsule. 72px tall in both states so nothing below moves.
 
 ## Logo
 
 The player-cat mark (`logo/katt-editing-mark.svg`: a cat whose face is a video player, play and pause for eyes, whiskers, a scrub bar for a chin) beside KATT EDITING in Bungee, with the name sitting on an editing track: four clips (#7A6A58, #B2A28C, #4A3D31, Cut Yellow) and a cream playhead at 30%. It says "video editing" to people who don't know the name yet. The logo is the same size at the top of the page and in the scrolled bar. The favicon is a simplified version (no whiskers, mouth or scrub bar) so it still reads at 16px.
+
+## Work cards
+
+Each card shows its kind, a title and one plain line saying what the video was and what Ayan did (`desc` in `WORK`, app.js), written from the piece itself, never invented clients or results. A type of work with nothing to show has no tab: Long-form appears by itself once a `BEFORE_AFTER` piece is `ready: true`.
