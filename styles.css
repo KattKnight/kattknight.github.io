@@ -39,7 +39,7 @@
   --t-lead: 400 16px/1.75 var(--pixel);                       /* the hero sentence, in the pixel font (sharp at 16px) */
   --t-body: 400 16px/1.6 var(--body);                         /* default text */
   --t-small: 400 14px/1.55 var(--body);                       /* small sentences: notes, hints, price maths, tile subtitles, footer, errors */
-  --t-fine: 400 16px/1.5 var(--pixel);                        /* short pixel-font labels only: hero note, 'Prices in US dollars.', phone bar */
+  --t-fine: 400 16px/1.5 var(--pixel);                        /* short pixel-font labels only: hero note, phone bar */
   --t-meta: 400 16px/1 var(--pixel);                          /* video tags, timecode, form step count, option keys */
 
   /* Spacing: 4-based */
