@@ -11,6 +11,9 @@ const CATS = [
   { id: "longform", short: "Long-form" }
 ];
 const WORK = [
+  { id: "leadership", cat: "clips", fmt: "v", kind: "Podcast clip", title: "Leadership coaching podcast",
+    dur: "00:25", fps: "00:00:25:07",
+    desc: "Cut a 25-second vertical clip from a studio podcast: dead air removed, colour graded, eased zooms over the jump cuts, word-by-word captions and a quiet piano bed. Footage: \"When Leaders Become the Bottleneck\", Shed Talk Podcast with Kevin Halliday (youtube.com/watch?v=bbHHD4GA6hs), CC BY, re-edited by me." },
   { id: "podcast", cat: "clips", fmt: "v", kind: "Podcast clip", title: "Two-host podcast",
     dur: "00:30", fps: "00:00:30:02",
     desc: "Cut a 30-second vertical clip from a two-host podcast, with a headline and on-screen notes." },
