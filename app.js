@@ -11,6 +11,9 @@ const CATS = [
   { id: "longform", short: "Long-form" }
 ];
 const WORK = [
+  { id: "ugc-hook-a", cat: "clips", fmt: "v", kind: "UGC ad", title: "UGC shoe ad",
+    dur: "00:27", fps: "00:00:27:09",
+    desc: "A UGC-style shoe ad built from stock b-roll and a voiceover: hook-first cut, word-by-word captions in the safe zone, product headline cards. I cut extra hook variants from the same footage for ad testing." },
   { id: "leadership", cat: "clips", fmt: "v", kind: "Podcast clip", title: "Leadership coaching podcast",
     dur: "00:25", fps: "00:00:25:07",
     desc: "Cut a 25-second vertical clip from a studio podcast." },
