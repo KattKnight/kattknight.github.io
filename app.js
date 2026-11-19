@@ -249,10 +249,6 @@ function syncVideos() {
   });
 }
 
-// Package tabs: Short-form | Long-form (same stacked, swiping panels as Work)
-const priceTabs = document.getElementById("priceTabs");
-function showPriceTab(t, focus) { switchPanel(priceTabs, t, focus); }
-
 /* Phones: rows that scroll sideways (work cards, before/after slots, package boxes) get a see-through arrow in
    the pixel font on each side that still has more to see. Tapping it scrolls the row all the way to that end.
    The arrows sit in the row's container (not the row, so they don't scroll away) and only show below 760px. */
@@ -313,12 +309,6 @@ rowPhone.addEventListener("change", updateChevs);
 addEventListener("resize", () => { clearTimeout(updateChevs.t); updateChevs.t = setTimeout(updateChevs, 120); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateChevs);
 updateChevs();
-priceTabs.addEventListener("click", e => { const t = e.target.closest(".tab"); if (t) showPriceTab(t); });
-priceTabs.addEventListener("keydown", e => {
-  const tabs = [...priceTabs.querySelectorAll(".tab")], i = tabs.indexOf(document.activeElement);
-  if (i < 0 || !["ArrowRight", "ArrowLeft"].includes(e.key)) return;
-  e.preventDefault(); showPriceTab(tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length], true);
-});
 
 // FAQ on phones: questions only, an answer opens on tap (styles.css hides the answers below 760px).
 // On wider screens every answer is open and the questions are plain text.
@@ -493,7 +483,7 @@ const AMOUNTS = {
     { v: "Try: 3 clips for $39", label: "3 clips", sub: "Try · $39", skip: ["budget"] },
     { v: "Clips Monthly: 12 clips a month for $99", label: "12 clips a month", sub: "Monthly · $99", skip: ["budget"] },
     { v: "Daily: 30 clips a month for $219", label: "30 clips a month", sub: "Daily · $219", skip: ["budget"] },
-    { v: "Agency: white-label from $8 a clip or $79 a video", label: "White-label work for my clients", sub: "Agency · from $8 a clip", skip: ["budget"] },
+    { v: "Agency: white-label, quoted", label: "White-label work for my clients", sub: "Agency · quoted", skip: ["budget"] },
     { v: "Not sure yet", label: "Not sure yet" }
   ] },
   longform: { title: "How many videos?", opts: [
@@ -519,7 +509,7 @@ const LINES = {
   longform: ["Long-form", "video"], clips: ["Short", "clips"], motion: ["Motion", "graphics"], ads: ["Demo", "or ad"], other: ["Something", "else"],
   "1 free sample clip": ["Free", "sample first"], "Try: 3 clips for $39": ["3", "clips"],
   "Clips Monthly: 12 clips a month for $99": ["12 clips", "a month"], "Daily: 30 clips a month for $219": ["30 clips", "a month"],
-  "Agency: white-label from $8 a clip or $79 a video": ["White-label", "for clients"],
+  "Agency: white-label, quoted": ["White-label", "for clients"],
   "1 free sample edit": ["Free", "sample first"], "Single: 1 video for $99": ["1", "video"],
   "Long-form Monthly: 4 videos + 8 clips a month for $349": ["4 videos", "+ 8 clips"],
   "Channel: 8 videos + 16 clips + 8 thumbnails a month for $699": ["8 videos", "+ 16 clips"],

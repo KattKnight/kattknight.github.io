@@ -24,7 +24,7 @@ Not used: gradients, glass blur, drop shadows, emoji, stock photos, centred sect
 | `--cut-ink` | #1A1400 | Text on yellow |
 | `--bad` / `--ok` | #FF7A66 / #5BD08A | Errors / sent |
 
-Timeline colours ("Earth"): each type of work has its own clip colour, like labels on an editing timeline. `--c-motion` #E3956C terracotta, `--c-clips` #ACB977 olive, `--c-ads` #86B0D5 faded denim, `--c-longform` #FFC21A Cut Yellow. Tag an element with `data-cat="motion|clips|ads|longform"` and it gets `--cat`. They appear only on the work and price tabs (dot and underline), a card's kind label, its video tag stripe and the line under its thumbnail. Never on buttons, headings or sentences.
+Timeline colours ("Earth"): each type of work has its own clip colour, like labels on an editing timeline. `--c-motion` #E3956C terracotta, `--c-clips` #ACB977 olive, `--c-ads` #86B0D5 faded denim, `--c-longform` #FFC21A Cut Yellow. Tag an element with `data-cat="motion|clips|ads|longform"` and it gets `--cat`. They appear only on the work tabs (dot and underline), a card's kind label, its video tag stripe and the line under its thumbnail. Never on buttons, headings or sentences.
 
 One yellow button per screen height. Dark only.
 
@@ -48,26 +48,26 @@ Two text levels: `--fg` for everything people read, `--mute` for notes. Never mi
 
 ## Copy
 
-- Headings are one or two words: Work, Packages, FAQ, Order.
+- Headings are one or two words: Work, Pricing, FAQ, Order.
 - No description under a heading unless it adds a fact.
 - Card titles name the piece in a few words. No paragraph under them.
 - First person, short sentences, plain words.
 
 ## Page order
 
-Header → first screen (headline, text and buttons left, reel right; stacked below 1000px; everything visible without scrolling) → Work (tabs: Motion, Short-form, Ads & demos, Long-form; one at a time) → Packages (tabs: Short-form | Long-form, three boxes each, both panels one height so switching never moves the page; on phones the top tier stacks first, then Recommended, then the cheap one) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
+Header → first screen (headline, text and buttons left, reel right; stacked below 1000px; everything visible without scrolling) → Work (tabs: Motion, Short-form, Ads & demos, Long-form; one at a time) → Pricing (one row of four boxes, no tabs: Short-form clips, Long-form edits and Ad variants show "from" prices, Agencies and brands is quoted; no per-clip maths, rush or change-round fees; Motion graphics and Trailers and ads are quote links underneath; on phones the boxes swipe in that order) → FAQ → Order → footer. Add a proof strip under the hero once a client agrees in writing.
 
 ## Components
 
-Button (primary, secondary, quiet) · Tabs · FAQ grid · BeforeAfter (Long-form: one player, Before | After switch, same timestamp; empty slots in one short row) · WorkCard and empty slot · PriceBox and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.
+Button (primary, secondary, quiet) · Tabs · FAQ grid · BeforeAfter (Long-form: one player, Before | After switch, same timestamp; empty slots in one short row) · WorkCard and empty slot · PriceBox (four, "from" price or Quoted) and quote list · OrderQuestion (one question per screen, contact details last) · Wordmark. Previews and props are in the app.
 
 ## Phones (below 760px)
 
-Shorter page, same content: work cards and package boxes sit in swipeable rows (Recommended first, the next box peeking in), FAQ answers open on tap, the hero note and the three-step list are dropped (the bottom bar and the form say the same), and the order form comes before the other ways to get in touch. Every sideways row shows a tall pixel-art arrow (13 art pixels high, no box) on each side that still has more to see, inverting whatever is behind it so it shows on any card; tapping it glides the row to that end: ease-in, then an ease-out 20% shorter, meeting at the same speed (about 0.42-0.9s by distance). Answer tiles on touch screens show their letter small in the top-right corner (on desktop it sits top-left and works as a keyboard shortcut).
+Shorter page, same content: work cards and price boxes sit in swipeable rows (the next box peeking in), FAQ answers open on tap, the hero note and the three-step list are dropped (the bottom bar and the form say the same), and the order form comes before the other ways to get in touch. Every sideways row shows a tall pixel-art arrow (13 art pixels high, no box) on each side that still has more to see, inverting whatever is behind it so it shows on any card; tapping it glides the row to that end: ease-in, then an ease-out 20% shorter, meeting at the same speed (about 0.42-0.9s by distance). Answer tiles on touch screens show their letter small in the top-right corner (on desktop it sits top-left and works as a keyboard shortcut).
 
 ## Tabs
 
-Work and Packages tabs keep one height: every panel of a set sits in the same grid cell (`.panel-stack`), the hidden ones invisible and inert, so switching never moves the page. Switching morphs the cards: each frame stays in place and reshapes into the matching card of the new tab (extras grow out of, or shrink into, the last frame), while only the pictures and text inside slide: out on the side away from the new tab, in from the other side (0.15s out, 0.26s in, frames 0.34s). Previews in hidden tabs are paused. Reduced motion switches instantly.
+Work tabs keep one height: every panel of a set sits in the same grid cell (`.panel-stack`), the hidden ones invisible and inert, so switching never moves the page. Switching morphs the cards: each frame stays in place and reshapes into the matching card of the new tab (extras grow out of, or shrink into, the last frame), while only the pictures and text inside slide: out on the side away from the new tab, in from the other side (0.15s out, 0.26s in, frames 0.34s). Previews in hidden tabs are paused. Reduced motion switches instantly.
 
 ## Header
 

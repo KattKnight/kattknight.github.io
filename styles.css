@@ -230,14 +230,15 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .ba-seg button[disabled] { cursor: not-allowed; opacity: .5; }
 
 /* Price boxes */
-.prices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-5); }
-@media (max-width: 900px) { .prices { grid-template-columns: 1fr; } }
+.prices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-5); }
+@media (max-width: 1000px) { .prices { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .price { display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-6) var(--s-6) var(--s-6); border-radius: var(--r); border: 1px solid var(--line); min-width: 0; }
 .price.lead { background: var(--ink-2); border-color: var(--cut); }
 .price .name { font: 600 16px/1.2 var(--body); display: flex; justify-content: space-between; align-items: center; gap: var(--s-2); }
 .price .badge { font: 600 12px/1 var(--body); color: var(--cut-ink); background: var(--cut); padding: 6px 10px; border-radius: var(--r-pill); }
-.price .amt { font: 400 48px/1 var(--display); }
-.price .amt small { font: 400 16px/1 var(--pixel); color: var(--mute); margin-left: var(--s-2); }
+.price .amt { font: 400 48px/1 var(--display); display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+.price .amt small { font: 400 16px/1 var(--pixel); color: var(--mute); }
+.price .amt-text { font-size: 34px; }
 .price .per { margin-top: calc(var(--s-2) * -1); font: var(--t-small); color: var(--mute); }
 .price.lead .per { color: var(--cut); }
 .price .what { font-size: 15px; }
@@ -260,20 +261,19 @@ nav.links a:not(.btn):hover { text-decoration: underline; text-decoration-color:
 .morph-shell { position: absolute; box-sizing: border-box; border-style: solid; }
 :is(.morph-in, .morph-out) :is(.thumb, .price, .ba-frame) { background-color: transparent !important; border-color: transparent !important; }
 :is(.morph-in, .morph-out) .thumb::after { box-shadow: none !important; }
-/* Phones and tablets: most expensive first, then the recommended plan, then the cheap one */
-@media (max-width: 900px) { .prices .price.top { order: -2; } .prices .price.lead { order: -1; } }
 /* Phones: tighter boxes so the three plans take less scrolling */
 @media (max-width: 560px) {
   .price { padding: var(--s-5); gap: var(--s-3); }
   .price .amt { font-size: 42px; }
+  .price .amt-text { font-size: 38px; }
   .price ul { gap: var(--s-2); padding-top: var(--s-3); }
   .price .btn { margin-top: var(--s-2); }
 }
 
 /* Quoted-per-project list under the price boxes */
 /* One row per item count: 3 items sit in 3 columns, so no cell is left empty */
-.quote-list { list-style: none; margin: var(--s-6) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--s-6); border-bottom: 1px solid var(--line); }
-@media (max-width: 900px) { .quote-list { grid-template-columns: 1fr; } }
+.quote-list { list-style: none; margin: var(--s-6) 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-6); border-bottom: 1px solid var(--line); }
+@media (max-width: 760px) { .quote-list { grid-template-columns: 1fr; } }
 .quote-list li { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); min-height: 56px; border-top: 1px solid var(--line); }
 .quote-list .btn { flex: none; color: var(--fg); }
 
@@ -466,12 +466,11 @@ footer a { text-underline-offset: 3px; }
   .tabs { gap: var(--s-3); }
   .tab { font-size: 15px; }
   /* Packages: the three boxes sit side by side and swipe; the recommended one comes first, the next peeks in */
-  .prices { display: grid; grid-template-columns: repeat(3, min(82vw, 320px));
+  .prices { display: grid; grid-template-columns: repeat(4, min(82vw, 320px));
     overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: var(--s-3);
     margin-inline: calc(var(--gutter) * -1); padding: 0 var(--gutter) var(--s-2); scroll-padding-inline: var(--gutter); align-items: stretch; }
   .prices::-webkit-scrollbar { display: none; }
   .prices .price { scroll-snap-align: start; }
-  .prices .price.lead { grid-area: 1 / 1; } .prices .price.top { grid-area: 1 / 2; } .prices .price:not(.lead):not(.top) { grid-area: 1 / 3; }
   .prices .price-note { grid-area: 2 / 1; position: sticky; left: 0; width: calc(100vw - var(--gutter) * 2); }
   /* Arrows on rows that scroll sideways (app.js): see-through, pixel font, only on the side with more to see */
   .row-chev { position: absolute; z-index: 3; width: 40px; height: 72px; margin-top: -36px; padding: 0; border: 0; background: none;
